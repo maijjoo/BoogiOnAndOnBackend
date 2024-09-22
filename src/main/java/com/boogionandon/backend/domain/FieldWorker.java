@@ -7,11 +7,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @DiscriminatorValue("FIELD_WORKER")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class FieldWorker extends Member {
   // 청소자 특정 필드
 

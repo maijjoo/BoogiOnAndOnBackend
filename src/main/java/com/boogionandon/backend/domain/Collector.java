@@ -6,11 +6,17 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @DiscriminatorValue("COLLECTOR")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class Collector extends Member {
   // 수거자 특정 필드
 

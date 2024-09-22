@@ -2,11 +2,17 @@ package com.boogionandon.backend.domain;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @DiscriminatorValue("ADMIN")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class Admin extends Member{
   // 수거자 특정 필드
 
