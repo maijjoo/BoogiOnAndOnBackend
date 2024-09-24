@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 //@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name="member_type")
+@DiscriminatorColumn(name="d_type")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
