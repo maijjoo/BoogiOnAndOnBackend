@@ -15,7 +15,7 @@ public class RegularMember extends Member{
   private String contact; // 근무처 연락처
 
   @Column(length = 100)
-  private String group; // 소속
+  private String workGroup; // 소속
 
   @Column(length = 100)
   private String workAddress; //// 소속 주소
