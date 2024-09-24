@@ -2,10 +2,12 @@ package com.boogionandon.backend.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -18,18 +20,26 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CollectionReport extends BaseEntity{
+public class Collect extends BaseEntity{
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne
-  @JoinColumn(name = "assignment_id", unique = true, nullable = false)
-  private CollectionAssignment assignment;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "clean_id", unique = true, nullable = false)
+  private Clean clean; // 조사된 리포트를 바탕으로 진행하기 위해 연결
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "collector_id", nullable = false)
+  private RegularMember collector; // 수거자
 
   @Column(nullable = false)
-  private LocalDateTime collectionTime;
+  private LocalDateTime collectDateTime;
+
+//  @OneToOne
+//  @JoinColumn(name = "assignment_id", unique = true, nullable = false)
+//  private CollectionAssignment assignment;
 
   // 추가로 필요한 것이 있다면 추가
 
