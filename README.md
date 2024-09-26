@@ -20,15 +20,16 @@
 
 1. Docker 이미지 pull:
    ```
-   docker pull dan556/boogi-mysql:v1
+   docker pull dan556/boogi-mysql:multiarch
    ```
 
 2. Docker 컨테이너 실행:
    ```
    docker run -d \
-     --name mysql-boogiOnAndOn \
+     --name boogi-mysql \
+     -e MYSQL_ROOT_PASSWORD=[임의로 만들어 주세요] \
      -p 33061:3306 \
-     dan556/boogi-mysql:v1
+     dan556/boogi-mysql:multiarch
    ```
 
 3. 컨테이너 상태 확인:
@@ -36,11 +37,11 @@
    docker ps
    ```
 
-4. MySQL 접속 (선택사항):
+4. MySQL 접속 (선택사항 - 확인을 위해):
    ```
-   mysql -h 127.0.0.1 -P 33061 -u boogiOnAndOn -p
+   mysql -u boogiOnAndOn -p
    ```
-   비밀번호 입력 요청 시 설정한 비밀번호를 입력하세요.
+   비밀번호 입력 요청 시 아이디와 동일하게 비밀번호를 입력하세요.
 
 ### 애플리케이션 설정
 
