@@ -47,7 +47,7 @@
 
 1. 프로젝트 클론:
    ```
-   git clone [your-repository-url]
+   git clone [your-repository-url (Fork 해서 가져간]
    cd boogiOnAndOn
    ```
 
@@ -78,14 +78,17 @@
 데이터베이스 스키마나 초기 데이터를 변경해야 할 경우:
 1. 컨테이너에서 필요한 변경 작업을 수행합니다.
 2. 새 버전의 이미지를 생성합니다:
+  - 이때 init.sql을 넣어서 보내기 위해 Dockerfile을 같이 빌드하기 위해 (이미지에 넣기 위해)
+  - cd ~/[두 파일이 같이 있는 폴더] 에 들어가 아래 스크립트를 실행합니다.
+  - 뒤의 .은 현재 폴더라는 의미 (Dockerfile을 집어넣기 위해 필요)
    ```
-   docker commit mysql-boogiOnAndOn dan556/boogi-mysql:v2
+   docker build -t dan556/boogi-mysql:latest .
    ```
-3. 새 이미지를 Docker Hub에 푸시합니다:
+4. 위의 행동을 통해 만들어진 새 이미지를 Docker Hub에 푸시합니다:
    ```
-   docker push dan556/boogi-mysql:v2
+   docker push dan556/boogi-mysql:latest
    ```
-4. README를 업데이트하고 팀원들에게 새 버전 사용을 안내합니다.
+5. README를 업데이트하고 팀원들에게 새 버전 사용을 안내합니다.
 
 ## 기여 방법
 [프로젝트에 기여하는 방법에 대한 간단한 가이드라인을 추가하세요]
