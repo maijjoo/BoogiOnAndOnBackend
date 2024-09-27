@@ -2,5 +2,6 @@ package com.boogionandon.backend.domain.enums;
 
 public enum MemberType {
   ADMIN, // 관리자
-  WORKER // 관리자 아닌 나머지
+  FIELD_WORKER, // 조사자, 청소자
+  COLLECTOR// 수거자
 }
