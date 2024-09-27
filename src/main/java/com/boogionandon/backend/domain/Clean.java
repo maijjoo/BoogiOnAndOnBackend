@@ -62,6 +62,9 @@ public class Clean extends BaseEntity {
   private LocalDateTime cleanDateTime;
 
   // 위도,경도는 자동 사진 찍을때? 폼을 전송할때?
+  // 사진으로 하는 경우 여러개를 받아서 평균위도를 구해야 하니 List<Double> 같이 만들어야 할듯
+  // 그런데 만약 다른 사람이 찍은 사진을 받아서 사용한다고 하면 위, 경도 정보가 안들어 있을 수 있음
+  // TODO : 결정내고 바꾸기
   @Column(nullable = false)
   private Double cleanLatitude;  // 청소위치 위도
   @Column(nullable = false)
@@ -73,6 +76,7 @@ public class Clean extends BaseEntity {
   private TrashType mainTrashType; // 주요 쓰레기 타입
 
   // 위도,경도는 자동 사진 찍을때? 폼을 전송할때?
+  // 여기는 집하장소가 1개일 것이기 때문에 아래처럼 해도 될듯
   @Column(nullable = false)
   private Double pickupLatitude;  // 집하장소 위치 위도
   @Column(nullable = false)
@@ -100,5 +104,7 @@ public class Clean extends BaseEntity {
 
   @Column(nullable = false)
   private LocalDateTime cleaningTime;
+
+  // 여러사람이 들어갈 수 있음
 
 }

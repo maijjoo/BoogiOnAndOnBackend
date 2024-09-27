@@ -36,10 +36,15 @@ public class Research extends BaseEntity{
   @JoinColumn(name = "researcher_id", nullable = false)
   private RegularMember researcher; // 조사자
 
+  // TODO : 담당자가 해변 이름에 관련된 데이터를 보내주거나, 공공데이터로 사용되는게 있다면
+  // 가져와서 enum으로 만들어서 넣을 생각중
+  // 그런게 데이터로 있다면 만약 해운대1을 넣으면 그에 대한 m 라던지, 주소라던지
+  // 자동으로 들어가야 하지 않을까?
   @Column(length = 20, nullable = false)
   private String beachName;
 
   // 추가: 해안 길이 (m 단위)
+  // 위 필드와 동일??? // 아니면 임의로 적게 만들기
   @Column(nullable = false)
   private Double beachLength; // ex) 19.2m
 
@@ -54,6 +59,17 @@ public class Research extends BaseEntity{
   // 또는 여러 사진을 찍어서 올릴시 첫번째 사진을 기준으로 위도, 경도 자동 저장
   // 기준을 잡아야 할듯 첫번째 사진으로 위,경도를 저장할지, GPS로 폼을 올릴때 위치를 저장할지
   // 다른 곳에서도 공통적으로 쓰기 위해
+  //
+  // 또는 List<Double> 로 받는 위도 경도를 따로 받고
+  // 생성자에서 위에 걸로 받은 것을 아래 필드에 계산 해서 집어 넣기
+  // 그러면 수정에서 사진이 변경되어도 가능하지 않을까???
+  // TODO : 결정 필요
+  // 리액트에서 받는 필드
+  // 만약 5사진 중 3번째 사진이 빠지면 그에 맞는 List순서에 있는 이미지의 위,경도가 빠지게 해야함
+  //  private List<Double> imageLa;
+  //  private List<Double> imageLo;
+  //
+  // 생성자에서 위에서 받은 내용을 계산해서 집어넣는 필드??
   @Column(nullable = false)
   private Double latitude;  // 위도
   @Column(nullable = false)
