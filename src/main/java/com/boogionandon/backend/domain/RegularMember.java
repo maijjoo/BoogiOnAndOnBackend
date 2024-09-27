@@ -25,9 +25,7 @@ public class RegularMember extends Member{
 
   private int vehicleCapacity; // 차량정보(무게 ton)
 
-  @Column(nullable = false)
-  @Enumerated(EnumType.STRING)
-  private Role role;  //   FIELD_WORKER, COLLECTOR
+
 
   // 추가로 필요한 필드가 있다면 추가
 

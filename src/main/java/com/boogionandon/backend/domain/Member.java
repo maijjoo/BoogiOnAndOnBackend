@@ -30,11 +30,16 @@ public abstract class Member extends BaseEntity{
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  // 발제사 쪽에서 관리자가 만들어서 조사자, 청소자, 수거자에게 배포한다 했으니
+  // 이메일을 인증받고 할 이유가 없어져서 그냥 이메일 형식이 아닌 일반 username 사용 예정
   @Column(length = 40, unique = true, nullable = false)
-  private String email;
+  private String username;
 
   @Column(length = 70, nullable = false)
   private String password;
+
+  @Column(length = 40, unique = true, nullable = false)
+  private String email;
 
   @Column(length = 30, nullable = false)
   private String name;
@@ -48,11 +53,12 @@ public abstract class Member extends BaseEntity{
   @Column(length = 150)
   private String addressDetail;
 
-  // 관리자인지 아닌지 결정하는 필드
+  //  ADMIN, // 관리자
+  //  FIELD_WORKER, // 조사자, 청소자
+  //  COLLECTOR// 수거자
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private MemberType memberType;
-// 최상위로 이걸 두고 아래에 관리자와 관리자 아닌것들로 (아닌것들은 Role로 구분??)
+  private MemberType role;
 
 // 추가로 필요한 필드가 있다면 추가
 
