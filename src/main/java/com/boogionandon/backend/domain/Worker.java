@@ -1,15 +1,12 @@
 package com.boogionandon.backend.domain;
 
-import com.boogionandon.backend.domain.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 
 @Entity
-@DiscriminatorValue("REGULAR")
-public class RegularMember extends Member{
+@DiscriminatorValue("WORKER")
+public class Worker extends Member{
 
   @Column(length = 20, nullable = false)
   private String contact; // 근무처 연락처
@@ -24,6 +21,8 @@ public class RegularMember extends Member{
   private String workAddressDetail; // 소속 상세 주소
 
   private int vehicleCapacity; // 차량정보(무게 ton)
+
+
 
 
 
