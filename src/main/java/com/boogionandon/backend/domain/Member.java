@@ -53,12 +53,28 @@ public abstract class Member extends BaseEntity{
   @Column(length = 150)
   private String addressDetail;
 
+  //  SUPER_ADMIN, // 관리자를 만들 수 있는 관리자, ADMIN 권한도 넣어줘야함
   //  ADMIN, // 관리자
-  //  FIELD_WORKER, // 조사자, 청소자
-  //  COLLECTOR// 수거자
+  //  WORKER, // 조사자, 청소자, 수거자
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private MemberType role;
+
+  // TODO : 협의 필요
+  // Member나 Admin을 바로 넣으면 순환 참조 발생
+  // Member가 Admin에 의존하고, Admin이 다시 Member에 의존하는 구조
+  // 이를 해결하려면 ManagerId를 Member Entity에 추가하고, Admin Entity에 ManagerId를 Foreign Key로 설정
+  // 위의 경우 불러오기 위해쓸때는 생각을 좀 해보고 써야 할듯
+  // service에서 아래처럼 불러와야 할듯
+  // @Autowired
+  //    private AdminRepository adminRepository;
+  //  public Admin getManagerForMember(Member member) {
+  //        return adminRepository.findById(member.getManagerId());
+  //    }
+  // 아니면 다른 방법도 고려중
+  // 수퍼 관리자는 아마도 null 값일듯
+  @Column(name = "manager_id")
+  private Long managerId;
 
 // 추가로 필요한 필드가 있다면 추가
 
