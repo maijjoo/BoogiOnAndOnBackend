@@ -1,5 +1,9 @@
 package com.boogionandon.backend.config;
 
+import com.boogionandon.backend.security.filter.JWTCheckFilter;
+import com.boogionandon.backend.security.handler.APILoginFailHandler;
+import com.boogionandon.backend.security.handler.APILoginSuccessHandler;
+import com.boogionandon.backend.security.handler.CustomAccessDeniedHandler;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -7,9 +11,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -43,7 +49,31 @@ public class CustomSecurityConfig {
       httpSecurityCsrfConfigurer.disable();
     });
 
-    // 추가 필요!!!
+    // 로그인 설정, formLogin 이기 때문에 formData 형태로 와야함, Json 아님
+    http.formLogin(config -> {
+          config
+              .loginPage("/api/member/login");
+//              .failureUrl("/api/member/login?error=true");  // 필요할까?
+          config.successHandler(new APILoginSuccessHandler());
+          config.failureHandler(new APILoginFailHandler());
+        }
+    );
+
+    // 세션 관련 설정 (여기서는 Session을 안만들게 설정)
+    http.sessionManagement(httpSecuritySessionManagementConfigurer -> {
+      httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.NEVER);
+    });
+
+    // 실행전 JWT를 확인하는 설정, 로그인 말고도 다른걸 할때 체크하는지는 알아봐야함
+    // TODO : 좀더 어떤 역할을 하는지 알아볼 필요!!
+    http.addFilterBefore(new JWTCheckFilter(), UsernamePasswordAuthenticationFilter.class);
+
+    // 익셉션 발생시 행동 설정
+    http.exceptionHandling(config -> {
+      config.accessDeniedHandler(new CustomAccessDeniedHandler());
+    });
+
+    // 필요한거 있으면 추가 필요!!!
 
     return http.build();
   }
@@ -59,7 +89,7 @@ public class CustomSecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-// 모든 출처 허용
+    // TODO : 모든 출처 허용 -> 나중에 마지막에 바꾸어야 할듯
     configuration.setAllowedOriginPatterns(Arrays.asList("*"));
 
     // GET, POST, PUT, DELETE, HEAD, OPTIONS 메소드 허용

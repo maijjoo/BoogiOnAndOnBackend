@@ -3,9 +3,19 @@ package com.boogionandon.backend.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @DiscriminatorValue("ADMIN")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@ToString(callSuper = true)
 public class Admin extends Member{
 
   @Column(length = 40, nullable = false)
@@ -18,9 +28,9 @@ public class Admin extends Member{
   private String position; // 직급
 
   @Column(length = 50, nullable = false)
-  private String assignmentArea; // 담당지역
+  private String assignmentArea; // 담당지역  // 담당 지역이 여러개일 수도 있나? 여러개면 enum 쓰는게 나을듯
 
-  @Column(length = 20, nullable = false)
+  @Column(length = 20, unique = true, nullable = false)
   private String contact; // 근무처 연락처
 
   // 추가로 필요한 필드가 있다면 추가

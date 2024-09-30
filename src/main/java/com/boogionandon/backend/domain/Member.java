@@ -3,17 +3,24 @@ package com.boogionandon.backend.domain;
 import com.boogionandon.backend.domain.enums.MemberType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -24,6 +31,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
+@ToString(exclude = {"password", "memberRoleList"})
 public abstract class Member extends BaseEntity{
 
   @Id
@@ -44,7 +52,7 @@ public abstract class Member extends BaseEntity{
   @Column(length = 30, nullable = false)
   private String name;
 
-  @Column(length = 20, nullable = false)
+  @Column(length = 20, unique = true, nullable = false)
   private String phone;
 
   @Column(length = 100)
@@ -56,9 +64,11 @@ public abstract class Member extends BaseEntity{
   //  SUPER_ADMIN, // 관리자를 만들 수 있는 관리자, ADMIN 권한도 넣어줘야함
   //  ADMIN, // 관리자
   //  WORKER, // 조사자, 청소자, 수거자
+  @ElementCollection(fetch = FetchType.LAZY)
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private MemberType role;
+  @Builder.Default
+  private List<MemberType> memberRoleList = new ArrayList<>();
 
   // TODO : 협의 필요
   // Member나 Admin을 바로 넣으면 순환 참조 발생
@@ -78,6 +88,11 @@ public abstract class Member extends BaseEntity{
 
 // 추가로 필요한 필드가 있다면 추가
 
+  @Builder.Default
   private boolean delFlag = false;
+
+  public void changeDelFlag(boolean delFlag) {
+    this.delFlag = delFlag;
+  }
 }
 
