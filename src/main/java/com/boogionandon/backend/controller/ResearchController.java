@@ -76,7 +76,7 @@ public class ResearchController {
 
     log.info("mainDTO : " + mainRequestDTO);
 
-    List<String> uploadedFileNames = fileUtil.saveFiles(files);
+    List<String> uploadedFileNames = fileUtil.saveFiles(files, "R_");
     mainRequestDTO.setUploadedFileNames(uploadedFileNames);
 
     log.info("mainDTO.uploadedFileNames" + mainRequestDTO.getUploadedFileNames());

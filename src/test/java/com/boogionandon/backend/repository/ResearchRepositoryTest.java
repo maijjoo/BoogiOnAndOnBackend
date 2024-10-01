@@ -8,6 +8,7 @@ import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.util.DistanceCalculator;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -60,7 +61,6 @@ class ResearchRepositoryTest {
     ResearchMain researchMain = ResearchMain.builder()
         .researcher(researcher)
         .beach(findBeach)
-        .beachLength(30.2)  // m
         .expectedTrashAmount(150) // L
         .reportTime(LocalDateTime.now()) // 리포트 작성 시간
         // 이미지는 여기선 일단 패스
@@ -72,6 +72,8 @@ class ResearchRepositoryTest {
     log.info("researchMain : " + researchMain);
 
     ResearchMain savedResearchMain = researchMainRepository.save(researchMain);
+
+    Double totalBeachLength = 0.0;
 
     for (int i = 1; i <= 4; i++) {
       ResearchSub researchSub = ResearchSub.builder()
@@ -87,10 +89,17 @@ class ResearchRepositoryTest {
           .researchLength(11.3)
           .build();
 
+      totalBeachLength += DistanceCalculator.calculateDistance(
+          researchSub.getStartLatitude(), researchSub.getStartLongitude(),
+          researchSub.getEndLatitude(), researchSub.getEndLongitude()
+      );
+
       ResearchSub savedResearchSub = researchSubRepository.save(researchSub);
 
       savedResearchMain.getResearchSubList().add(savedResearchSub);
     }
+
+    savedResearchMain.setTotalResearch(totalBeachLength);
   }
 
   @Test

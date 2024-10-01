@@ -1,8 +1,6 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Beach;
-import com.boogionandon.backend.domain.Image;
-import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
@@ -12,11 +10,8 @@ import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.ResearchMainRepository;
-import com.boogionandon.backend.repository.ResearchSubRepository;
-import com.boogionandon.backend.repository.WorkerRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +31,6 @@ public class ResearchLocalServiceImpl implements ResearchService{
   private final BeachRepository beachRepository;
   private final MemberRepository memberRepository;
   private final ResearchMainRepository researchMainRepository;
-  private final ResearchSubRepository researchSubRepository;
 
   @Override
   public void insertResearch(ResearchMainRequestDTO mainDTO) {
@@ -49,6 +43,17 @@ public class ResearchLocalServiceImpl implements ResearchService{
     //  private List<ResearchSub> researchSubList = new ArrayList<>();
     // 이기 때문에 안에 들어 있는 sub가 자동으로 들어갈 것이라고 생각중
     ResearchMain researchMain = createResearchMainFromDTO(mainDTO);
+
+    // sub의 List들에서 각각 beachLength를 가져와서 total에 더해주는 작업
+    List<ResearchSub> researchSubList = researchMain.getResearchSubList();
+    Double totalBeachLength = 0.0;
+    for(ResearchSub researchSub : researchSubList) {
+      totalBeachLength += researchSub.getResearchLength();
+    }
+    log.info("TotalBeachLength: " + totalBeachLength);
+
+    researchMain.setTotalResearch(totalBeachLength);
+
     researchMainRepository.save(researchMain);
   }
 
@@ -61,7 +66,7 @@ public class ResearchLocalServiceImpl implements ResearchService{
     ResearchMain researchMain = ResearchMain.builder()
         .researcher(researcher)
         .beach(beach)
-        .beachLength(mainDTO.getBeachLength())
+        .totalBeachLength(mainDTO.getTotalBeachLength())
         .expectedTrashAmount(mainDTO.getExpectedTrashAmount())
         .reportTime(LocalDateTime.now())
         .weather(mainDTO.getWeather())

@@ -30,7 +30,6 @@ class ResearchLocalServiceImplTest {
     ResearchMainRequestDTO mainDTO = ResearchMainRequestDTO.builder()
         .researcherUsername("W_testWorker")
         .beachName("해운대해수욕장")
-        .beachLength(18.2)
         .expectedTrashAmount(180)
         .weather("소나기") // 당일 날씨
         .specialNote("태풍")  // 쓰레기가 영향을 받았을 것 같은 이상기후

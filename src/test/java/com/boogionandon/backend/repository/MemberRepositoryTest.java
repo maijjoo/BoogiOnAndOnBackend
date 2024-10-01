@@ -90,9 +90,9 @@ class MemberRepositoryTest {
   void createWorkerTest() {
 
     Worker worker = Worker.builder()
-        .username("W_testWorker")
+        .username("W_testWorker1")
         .password(passwordEncoder.encode("0000"))
-        .email("test@worker.com")
+        .email("test1@worker.com")
         .name("이석현")
         .phone("010-1111-2222")
         .address("부산 광역시 수영구")

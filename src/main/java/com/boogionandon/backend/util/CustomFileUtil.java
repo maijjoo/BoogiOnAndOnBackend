@@ -40,7 +40,7 @@ public class CustomFileUtil {
   }
 
   // 파일 업로드용
-  public List<String> saveFiles(List<MultipartFile> files) throws RuntimeException {
+  public List<String> saveFiles(List<MultipartFile> files, String prefix) throws RuntimeException {
 
     if(files == null || files.size() == 0) {
       return null;
@@ -49,7 +49,7 @@ public class CustomFileUtil {
     List<String> uploadNames = new ArrayList<>();
     for (MultipartFile file : files) {
 
-      String savedName = "R_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+      String savedName = prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
           +"_" + file.getOriginalFilename();
 
       Path savePath = Paths.get(uploadPath, savedName);

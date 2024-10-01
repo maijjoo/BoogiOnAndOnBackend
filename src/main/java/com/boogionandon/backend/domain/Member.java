@@ -41,7 +41,7 @@ public abstract class Member extends BaseEntity{
   // 발제사 쪽에서 관리자가 만들어서 조사자, 청소자, 수거자에게 배포한다 했으니
   // 이메일을 인증받고 할 이유가 없어져서 그냥 이메일 형식이 아닌 일반 username 사용 예정
   @Column(length = 40, unique = true, nullable = false)
-  private String username;
+  private String username; // 아이디
 
   @Column(length = 70, nullable = false)
   private String password;
