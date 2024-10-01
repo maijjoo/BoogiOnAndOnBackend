@@ -156,4 +156,5 @@ gradle-app.setting
 *.hprof
 
 # upload 폴더 제외
-/backend/upload/
+/backend/upload/*
+!/backend/upload/default.jpg

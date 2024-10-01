@@ -28,7 +28,7 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"researcher", "subResearchList"})
+@ToString(exclude = {"researcher", "researchSubList"})
 public class ResearchMain extends BaseEntity{
 
   // 우리는 이제 조사 보고서랑 청소보고서랑 연결이 안되는 쪽으로 잡음
@@ -60,7 +60,7 @@ public class ResearchMain extends BaseEntity{
   // 추가: 해안 길이 (m 단위)
   // 위 필드와 동일??? // 아니면 임의로 적게 만들기
   @Column(nullable = false)
-  private Double beachLength; // ex) 19.2m
+  private Double totalBeachLength; // ex) 서브에서 구한 길이들의 총합
 
   // 추가: 예상 쓰레기 수거량 (L 단위)
   @Column(nullable = false)
@@ -106,7 +106,6 @@ public class ResearchMain extends BaseEntity{
     Image image = Image.builder()
         .fileName(fileName)
         .build();
-
     addImage(image);
   }
 
@@ -116,5 +115,9 @@ public class ResearchMain extends BaseEntity{
     // 아래 코드는 sub의 ResearchMain research에 넣는것
     // 그래서 sub에서는 따로 더 넣을 필요 없음
     researchSub.setResearch(this);
+  }
+
+  public void setTotalResearch(Double totalBeachLength) {
+    this.totalBeachLength = totalBeachLength;
   }
 }

@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,12 +20,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"images"})
 public class Clean extends BaseEntity {
 
   @Id
@@ -34,19 +37,14 @@ public class Clean extends BaseEntity {
 
   // 그런데 보통 단체로 가서 하지 않나??
   // 이건 대표자라 하고 참가한 사람들의 이름을 넣어주는 List가 있어야 할까?
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "cleaner_id", nullable = false)
   private Worker cleaner; // 청소자, 청소를 하고 이 보고서를 올린 로그인 자
 
 
-  // 해안명과 길이는 조사된 걸 바탕으로 할 테니 조사 리포트에서 가져오면 (자동저장)시키면 안된나?
-  @Column(length = 20, nullable = false)
-  private String beachName;
-
-  // 추가: 해안 길이 (m 단위)
-  // TODO : 이걸 어떻게 넣을지 논의 필요
-  @Column(nullable = false)
-  private Double beachLength; // ex) 19.2m
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "beach_id", nullable = false)
+  private Beach beach; // 해안
 
   @Column(nullable = false)
   private Integer realTrashAmount; // 실제 쓰레기 양 (ex - 50L쓰레기 봉투를 기준으로 갯수로 계산 예정)
@@ -61,9 +59,19 @@ public class Clean extends BaseEntity {
   // 그런데 만약 다른 사람이 찍은 사진을 받아서 사용한다고 하면 위, 경도 정보가 안들어 있을 수 있음
   // TODO : 결정내고 바꾸기
   @Column(nullable = false)
-  private Double latitude;  // 청소위치 위도
+  private Double startLatitude;  //  청소 시작 위치 위도
   @Column(nullable = false)
-  private Double longitude; // 청소위치 경도
+  private Double startLongitude; // 청소 시작 위치 경도
+
+  @Column(nullable = false)
+  private Double endLatitude;  //  청소 끝 위치 위도
+  @Column(nullable = false)
+  private Double endLongitude; // 청소 끝 위치 경도
+
+  // 추가: 해안 길이 (m 단위)
+  // service 엔티티로 바꿀때 에서 위경도 값을 계산해서 넣기
+  @Column(nullable = false)
+  private Double beachLength; // ex) 19.2m
 
   // 주요 쓰레기는 조사내용과 일치하는지 파악하기 위해 필요한 것으로 생각
   @Enumerated(EnumType.STRING)
@@ -84,9 +92,19 @@ public class Clean extends BaseEntity {
 
   // 아래는 추가로 필요할것 같은 필드들
 
-  @Column(nullable = false)
-  private LocalDateTime cleaningTime;
-
   // 여러사람이 들어갈 수 있음
+
+  public void addImageString(String fileName) {
+    Image image = Image.builder()
+        .fileName(fileName)
+        .build();
+
+    addImage(image);
+  }
+
+  private void addImage(Image image) {
+    image.setOrd(images.size());
+    images.add(image);
+  }
 
 }
