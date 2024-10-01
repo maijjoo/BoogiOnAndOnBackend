@@ -44,7 +44,7 @@ public class Image {
 
 
 
-  private String imageUrl;
+  private String fileName;
 
   //  ord는 이미지의 순서를 관리하는 필드
   private Integer ord;

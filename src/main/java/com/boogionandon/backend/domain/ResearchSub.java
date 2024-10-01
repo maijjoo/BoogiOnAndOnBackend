@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,19 +15,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"research", "mainTrashType"})
 public class ResearchSub extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "research_main_id", nullable = false)
   private ResearchMain research;
 
@@ -50,6 +53,7 @@ public class ResearchSub extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private TrashType mainTrashType; // 주요 쓰레기 타입
+  // 이거 어차피 리액트에서 고정시켜서 넘어오는데 enum으로 필요한가?
 
 
   // ------------------------------- 아래는 고민중
@@ -58,4 +62,7 @@ public class ResearchSub extends BaseEntity {
   // TODO : dto로 변환할때 거기서 계산해서 넣는걸로 만들어도 되지 않을까?
   private Double researchLength;
 
+  public void setResearch(ResearchMain researchMain) {
+    this.research = researchMain;
+  }
 }

@@ -3,6 +3,7 @@ package com.boogionandon.backend.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,10 +34,12 @@ public class Worker extends Member{
   @Column
   private int vehicleCapacity; // 차량정보(무게 ton)
 
-
-
-
-
   // 추가로 필요한 필드가 있다면 추가
+
+  @Column
+  private LocalDate startDate; // 관리자가 등록해주는 할 수 있는 일자 (시작)
+
+  @Column
+  private LocalDate endDate; // 관리자가 등록해주는 할 수 있는 일자 (종료)
 
 }

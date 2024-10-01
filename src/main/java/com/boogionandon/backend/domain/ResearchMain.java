@@ -1,6 +1,7 @@
 package com.boogionandon.backend.domain;
 
 import com.boogionandon.backend.domain.enums.ReportStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -20,12 +21,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"researcher", "subResearchList"})
 public class ResearchMain extends BaseEntity{
 
   // 우리는 이제 조사 보고서랑 청소보고서랑 연결이 안되는 쪽으로 잡음
@@ -40,16 +43,19 @@ public class ResearchMain extends BaseEntity{
   @JoinColumn(name = "researcher_id", nullable = false)
   private Worker researcher; // 조사자
 
-  // 해변이름은 조사자가 임의로 넣습니다.
-  // 이 이름은 보고서의 타이틀에서 이용된 해변이름입니다. 타이틀에서 뒤에 + 바닷가 해줄 예정
-  // ex) 해운대
-  @Column(length = 20, nullable = false)
-  private String beachName;
+//  // 해변이름은 조사자가 임의로 넣습니다.
+//  // 이 이름은 보고서의 타이틀에서 이용된 해변이름입니다. 타이틀에서 뒤에 + 바닷가 해줄 예정
+//  // ex) 해운대
+//  @Column(length = 20, nullable = false)
+//  private String beachName;
 
-  @OneToMany
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "beach_id", nullable = false)
+  private Beach beach; // 해안
+
+  @OneToMany(mappedBy = "research", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  @JoinColumn(name = "research_sub_id")
-  private List<ResearchSub> subResearchList = new ArrayList<>();
+  private List<ResearchSub> researchSubList = new ArrayList<>();
 
   // 추가: 해안 길이 (m 단위)
   // 위 필드와 동일??? // 아니면 임의로 적게 만들기
@@ -69,22 +75,46 @@ public class ResearchMain extends BaseEntity{
   @Column(nullable = false)
   private List<Image> images = new ArrayList<>(); // 조사된 이미지들
 
-  @Column
-  private String description; // 조사 내용
-
 
   //  ASSIGNMENT_NEEDED,  // 배정이 필요한 단계 - 화면에 보일예정
   //  ASSIGNMENT_COMPLETED // 배정이 완료된 단계 - 화면에 안보일 예정
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ReportStatus status;
+  @Builder.Default
+  private ReportStatus status = ReportStatus.ASSIGNMENT_NEEDED;
 
   // --------
 
   // 조사자에는 이미 조사관을 담당하는 관리자가 있어서
   // 여기서 조사 보고서에서 넣을 필요는 없을 듯
 
-  // 추가로 필요한 것이 있다면 추가
-  private LocalDateTime cleanerAssignedTime; // 필요하지 않을까?
+  // 날씨(자동), 특이사항(수동),
 
+  @Column(length = 20, nullable = false)
+  private String weather;
+
+  @Column(length = 20, nullable = false)
+  private String specialNote;
+
+
+  public void addImage(Image image) {
+    image.setOrd(images.size());
+    images.add(image);
+  }
+
+  public void addImageString(String fileName) {
+    Image image = Image.builder()
+        .fileName(fileName)
+        .build();
+
+    addImage(image);
+  }
+
+  public void addResearchSubList(ResearchSub researchSub) {
+    // 아래 코드는 main의 List에 넣는것
+    this.researchSubList.add(researchSub);
+    // 아래 코드는 sub의 ResearchMain research에 넣는것
+    // 그래서 sub에서는 따로 더 넣을 필요 없음
+    researchSub.setResearch(this);
+  }
 }
