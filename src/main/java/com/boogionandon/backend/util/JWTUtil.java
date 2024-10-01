@@ -29,8 +29,9 @@ public class JWTUtil {
    */
   // 키 값이 짧으면 제대로 안될 수 있음, 30자 이상의 긴 문자열 사용 권장
   // application.properties에 저장하고 불러오는 것이 더 좋은 방법
-  @Value("${JWTSecretKey}")
-  private static String secretKey;
+      // TODO : 나중 수정 !! 키가 없다고 나와서 임시로 여기 적어서 사용
+//  @Value("${JWTSecretKey}")
+  private static String secretKey="1234567890123456789012345678901234567890";
 
 
   /**
