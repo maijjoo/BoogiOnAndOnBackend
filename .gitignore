@@ -154,3 +154,6 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+# upload 폴더 제외
+/backend/upload/

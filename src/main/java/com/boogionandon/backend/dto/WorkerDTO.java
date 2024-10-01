@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
+@Slf4j
 public class WorkerDTO extends User {
 
   // id는 쓰일일도 보여줄일도 없을 것 같아서 안올림
@@ -62,6 +64,7 @@ public class WorkerDTO extends User {
   public Map<String, Object> getClaims() {
     Map<String, Object> dataMap = new HashMap<>();
     dataMap.put("username", username);
+    dataMap.put("password", password); // password는 JWT로 변환되지 않아서 이��에 ��어��
     dataMap.put("email", email);
     dataMap.put("name", name);
     dataMap.put("phone", phone);
@@ -79,7 +82,28 @@ public class WorkerDTO extends User {
   }
 
   public static WorkerDTO claimsToDTO(Map<String, Object> claims) {
-    return new WorkerDTO(
+    log.info("claims.password : " +claims.get("password"));
+    List<String> roleNames = claims.get("roleNames") instanceof List
+        ? (List<String>) claims.get("roleNames")
+        : new ArrayList<>();
+
+    Integer vehicleCapacity = claims.get("vehicleCapacity") instanceof Integer
+        ? (Integer) claims.get("vehicleCapacity")
+        : (claims.get("vehicleCapacity") instanceof String
+            ? Integer.parseInt((String) claims.get("vehicleCapacity"))
+            : 0);
+
+    Long managerId = claims.get("managerId") instanceof Number
+        ? ((Number) claims.get("managerId")).longValue()
+        : (claims.get("managerId") instanceof String
+            ? Long.parseLong((String) claims.get("managerId"))
+            : null);
+
+    Boolean delFlag = claims.get("delFlag") instanceof Boolean
+        ? (Boolean) claims.get("delFlag")
+        : Boolean.parseBoolean((String) claims.get("delFlag"));
+
+    WorkerDTO dto = new WorkerDTO(
         (String) claims.get("username"),
         (String) claims.get("password"),
         (String) claims.get("email"),
@@ -87,15 +111,19 @@ public class WorkerDTO extends User {
         (String) claims.get("phone"),
         (String) claims.get("address"),
         (String) claims.get("addressDetail"),
-        (List<String>) claims.get("roleNames"),
+        roleNames,
         (String) claims.get("contact"),
         (String) claims.get("workGroup"),
         (String) claims.get("workAddress"),
         (String) claims.get("workAddressDetail"),
-        (int) claims.get("vehicleCapacity"),
-        (Long) claims.get("managerId"),
-        (boolean) claims.get("delFlag")
+        vehicleCapacity,
+        managerId,
+        delFlag
     );
+
+    log.info("WorkerDTO = " + dto);
+
+    return dto;
   }
 
 }

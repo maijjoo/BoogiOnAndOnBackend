@@ -4,6 +4,7 @@ import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
+import java.time.LocalDate;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -101,6 +102,8 @@ class MemberRepositoryTest {
         .workGroup("해운대 구청") // 이게 들어가는게 맞나?
         .workAddress("부산 광역시 해운대구")
         .workAddressDetail("중동2로 11 해운대구청")
+        .startDate(LocalDate.now()) // 실제는 화면에서 선택
+        .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
         .build();
 
     // 차량 없다고 가정해서 vehicleCapacity은 null

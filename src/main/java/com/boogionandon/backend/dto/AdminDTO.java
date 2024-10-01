@@ -5,10 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-
+@Slf4j
 public class AdminDTO extends User {
 
   // id는 쓰일일도 보여줄일도 없을 것 같아서 안올림
@@ -63,6 +64,7 @@ public class AdminDTO extends User {
   public Map<String, Object> getClaims() {
     Map<String, Object> dataMap = new HashMap<>();
     dataMap.put("username", username);
+    dataMap.put("password", password);
     dataMap.put("email", email);
     dataMap.put("name", name);
     dataMap.put("phone", phone);
@@ -80,7 +82,23 @@ public class AdminDTO extends User {
   }
 
   public static AdminDTO claimsToDTO(Map<String, Object> claims) {
-    return new AdminDTO(
+    log.info("claims.password : " + claims.get("password"));
+
+    List<String> roleNames = claims.get("roleNames") instanceof List
+        ? (List<String>) claims.get("roleNames")
+        : new ArrayList<>();
+
+    Long managerId = claims.get("managerId") instanceof Number
+        ? ((Number) claims.get("managerId")).longValue()
+        : (claims.get("managerId") instanceof String
+            ? Long.parseLong((String) claims.get("managerId"))
+            : null);
+
+    Boolean delFlag = claims.get("delFlag") instanceof Boolean
+        ? (Boolean) claims.get("delFlag")
+        : Boolean.parseBoolean((String) claims.get("delFlag"));
+
+    AdminDTO dto = new AdminDTO(
         (String) claims.get("username"),
         (String) claims.get("password"),
         (String) claims.get("email"),
@@ -88,14 +106,19 @@ public class AdminDTO extends User {
         (String) claims.get("phone"),
         (String) claims.get("address"),
         (String) claims.get("addressDetail"),
-        (List<String>) claims.get("roleNames"),
+        roleNames,
         (String) claims.get("workPlace"),
         (String) claims.get("department"),
         (String) claims.get("position"),
         (String) claims.get("assignmentArea"),
         (String) claims.get("contact"),
-        (Long) claims.get("managerId"),
-        (boolean) claims.get("delFlag"));
+        managerId,
+        delFlag
+    );
+
+    log.info("AdminDTO = " + dto);
+
+    return dto;
   }
 
 }
