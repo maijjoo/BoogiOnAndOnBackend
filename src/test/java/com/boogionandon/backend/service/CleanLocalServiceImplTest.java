@@ -3,6 +3,8 @@ package com.boogionandon.backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.dto.CleanRequestDTO;
+import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import java.time.LocalDate;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,40 @@ class CleanLocalServiceImplTest {
         .build();
 
     cleanService.insertClean(cleanDTO);
+  }
+
+  @Test
+  @DisplayName("getTrashDistribution 메서드 테스트 - 년")
+  void testGetTrashDistributionWithYear() {
+    Integer year = 2022;
+
+    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(year, null, null, null);
+
+    log.info("findTrashDistribution : " + findTrashDistribution);
+
+  }
+
+  @Test
+  @DisplayName("getTrashDistribution 메서드 테스트 - 년/월")
+  void testGetTrashDistributionWithYearAndMonth() {
+    Integer year = 2022;
+    Integer month = 12;
+
+    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(year, month, null, null);
+
+    log.info("findTrashDistribution : " + findTrashDistribution);
+  }
+
+  @Test
+  @DisplayName("getTrashDistribution 메서드 테스트 - 시작 ~ 끝")
+  void testGetTrashDistributionBetweenStartAndEnd() {
+
+    LocalDate start = LocalDate.of(2023, 6, 1);
+    LocalDate end = LocalDate.of(2023, 6, 30);
+
+    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(null, null, start, end);
+
+    log.info("findTrashDistribution : " + findTrashDistribution);
   }
 
 }
