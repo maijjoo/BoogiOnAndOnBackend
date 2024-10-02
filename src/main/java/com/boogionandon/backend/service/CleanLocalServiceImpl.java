@@ -5,10 +5,13 @@ import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.CleanRequestDTO;
+import com.boogionandon.backend.dto.CleanResponseDTO;
+import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.CleanRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,12 +31,43 @@ public class CleanLocalServiceImpl implements CleanService{
   private final MemberRepository memberRepository;
   private final BeachRepository beachRepository;
 
+  // clean 보고서 제출
   @Override
   public void insertClean(CleanRequestDTO cleanRequestDTO) {
 
     Clean clean = createCleanFromDTO(cleanRequestDTO);
 
     cleanRepository.save(clean);
+  }
+
+  // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 메서드
+  @Override
+  @Transactional(readOnly = true) // 어차피 조회용 이니까
+  public TrashMapResponseDTO getTrashDistribution(Integer year, Integer month, LocalDate start, LocalDate end) {
+    List<Clean> cleanData = cleanRepository.findByDateCriteria(year, month, start, end);
+
+    TrashMapResponseDTO trashMapResponseDTO = new TrashMapResponseDTO();
+
+    cleanData.forEach(clean -> {
+          CleanResponseDTO cleanResponseDTO = CleanResponseDTO.builder()
+             .id(clean.getId())
+             .cleanerUsername(clean.getCleaner().getUsername())
+             .beachName(clean.getBeach().getBeachName())
+             .realTrashAmount(clean.getRealTrashAmount())
+             .cleanDateTime(clean.getCleanDateTime())
+              // 시작, 끝 위경도는 여기에서는 필요없어 null 값으로
+              // beachLength도 여기선 필요 없을듯
+              // 이미지도 동일
+              .mainTrashType(clean.getMainTrashType())
+              .fixedLatitude(clean.getBeach().getLatitude())
+              .fixedLongitude(clean.getBeach().getLongitude())
+             .build();
+            trashMapResponseDTO.getCleanDataList().add(cleanResponseDTO);
+        });
+
+    log.info("trashMapResponseDTO : " + trashMapResponseDTO);
+
+    return trashMapResponseDTO;
   }
 
   private Clean createCleanFromDTO(CleanRequestDTO cleanRequestDTO) {

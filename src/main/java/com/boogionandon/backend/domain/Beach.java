@@ -31,4 +31,10 @@ public class Beach {
   @Column(length = 30, nullable = false)
   private String workplace;
 
+  @Column(nullable = false)
+  private Double latitude;
+
+  @Column(nullable = false)
+  private Double longitude;
+
 }
