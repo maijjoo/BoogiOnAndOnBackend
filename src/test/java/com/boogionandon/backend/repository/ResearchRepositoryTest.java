@@ -8,17 +8,20 @@ import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.util.DistanceCalculator;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +57,7 @@ class ResearchRepositoryTest {
         .orElseThrow(() -> new NoSuchElementException("Worker with id "+ researcherId +" not found"));
     // initData에서 만든 Worker의 id
 
-    String beachName = "해운대해수욕장";
+    String beachName = "광안리해수욕장";
     Beach findBeach = beachRepository.findById(beachName)
         .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
 
@@ -68,6 +71,7 @@ class ResearchRepositoryTest {
         .status(ReportStatus.ASSIGNMENT_NEEDED)
         .weather("맑음") // 오늘 날씨
         .specialNote("태풍") // 보고 올릴때 쓰레기가 특수 상황에 의해 발생한 것인지
+        .totalBeachLength(0.0)
         .build();
 
     log.info("researchMain : " + researchMain);
@@ -121,13 +125,28 @@ class ResearchRepositoryTest {
   @DisplayName("findByStatusNeededAndSearch 조회 테스트")
   void testFindByStatusNeededAndSearch() {
 
-    String search = "";
+    String beachSearch = "해운대";
+    
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
 
-    List<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch(
-        search);
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("reportTime").descending() :
+            Sort.by("reportTime").ascending()
+    );
+
+    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch(beachSearch, pageable);
+//    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch("", pageable);
+
 
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
+    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
   }
+
+
 
   // ------ findByStatusNeededAndSearch 끝 ------
 }

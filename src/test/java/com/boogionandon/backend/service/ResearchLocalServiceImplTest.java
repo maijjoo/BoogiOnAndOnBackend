@@ -2,16 +2,24 @@ package com.boogionandon.backend.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
+import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import jakarta.persistence.Column;
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,5 +61,40 @@ class ResearchLocalServiceImplTest {
     researchService.insertResearch(mainDTO);
   }
 
+  // ----------- findByStatusChange 테스트 시작 -----------
+  @Test
+  @DisplayName("findByStatusChange 테스트")
+  @Commit
+  void testFindByStatusChange() {
+    Long id = 2L;
+    // 따로 값이 필요 없다고 판단 status 파라미터 같은거
+
+    researchService.updateStatus(id);
+  }
+  // ----------- findByStatusChange 테스트 끝 -----------
+  // ----------- findResearchByStatusNeededAndSearch 테스트 시작 -----------
+  @Test
+  @DisplayName("findResearchByStatusNeededAndSearch 테스트")
+  void testFindResearchByStatusNeededAndSearch() {
+    String beachSearch = "광안리";
+
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("reportTime").descending() :
+            Sort.by("reportTime").ascending()
+    );
+
+//    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(beachSearch, pageable);
+    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(null, pageable);
+
+    log.info("findList : " + findList);
+    log.info("findList : " + findList.getContent());
+  }
+  // ----------- findResearchByStatusNeededAndSearch 테스트 끝 -----------
 
 }
