@@ -3,9 +3,17 @@ package com.boogionandon.backend.repository.queryDSL;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.QBeach;
 import com.boogionandon.backend.domain.QClean;
+import com.boogionandon.backend.domain.QImage;
+import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.QWorker;
+import com.boogionandon.backend.domain.ResearchMain;
+import com.boogionandon.backend.domain.enums.ReportStatus;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,6 +21,10 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -82,6 +94,82 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
         .orderBy(clean.cleanDateTime.asc())
         .fetch();
   }
+
+  @Override
+  public Page<Clean> findByStatusNeededAndSearch(String beachSearch, Pageable pageable) {
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+    QImage image = QImage.image;
+
+    JPAQuery<Clean> query = queryFactory
+        .selectFrom(clean)
+        .leftJoin(clean.beach, beach).fetchJoin()
+        .leftJoin(clean.images, image).fetchJoin()
+        .where(checkStatusAndSearch(beachSearch));
+
+    // 정렬 적용
+    OrderSpecifier<?> orderSpecifier = createOrderSpecifier(pageable.getSort());
+    if (orderSpecifier != null) {
+      query.orderBy(orderSpecifier);
+    }
+
+    List<Clean> content = query
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch();
+
+    log.info("content : " + content);
+
+    long total = countByStatusNeededAndSearch(beachSearch);
+    log.info("total : " + total);
+
+    return new PageImpl<>(content, pageable, total);
+  }
+
+  private Predicate checkStatusAndSearch(String beachSearch) {
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+
+    BooleanExpression statusCondition = clean.status.eq(ReportStatus.ASSIGNMENT_NEEDED);
+
+    if (beachSearch != null && !beachSearch.isEmpty()) {
+      BooleanExpression searchCondition = beach.beachName.contains(beachSearch);
+
+      return statusCondition.and(searchCondition);
+    } else {
+      return statusCondition;
+    }
+  }
+
+  private OrderSpecifier<?> createOrderSpecifier(Sort sort) {
+    if (sort.isEmpty()) {
+      return null;
+    }
+
+    for (Sort.Order order : sort) {
+      // 여기 복사 해온것에서 붙여넣기 하고 고쳤는데 정렬 안되면 여기 확인
+      PathBuilder<Clean> pathBuilder = new PathBuilder<>(Clean.class, "clean");
+
+      return new OrderSpecifier(
+          order.isAscending() ? Order.ASC : Order.DESC,
+          pathBuilder.get(order.getProperty())
+      );
+    }
+
+    return null;
+  }
+
+  private long countByStatusNeededAndSearch(String search) {
+    QClean clean = QClean.clean;
+
+    return queryFactory
+        .select(clean.count())
+        .from(clean)
+        .where(checkStatusAndSearch(search))
+        .fetchOne();
+  }
+
+  // ----------------------------------------------------------------
 
   private Predicate getBeachStatusInPeriod(String tapCondition, Integer year, Integer month, String beachName) {
     QClean clean = QClean.clean;

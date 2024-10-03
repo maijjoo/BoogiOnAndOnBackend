@@ -4,18 +4,25 @@ import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
+import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.ResearchMainRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +64,30 @@ public class ResearchLocalServiceImpl implements ResearchService{
     researchMainRepository.save(researchMain);
   }
 
+  @Override
+  public void updateStatus(Long id) {
+  // status는 보내줄 때 리액트에서 detail로 받은 정보에서 뽑아서 보낼거임
+
+    // 영속 처리 된것임
+    ResearchMain findResearchMain = researchMainRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("ResearchMain not found with id: " + id));
+
+
+    if (ReportStatus.ASSIGNMENT_NEEDED.equals(findResearchMain.getStatus())) {
+      log.info("상태 변경 시작: {}", findResearchMain.getStatus());
+      findResearchMain.changeStatus(ReportStatus.ASSIGNMENT_COMPLETED);
+      log.info("상태 변경 완료: {}", findResearchMain.getStatus());
+    } else {
+      throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+    }
+  }
+
+  @Override
+  public Page<ResearchMain> findResearchByStatusNeededAndSearch(String search, Pageable pageable) {
+    // tapCondition은 컨트롤러에서 처리하기
+    return researchMainRepository.findByStatusNeededAndSearch(search, pageable);
+  }
+
   private ResearchMain createResearchMainFromDTO(ResearchMainRequestDTO mainDTO) {
     // 필요한 researcher, beach를 찾고
     Worker researcher = findResearcher(mainDTO.getResearcherUsername());
@@ -80,7 +111,6 @@ public class ResearchLocalServiceImpl implements ResearchService{
     return researchMain;
   }
 
-
   private Worker findResearcher(String researcherName) {
     return (Worker) memberRepository.findByUsernameWithDetails(researcherName)
         .orElseThrow(() -> new UsernameNotFoundException("해당 이름의 회원을 찾을 수 없습니다. :" + researcherName));
@@ -90,6 +120,7 @@ public class ResearchLocalServiceImpl implements ResearchService{
     return beachRepository.findById(beachName)
         .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
   }
+
   private void addSubResearches(ResearchMain researchMain, List<ResearchSubRequestDTO> subList) {
     if (subList != null) {
       for (ResearchSubRequestDTO subDTO : subList) {
@@ -120,70 +151,4 @@ public class ResearchLocalServiceImpl implements ResearchService{
     }
   }
 
-// 아래 코드는 함수안에 한번에 save 처리까지 들어가있음 // 다른 코드가 실행 안될 시 사용
-//  private ResearchMain dtoToEntity(ResearchMainRequestDTO mainDTO) {
-//
-//    // 영속성 상태인 엔티티를 뽑아내기 위해
-//    String beachName = mainDTO.getBeachName();
-//    Beach findBeach = beachRepository.findById(beachName)
-//        .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
-//
-//    String researcherName = mainDTO.getResearcherUsername();
-//    Worker findResearcher = (Worker) memberRepository.findByUsernameWithDetails(researcherName)
-//        .orElseThrow(() -> new UsernameNotFoundException("해당 이름의 회원을 찾을 수 없습니다. :" + researcherName));
-//
-//
-//    // save할 researchMain 생성
-//    ResearchMain researchMain = ResearchMain.builder()
-//        .researcher(findResearcher)
-//        .beach(findBeach)
-//        .beachLength(mainDTO.getBeachLength())
-//        .expectedTrashAmount(mainDTO.getExpectedTrashAmount())
-//        .reportTime(LocalDateTime.now())
-//        .weather(mainDTO.getWeather())
-//        .specialNote(mainDTO.getSpecialNote())
-//        .build();
-//
-//    // 영속 상태인 엔티티를 사용하기 위해
-//    ResearchMain savedMain = researchMainRepository.save(researchMain);
-//
-//
-//    List<ResearchSubRequestDTO> researchSubList = mainDTO.getResearchSubList();
-//
-//    if (!researchSubList.isEmpty()) {
-//      for (ResearchSubRequestDTO researchSubRequestDTO : researchSubList) {
-//        ResearchSub researchSub = ResearchSub.builder()
-//            .research(savedMain)
-//            // 리액트에서 처리해서 넘어 오기로 했기 때문에 beachNameWithIndex 따로 건드릴 필요 없음
-//            .beachNameWithIndex(researchSubRequestDTO.getBeachNameWithIndex())
-//            .startLatitude(researchSubRequestDTO.getStartLatitude())
-//            .startLongitude(researchSubRequestDTO.getStartLongitude())
-//            .endLatitude(researchSubRequestDTO.getEndLatitude())
-//            .endLongitude(researchSubRequestDTO.getEndLongitude())
-//            .mainTrashType(TrashType.valueOf(researchSubRequestDTO.getMainTrashType()))
-//            .build();
-//
-//        ResearchSub savedSub = researchSubRepository.save(researchSub);
-//
-//        savedMain.getSubResearchList().add(savedSub);
-//      }
-//    }
-//
-//
-//
-//    List<String> uploadedFileNames = mainDTO.getUploadedFileNames();
-//
-//
-//    if (uploadedFileNames == null || uploadedFileNames.isEmpty()) {
-//      log.info ("savedMain : " + savedMain);
-//      return savedMain;
-//    }
-//
-//    uploadedFileNames.forEach((fileName) -> {
-//      savedMain.addImageString(fileName);
-//    });
-//
-//    log.info ("savedMain : " + savedMain);
-//    return savedMain;
-//  }
 }

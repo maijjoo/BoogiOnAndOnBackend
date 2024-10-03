@@ -2,7 +2,10 @@ package com.boogionandon.backend.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.dto.CleanRequestDTO;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import java.time.LocalDate;
@@ -11,6 +14,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,4 +127,28 @@ class CleanLocalServiceImplTest {
     log.info("findBasicStatistics : " + findBasicStatistics);
   }
   // ---------- getBasicStatistics 메서드 테스트 끝 ---------
+  // ----------- findResearchByStatusNeededAndSearch 테스트 시작 -----------
+  @Test
+  @DisplayName("findResearchByStatusNeededAndSearch 테스트")
+  void testFindResearchByStatusNeededAndSearch() {
+    String beachSearch = "광안리";
+
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("cleanDateTime").descending() :
+            Sort.by("cleanDateTime").ascending()
+    );
+
+    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(beachSearch, pageable);
+//    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(null, pageable);
+
+    log.info("findList : " + findList);
+    log.info("findList : " + findList.getContent());
+  }
+  // ----------- findResearchByStatusNeededAndSearch 테스트 끝 -----------
 }
