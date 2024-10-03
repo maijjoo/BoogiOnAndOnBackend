@@ -3,6 +3,7 @@ package com.boogionandon.backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.dto.CleanRequestDTO;
+import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import java.time.LocalDate;
 import lombok.extern.log4j.Log4j2;
@@ -39,6 +40,7 @@ class CleanLocalServiceImplTest {
     cleanService.insertClean(cleanDTO);
   }
 
+  // ---------- getTrashDistribution 메서드 테스트 시작 ---------
   @Test
   @DisplayName("getTrashDistribution 메서드 테스트 - 년")
   void testGetTrashDistributionWithYear() {
@@ -72,5 +74,50 @@ class CleanLocalServiceImplTest {
 
     log.info("findTrashDistribution : " + findTrashDistribution);
   }
+  // ---------- getTrashDistribution 메서드 테스트 끝 ---------
 
+  // ---------- getBasicStatistics 메서드 테스트 시작 ---------
+  @Test
+  @DisplayName("getBasicStatistics 메서드 테스트 - 연도별")
+  void testGetBasicStatisticsWithTapCondition1() {
+    String tapCondition = "연도별";
+    // 생각해 보니 year가 필요가 없고 리포지토리에서 해당년도에 작년 -4 ~ 작년 까지 보여줌 year 필요 없음
+//    Integer year = 2022;
+    String beachName = "해운대해수욕장";
+
+//    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, null, null, beachName);
+    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, null, null, null);
+
+    log.info("findBasicStatistics : " + findBasicStatistics);
+  }
+  @Test
+  @DisplayName("getBasicStatistics 메서드 테스트 - 월별")
+  void testGetBasicStatisticsWithTapCondition2() {
+    String tapCondition = "월별";
+    Integer year = 2022;
+    // 생각해 보니 month도 여기서 필요가 없음, 해당 연도의 모든 month를 사용할테니
+    Integer month = 12;
+    String beachName = "해운대해수욕장";
+
+
+    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, null, beachName);
+//    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, null, null, null);
+
+    log.info("findBasicStatistics : " + findBasicStatistics);
+
+  }
+  @Test
+  @DisplayName("getBasicStatistics 메서드 테스트 - 일별")
+  void testGetBasicStatisticsWithTapCondition3() {
+    String tapCondition = "일별";
+    Integer year = 2023;
+    Integer month = 3;
+    String beachName = "해운대해수욕장";
+
+    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, beachName);
+//    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, 2022, null, null);
+
+    log.info("findBasicStatistics : " + findBasicStatistics);
+  }
+  // ---------- getBasicStatistics 메서드 테스트 끝 ---------
 }
