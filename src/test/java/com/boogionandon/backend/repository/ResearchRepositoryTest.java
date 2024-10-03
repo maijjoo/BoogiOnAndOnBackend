@@ -10,6 +10,7 @@ import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.util.DistanceCalculator;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
@@ -114,4 +115,19 @@ class ResearchRepositoryTest {
     log.info("researchMain : " + researchMain);
     log.info("researchSubs : " + researchMain.getResearchSubList());
   }
+
+  // ------ findByStatusNeededAndSearch 시작 ------
+  @Test
+  @DisplayName("findByStatusNeededAndSearch 조회 테스트")
+  void testFindByStatusNeededAndSearch() {
+
+    String search = "";
+
+    List<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch(
+        search);
+
+    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
+  }
+
+  // ------ findByStatusNeededAndSearch 끝 ------
 }
