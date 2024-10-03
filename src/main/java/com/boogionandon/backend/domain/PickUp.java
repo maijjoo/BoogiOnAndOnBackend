@@ -1,5 +1,6 @@
 package com.boogionandon.backend.domain;
 
+import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import jakarta.persistence.*;
 
@@ -54,6 +55,13 @@ public class PickUp extends BaseEntity {
   @Column(nullable = false)
   private List<Image> images = new ArrayList<>(); // 집하장소 사진
 
+  //  ASSIGNMENT_NEEDED,  // 배정이 필요한 단계 - 화면에 보일예정
+  //  ASSIGNMENT_COMPLETED // 배정이 완료된 단계 - 화면에 안보일 예정??
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  @Builder.Default
+  private ReportStatus status = ReportStatus.ASSIGNMENT_NEEDED;
+
 
   public void addImageString(String fileName) {
     Image image = Image.builder()
@@ -66,5 +74,13 @@ public class PickUp extends BaseEntity {
   private void addImage(Image image) {
     image.setOrd(images.size());
     images.add(image);
+  }
+
+  public void statusToCompleted() {
+    if (status == ReportStatus.ASSIGNMENT_NEEDED) {
+      status = ReportStatus.ASSIGNMENT_COMPLETED;
+    } else {
+      throw new IllegalStateException("Status is not ASSIGNMENT_NEEDED");
+    }
   }
 }
