@@ -7,4 +7,6 @@ import java.util.List;
 public interface CleanRepositoryCustom {
 
   List<Clean> findByDateCriteria(Integer year, Integer month, LocalDate start, LocalDate end);
+
+  List<Clean> getBasicStatistics(String tapCondition, Integer year, Integer month, String beachName);
 }

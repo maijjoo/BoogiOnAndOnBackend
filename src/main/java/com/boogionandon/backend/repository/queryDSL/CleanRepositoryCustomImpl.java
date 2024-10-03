@@ -18,14 +18,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Log4j2
 @RequiredArgsConstructor
-public class CleanRepositoryCustomImpl implements CleanRepositoryCustom{
+public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
 
 
   // 관리자 페이지에서 지도를 통해 쓰레기 분포도를 보여주는 화면에서 보여줄 내용 뽑아오기
   @Override
-  public List<Clean> findByDateCriteria(Integer year, Integer month, LocalDate start, LocalDate end) {
+  public List<Clean> findByDateCriteria(Integer year, Integer month, LocalDate start,
+      LocalDate end) {
 
     QClean clean = QClean.clean;
     QWorker worker = QWorker.worker;
@@ -60,10 +61,62 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom{
       // 시작일의 00:00:00
       LocalDateTime startOfDay = start.atStartOfDay();
       // 종료일의 23:59:59
-      LocalDateTime endOfDay = end.atTime(23,59,59);
+      LocalDateTime endOfDay = end.atTime(23, 59, 59);
       // 두 날짜 사이의 데이터를 조회하는 조건 생성
       return QClean.clean.cleanDateTime.between(startOfDay, endOfDay);
     }
     return null;
+  }
+
+  // 관리자 페이지에서 기초 통계를 보영주는 화면에서 보여줄 내용 뽑아오기
+  @Override
+  public List<Clean> getBasicStatistics(String tapCondition, Integer year, Integer month, String beachName) {
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+
+
+    return queryFactory
+        .selectFrom(clean)
+        .leftJoin(clean.beach, beach).fetchJoin()
+        .where(getBeachStatusInPeriod(tapCondition, year, month, beachName))
+        .orderBy(clean.cleanDateTime.asc())
+        .fetch();
+  }
+
+  private Predicate getBeachStatusInPeriod(String tapCondition, Integer year, Integer month, String beachName) {
+    QClean clean = QClean.clean;
+
+
+    BooleanExpression timeCondition;
+    // 일단 tapCondition이 화면 버튼에 있는 글자 그대로 가져 온다고 보고 한글로 처리함 (연도별, 월별, 일별)
+    switch (tapCondition) {
+      case "연도별":
+        // 요구사항이 작년 포함 5년이기 때문에 (해당년도 X) (이전년도 -4 ~ 이전년도)
+        Integer lastYear = LocalDate.now().getYear() - 1;
+        timeCondition = clean.cleanDateTime.year().between(lastYear - 4, lastYear);
+        break;
+      case "월별":
+        // beachName이 null이거나 빈 문자열이 아닐 때만 해변 이름 조건 추가
+        timeCondition = clean.cleanDateTime.year().eq(year);
+        break;
+      case "일별":
+        // 기초통계 기간별(일별) 메인(DEFAULT 작년 12월 1 ~ 31일, 전지역)
+        timeCondition = clean.cleanDateTime.year().eq(year).and(clean.cleanDateTime.month().eq(month));
+        break;
+      default:
+        throw new IllegalArgumentException("Invalid tapCondition: " + tapCondition);
+    }
+    log.info("timeCondition : " +timeCondition.toString());
+
+    if (beachName != null && !beachName.trim().isEmpty()) {
+      BooleanExpression beachCondition = clean.beach.beachName.eq(beachName);
+      log.info("Adding beach condition for: {}", beachName);
+      log.info("timeCondition : " +beachCondition.toString());
+
+      return timeCondition.and(beachCondition);
+    } else {
+      log.info("No beach condition applied");
+      return timeCondition;
+    }
   }
 }

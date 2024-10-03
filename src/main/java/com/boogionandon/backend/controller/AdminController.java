@@ -1,9 +1,15 @@
 package com.boogionandon.backend.controller;
 
+import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.CleanRepository;
+import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
   private final CleanService cleanService;
+  private final BeachService beachService;
 
   // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 API
   // 어차피 지도로 표현하는 거니 페이징은 없을것 같아 아래 DTO 만들어씀
@@ -40,5 +47,27 @@ public class AdminController {
 
     return cleanService.getTrashDistribution(year, month, start, end);
   }
+
+  // 관리자 페이지에서 기초 통계 볼때 필요한 API
+  // 연도별, 월별, 일별을 탭으로 표현한다고 했는데, 그래서 하나의 주소로 받음
+  // 내려줄때 시군구, beachName은 넣어 줘야 하나?
+  @GetMapping("/basic-statistics")
+  public BasicStatisticsResponseDTO basicStatistics(
+      @RequestParam String tapCondition,
+      @RequestParam(required = false) Integer year,
+      @RequestParam(required = false) Integer month,
+      @RequestParam(required = false) String beachName) {
+
+    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, beachName);
+
+    Set<String> guGunSet = beachService.guGunSet();
+    Map<String, List<String>> beachNameMap = beachService.beachNameMap();
+
+    findBasicStatistics.setGuGun(guGunSet);
+    findBasicStatistics.setBeachName(beachNameMap);
+
+    return findBasicStatistics;
+  }
+
 
 }

@@ -165,6 +165,7 @@ class CleanRepositoryTest {
 
   }
 
+  // findByDateCriteria 메서드 테스트
   @Test
   @DisplayName("쓰레기 분포도 보여주는 메서드 - 년 ")
   void testShowTrashDistributionWithYear() {
@@ -197,4 +198,46 @@ class CleanRepositoryTest {
 
     log.info("findDateList : " + findDateList);
   }
+
+  // getBasicStatistics 메서드 테스트
+  @Test
+  @DisplayName("기초 통계 보여주는 메서드 - lastYear - 4 ~ lastYear (연도별)")
+  void testShowGetBasicStatisticsWith5YearsAgoToLastYearAndBeachName() {
+    String tapCondition = "연도별";
+    Integer year = 2023;
+    String beachName = "해운대해수욕장";
+
+    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, beachName);
+
+    log.info("basicStatistics: " + basicStatistics);
+  }
+
+  @Test
+  @DisplayName("기초 통계 보여주는 메서드 - 해당 년도의 월별 데이터 (월별)")
+  void testShowGetBasicStatisticsWithMonthlyOfYearAndBeachName() {
+
+    String tapCondition = "월별";
+    Integer year = 2022;
+    String beachName = "해운대해수욕장";
+
+    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, beachName);
+
+    log.info("basicStatistics: " + basicStatistics);
+
+  }
+
+  @Test
+  @DisplayName("기초 통계 보여주는 메서드 - 해당 년도의 월의 1 ~ 31일(마지막날) 까지 (일별) ")
+  void testShowGetBasicStatisticsWithDaysInMonthInYearAndBeachName() {
+
+    String tapCondition = "일별";
+    Integer year = 2023;
+    Integer month = 5;
+    String beachName = "해운대해수욕장";
+
+    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, beachName);
+
+    log.info("basicStatistics: " + basicStatistics);
+  }
+
 }
