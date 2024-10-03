@@ -2,6 +2,7 @@ package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.CleanRequestDTO;
@@ -25,6 +26,8 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +117,12 @@ public class CleanLocalServiceImpl implements CleanService{
     }
 
     return responseDTO;
+  }
+
+  @Override
+  public Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable) {
+    // tapCondition은 컨트롤러에서 처리하기
+    return cleanRepository.findByStatusNeededAndSearch(beachSearch, pageable);
   }
   // ------------getBasicStatistics 관련 메서드 시작-------
   /**

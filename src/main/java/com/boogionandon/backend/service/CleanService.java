@@ -1,9 +1,13 @@
 package com.boogionandon.backend.service;
 
+import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.dto.CleanRequestDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import java.time.LocalDate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CleanService {
 
@@ -16,4 +20,5 @@ public interface CleanService {
   // 관리자 화면에서 보는 기초통계에서 사용할 메서드
   BasicStatisticsResponseDTO getBasicStatistics(String tapCondition, Integer year, Integer month, String beachName);
 
+  Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable);
 }

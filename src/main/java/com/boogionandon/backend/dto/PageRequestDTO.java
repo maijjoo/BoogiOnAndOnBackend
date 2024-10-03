@@ -20,5 +20,7 @@ public class PageRequestDTO {
   private int size = 10;
 
   // 추가로 필요한 검색정보 같은 것들 필요하면 추가하기
+  @Builder.Default
+  private String sort = "desc";
 
 }

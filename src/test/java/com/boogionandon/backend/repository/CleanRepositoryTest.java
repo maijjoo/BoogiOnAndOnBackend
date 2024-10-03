@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.util.DistanceCalculator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +21,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -240,4 +246,29 @@ class CleanRepositoryTest {
     log.info("basicStatistics: " + basicStatistics);
   }
 
+  // ------ findByStatusNeededAndSearch 시작 ------
+  @Test
+  @DisplayName("findByStatusNeededAndSearch 조회 테스트")
+  void testFindByStatusNeededAndSearch() {
+
+    String beachSearch = "해운대";
+
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("cleanDateTime").descending() :
+            Sort.by("cleanDateTime").ascending()
+    );
+
+    Page<Clean> byStatusNeededAndSearch = cleanRepository.findByStatusNeededAndSearch(beachSearch, pageable);
+//    Page<Clean> byStatusNeededAndSearch = cleanRepository.findByStatusNeededAndSearch("", pageable);
+
+
+    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
+    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
+  }
 }

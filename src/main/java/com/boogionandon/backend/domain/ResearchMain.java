@@ -128,4 +128,8 @@ public class ResearchMain extends BaseEntity{
       throw new IllegalStateException("Status is not ASSIGNMENT_NEEDED");
     }
   }
+
+  public void changeStatus(ReportStatus status) {
+    this.status = status;
+  }
 }
