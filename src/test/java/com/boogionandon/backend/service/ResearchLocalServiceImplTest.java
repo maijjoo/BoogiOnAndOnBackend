@@ -109,7 +109,7 @@ class ResearchLocalServiceImplTest {
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
     Long adminId = 7L;
 
-    String beachSearch = "광안리";
+    String beachSearch = "해운대";
 
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
@@ -122,8 +122,8 @@ class ResearchLocalServiceImplTest {
             Sort.by("reportTime").ascending()
     );
 
-    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
-//    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(null, pageable);
+//    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(beachSearch, pageable, adminId);
+    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(null, pageable, adminId);
 
     log.info("findList : " + findList);
     log.info("findList : " + findList.getContent());

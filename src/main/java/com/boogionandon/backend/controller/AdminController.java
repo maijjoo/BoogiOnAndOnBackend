@@ -2,6 +2,7 @@ package com.boogionandon.backend.controller;
 
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
+import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.QImage;
 import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.ResearchMain;
@@ -10,6 +11,7 @@ import com.boogionandon.backend.dto.CleanListResponseDTO;
 import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PageResponseDTO;
+import com.boogionandon.backend.dto.PickUpListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
@@ -18,8 +20,10 @@ import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.CleanRepository;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
+import com.boogionandon.backend.service.PickUpService;
 import com.boogionandon.backend.service.ResearchLocalServiceImpl;
 import com.boogionandon.backend.service.ResearchService;
+import com.boogionandon.backend.util.CustomFileUtil;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -32,12 +36,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,8 +60,9 @@ public class AdminController {
   private final CleanService cleanService;
   private final BeachService beachService;
   private final ResearchLocalServiceImpl researchLocalServiceImpl;
-  private final JPAQueryFactory queryFactory;
   private final ResearchService researchService;
+  private final PickUpService pickUpService;
+  private final CustomFileUtil fileUtil;
 
   // 리팩토링은 나중에 여유 있을때 하기
 
@@ -171,8 +178,8 @@ public class AdminController {
   }
 
   // TODO : 작업한 Worker의 관리자의 내용만 보여져야함
-  @GetMapping("/completed-tasks")
-  public PageResponseDTO<?> getClosedTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO) {
+  @GetMapping("/completed-tasks/{adminId}")
+  public PageResponseDTO<?> getCompletedTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
 
     if (tabCondition.equals("조사")) {
 
@@ -183,7 +190,7 @@ public class AdminController {
         pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("reportTime").ascending());
       }
 
-      Page<ResearchMain> findList = researchLocalServiceImpl.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+      Page<ResearchMain> findList = researchLocalServiceImpl.findResearchByStatusCompletedAndSearch(beachSearch, pageable, adminId);
 
       List<ResearchMainListResponseDTO> responseDTOList = findList.stream().map(research -> {
         return ResearchMainListResponseDTO.builder()
@@ -211,7 +218,8 @@ public class AdminController {
         pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("cleanDateTime").ascending());
       }
 
-      Page<Clean> findList = cleanService.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+      Page<Clean> findList = cleanService.findResearchByStatusCompletedAndSearch(beachSearch, pageable, adminId);
+
       List<CleanListResponseDTO> responseDTOList = findList.stream().map(clean -> {
         return CleanListResponseDTO.builder()
             .id(clean.getId())
@@ -230,6 +238,33 @@ public class AdminController {
       return new PageResponseDTO(responseDTOList, pageRequestDTO, findList.getTotalElements());
     } else if (tabCondition.equals("수거")) {
 
+      Pageable pageable = null;
+      if (pageRequestDTO.getSort().equals("desc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("submitDateTime").descending());
+      } else if (pageRequestDTO.getSort().equals("asc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("submitDateTime").ascending());
+      }
+
+      Page<PickUp> findList = pickUpService.findPickUpByStatusCompletedAndSearch(beachSearch, pageable, adminId);
+
+      List<PickUpListResponseDTO> responseDTOList = findList.stream().map(pickUp -> {
+        return PickUpListResponseDTO.builder()
+            .id(pickUp.getId())
+            .submitterName(pickUp.getSubmitter().getName())
+            .pickUpPlace(pickUp.getPickUpPlace())
+            .latitude(pickUp.getLatitude())
+            .longitude(pickUp.getLongitude())
+            .mainTrashType(pickUp.getMainTrashType())
+            .submitDateTime(pickUp.getSubmitDateTime())
+            .actualCollectedVolume(pickUp.getActualCollectedVolume())
+            .status(pickUp.getStatus())
+            .thumbnail(pickUp.getImages().stream()
+                .min(Comparator.comparing(Image::getOrd))
+                .map(image -> "S_" + image.getFileName())
+                .orElse(null))
+            .build();
+      }).collect(Collectors.toList());
+      return new PageResponseDTO(responseDTOList, pageRequestDTO, findList.getTotalElements());
     }
 
     return null;
@@ -258,6 +293,11 @@ public class AdminController {
   public Map<String,String> cleanUpdateStatusToCompleted(@PathVariable("cleanId") Long cleanId) {
     cleanService.updateStatus(cleanId);
     return Map.of("message", "success");
+  }
+
+  @GetMapping("/view/{fileName}")
+  public ResponseEntity<Resource> viewFileGET(@PathVariable("fileName") String fileName) {
+    return fileUtil.getFile(fileName);
   }
 
 

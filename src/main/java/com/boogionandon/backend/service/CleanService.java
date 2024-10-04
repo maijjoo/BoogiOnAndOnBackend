@@ -23,7 +23,7 @@ public interface CleanService {
 
   // 관리자 화면에서 보는 new, closed 작업에 관한 메서드
   Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable, Long adminId);
-  Page<Clean> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
+  Page<Clean> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId);
 
   CleanDetailResponseDTO getCleanDetail(Long cleanId);
 
