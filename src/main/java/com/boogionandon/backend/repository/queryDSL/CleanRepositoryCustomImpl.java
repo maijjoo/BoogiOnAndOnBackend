@@ -4,6 +4,7 @@ import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.QBeach;
 import com.boogionandon.backend.domain.QClean;
 import com.boogionandon.backend.domain.QImage;
+import com.boogionandon.backend.domain.QMember;
 import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.QWorker;
 import com.boogionandon.backend.domain.ResearchMain;
@@ -48,7 +49,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     return queryFactory
         .selectFrom(clean)
         // n + 1 문제를 해결하기 위해 fetchJoin 사용
-        // 테스트할때 13번 sql 보내던게 아래 코드를 쓰니 1번으로 끝남
+        // 테스트할때 n번 sql 보내던게 아래 코드를 쓰니 1번으로 끝남
         .leftJoin(clean.cleaner, worker).fetchJoin()
         .leftJoin(clean.beach, beach).fetchJoin()
         .where(
@@ -95,8 +96,9 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
         .fetch();
   }
 
+  // TODO : 자신이 담당하는 것들만 가져오기 but 수퍼 관리자는 자신의 아래 만들어진 모든 정보 확인(나중에 시간되면 하기)
   @Override
-  public Page<Clean> findByStatusNeededAndSearch(String beachSearch, Pageable pageable) {
+  public Page<Clean> findByStatusNeededAndSearchForSuper(String beachSearch, Pageable pageable) {
     QClean clean = QClean.clean;
     QBeach beach = QBeach.beach;
     QImage image = QImage.image;
@@ -105,7 +107,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
         .selectFrom(clean)
         .leftJoin(clean.beach, beach).fetchJoin()
         .leftJoin(clean.images, image).fetchJoin()
-        .where(checkStatusAndSearch(beachSearch));
+        .where(checkStatusNeededAndSearch(beachSearch));
 
     // 정렬 적용
     OrderSpecifier<?> orderSpecifier = createOrderSpecifier(pageable.getSort());
@@ -120,17 +122,128 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
 
     log.info("content : " + content);
 
-    long total = countByStatusNeededAndSearch(beachSearch);
+    long total = countByStatusNeededAndSearchForSuper(beachSearch);
+    log.info("total : " + total);
+
+    return new PageImpl<>(content, pageable, total);
+  }
+  @Override
+  public Page<Clean> findByStatusNeededAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId) {
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+    QImage image = QImage.image;
+    QWorker cleaner = QWorker.worker;
+    QMember member = QMember.member;
+
+    JPAQuery<Clean> query = queryFactory
+        .selectFrom(clean)
+        .leftJoin(clean.beach, beach).fetchJoin()
+        .leftJoin(clean.images, image).fetchJoin()
+        .leftJoin(clean.cleaner, cleaner).fetchJoin()
+        .innerJoin(member).on(member.id.eq(cleaner.id)) // Worker와 Member를 조인
+        .where(
+            checkStatusNeededAndSearch(beachSearch),
+            member.managerId.eq(adminId)); // member.managerId를 사용
+
+    // 정렬 적용
+    OrderSpecifier<?> orderSpecifier = createOrderSpecifier(pageable.getSort());
+    if (orderSpecifier != null) {
+      query.orderBy(orderSpecifier);
+    }
+
+    List<Clean> content = query
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch();
+
+    log.info("content : " + content);
+
+    long total = countByStatusNeededAndSearchForRegular(beachSearch, adminId);
     log.info("total : " + total);
 
     return new PageImpl<>(content, pageable, total);
   }
 
-  private Predicate checkStatusAndSearch(String beachSearch) {
+  @Override
+  public Page<Clean> findByStatusCompletedAndSearch(String beachSearch, Pageable pageable) {
+
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+    QImage image = QImage.image;
+
+    JPAQuery<Clean> query = queryFactory
+        .selectFrom(clean)
+        .leftJoin(clean.beach, beach).fetchJoin()
+        .leftJoin(clean.images, image).fetchJoin()
+        .where(checkStatusCompletedAndSearch(beachSearch));
+
+    // 정렬 적용
+    OrderSpecifier<?> orderSpecifier = createOrderSpecifier(pageable.getSort());
+    if (orderSpecifier != null) {
+      query.orderBy(orderSpecifier);
+    }
+
+    List<Clean> content = query
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch();
+
+    log.info("content : " + content);
+
+    long total = countByStatusCompletedAndSearch(beachSearch);
+    log.info("total : " + total);
+
+    return new PageImpl<>(content, pageable, total);
+  }
+
+  // ------------- Needed 시작-------------------
+  private long countByStatusNeededAndSearchForSuper(String search) {
+    QClean clean = QClean.clean;
+
+    return queryFactory
+        .select(clean.count())
+        .from(clean)
+        .where(checkStatusNeededAndSearch(search))
+        .fetchOne();
+  }
+  private long countByStatusNeededAndSearchForRegular(String search, Long adminId) {
+    QClean clean = QClean.clean;
+    QWorker cleaner = QWorker.worker;
+    QMember member = QMember.member; // Member 엔티티에 대한 Q 클래스를 추가 // 상속 받기 때문인것 같음
+
+    return queryFactory
+        .select(clean.count())
+        .from(clean)
+        .leftJoin(clean.cleaner, cleaner)
+        .innerJoin(member).on(member.id.eq(cleaner.id)) // Worker와 Member를 조인
+        .where(
+            checkStatusNeededAndSearch(search),
+            member.managerId.eq(adminId)) // member.managerId를 사용)
+        .fetchOne();
+  }
+
+  private Predicate checkStatusNeededAndSearch(String beachSearch) {
     QClean clean = QClean.clean;
     QBeach beach = QBeach.beach;
 
     BooleanExpression statusCondition = clean.status.eq(ReportStatus.ASSIGNMENT_NEEDED);
+
+    if (beachSearch != null && !beachSearch.isEmpty()) {
+      BooleanExpression searchCondition = beach.beachName.contains(beachSearch);
+
+      return statusCondition.and(searchCondition);
+    } else {
+      return statusCondition;
+    }
+  }
+
+  // ------------- Needed 끝-------------------
+
+  private Predicate checkStatusCompletedAndSearch(String beachSearch) {
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+
+    BooleanExpression statusCondition = clean.status.eq(ReportStatus.ASSIGNMENT_COMPLETED);
 
     if (beachSearch != null && !beachSearch.isEmpty()) {
       BooleanExpression searchCondition = beach.beachName.contains(beachSearch);
@@ -159,13 +272,14 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     return null;
   }
 
-  private long countByStatusNeededAndSearch(String search) {
+
+  private long countByStatusCompletedAndSearch(String search) {
     QClean clean = QClean.clean;
 
     return queryFactory
         .select(clean.count())
         .from(clean)
-        .where(checkStatusAndSearch(search))
+        .where(checkStatusCompletedAndSearch(search))
         .fetchOne();
   }
 

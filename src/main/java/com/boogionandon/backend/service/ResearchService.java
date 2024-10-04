@@ -21,7 +21,9 @@ public interface ResearchService {
   public void updateStatus(Long id);
 
   //  findByStatusNeededAndSearch 활용해 sevice 만들기
-  public Page<ResearchMain> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable);
+  public Page<ResearchMain> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable, Long adminId);
+
+  public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
 
   ResearchMainDetailResponseDTO getResearchDetail(Long researchId);
 }

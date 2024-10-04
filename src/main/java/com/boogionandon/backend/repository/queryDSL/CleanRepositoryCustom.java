@@ -12,5 +12,8 @@ public interface CleanRepositoryCustom {
 
   List<Clean> getBasicStatistics(String tapCondition, Integer year, Integer month, String beachName);
 
-  Page<Clean> findByStatusNeededAndSearch(String beachSearch, Pageable pageable);
+  Page<Clean> findByStatusNeededAndSearchForSuper(String beachSearch, Pageable pageable);
+  Page<Clean> findByStatusNeededAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId);
+
+  Page<Clean> findByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
 }

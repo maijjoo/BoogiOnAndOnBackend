@@ -3,9 +3,11 @@ package com.boogionandon.backend.repository;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.boogionandon.backend.domain.Beach;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +56,7 @@ class ResearchRepositoryTest {
   @DisplayName("research 추가 테스트")
   @Commit
   void testResearchInsert() {
-    Long researcherId = 11L; // initData에서 만들어진 Worer id => 11L
+    Long researcherId = 8L; // initData에서 만들어진 Worer id => 11L
     Worker researcher = (Worker) memberRepository.findById(researcherId)
         .orElseThrow(() -> new NoSuchElementException("Worker with id "+ researcherId +" not found"));
     // initData에서 만든 Worker의 id
@@ -121,13 +124,61 @@ class ResearchRepositoryTest {
     log.info("researchSubs : " + researchMain.getResearchSubList());
   }
 
-  // ------ findByStatusNeededAndSearch 시작 ------
+  // ------ findByStatusNeededAndSearch, findByStatusCompletedAndSearch 시작 ------
   @Test
-  @DisplayName("findByStatusNeededAndSearch 조회 테스트")
+  @DisplayName("findByStatusNeededAndSearch 조회 테스트 - 수퍼와 일반")
   void testFindByStatusNeededAndSearch() {
 
-    String beachSearch = "해운대";
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 7L;
+
+    String beachSearch = "광안리";
     
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("reportTime").descending() :
+            Sort.by("reportTime").ascending()
+    );
+
+    Member admin = memberRepository.findById(adminId)
+        .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
+
+    log.info("admin role : " + admin.getMemberRoleList().toString());
+
+    // size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+    boolean isContainSuper = admin.getMemberRoleList().stream()
+        .anyMatch(role -> role == MemberType.SUPER_ADMIN);
+
+    if (isContainSuper) {
+      log.info("SuperAdmin 들어음");
+      Page<ResearchMain> byStatusNeededAndSearchForSuper = researchMainRepository.findByStatusNeededAndSearchForSuper(beachSearch, pageable);
+//      Page<ResearchMain> byStatusNeededAndSearchForSuper = researchMainRepository.findByStatusNeededAndSearchForSuper("", pageable);
+
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper);
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper.getContent());
+    } else {
+      log.info("Admin 들어음");
+      Page<ResearchMain> byStatusNeededAndSearchForRegular = researchMainRepository.findByStatusNeededAndSearchForRegular(beachSearch, pageable, adminId);
+//      Page<ResearchMain> byStatusNeededAndSearchForRegular = researchMainRepository.findByStatusNeededAndSearchForRegular("", pageable, adminId);
+
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular);
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular.getContent());
+    }
+
+
+  }
+
+  @Test
+  @DisplayName("findByStatusCompletedAndSearch 조회 테스트")
+  void testFindByStatusCompletedAndSearch() {
+
+    String beachSearch = "광안리";
+
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
         .build();
@@ -139,13 +190,15 @@ class ResearchRepositoryTest {
             Sort.by("reportTime").ascending()
     );
 
-    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch(beachSearch, pageable);
-//    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusNeededAndSearch("", pageable);
+//    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusCompletedAndSearch(beachSearch, pageable);
+    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusCompletedAndSearch("", pageable);
 
 
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
   }
+
+
   // ------ findByStatusNeededAndSearch 끝 ------
   // ------ findByIdWithOutSub, findListByMainId 시작 --------
   @Test
