@@ -8,6 +8,8 @@ import com.boogionandon.backend.service.PickUpService;
 import com.boogionandon.backend.util.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,6 +64,10 @@ public class PickUpController {
         return Map.of("result", "success");
     }
 
+    @GetMapping("/view/{fileName}")
+    public ResponseEntity<Resource> viewFileGET(@PathVariable("fileName") String fileName) {
+        return fileUtil.getFile(fileName);
+    }
 
 
 }
