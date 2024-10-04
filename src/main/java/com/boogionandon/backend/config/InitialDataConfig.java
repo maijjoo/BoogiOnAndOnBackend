@@ -82,11 +82,34 @@ public class InitialDataConfig {
       admin.getMemberRoleList().add(MemberType.ADMIN);
       adminRepository.save(admin);
       log.info("Admin created");
+
+      for (int i = 1 ; i <= 2; i++) {
+        Admin adminPlus = Admin.builder()
+            .username("A_testAdmin" + i)
+            .password(passwordEncoder.encode("0000"))
+            .email("test" + i + "@admin.com")
+            .name("송지현")
+            .phone("010-9999-999" + i)
+            .address("부산 광역시 수영구")
+            .addressDetail("수영2동 200번지")
+            .managerId(1L) // Super Admin1
+            .workPlace("수영 구청")
+            .department("해양수산")
+            .position("공무원") // 직급체계 잘 모름
+            .assignmentArea("해운대 해수욕장")
+            .contact("051-9999-999" + i)
+            .build();
+
+        admin.getMemberRoleList().add(MemberType.ADMIN);
+        adminRepository.save(adminPlus);
+        log.info("adminPlus : " + adminPlus);
+
+      }
     } else {
       log.info("Amin already exists");
     }
 
-    if (memberRepository.count() == 5) {
+    if (memberRepository.count() == 7) {
       Worker worker = Worker.builder()
           .username("W_testWorker")
           .password(passwordEncoder.encode("0000"))
@@ -94,8 +117,8 @@ public class InitialDataConfig {
           .name("이석현")
           .phone("010-8888-8888")
           .address("부산 광역시 수영구")
-          .addressDetail("수영1동 101번지")
-          .managerId(6L) // 위의 테스트에서 만들어진 Admin
+          .addressDetail("수영3동 301번지")
+          .managerId(5L) // 위의 테스트에서 만들어진 Admin
           .contact("010-8888-8888")
           .workGroup("해운대 구청") // 이게 들어가는게 맞나?
           .workAddress("부산 광역시 해운대구")
@@ -109,6 +132,30 @@ public class InitialDataConfig {
       worker.getMemberRoleList().add(MemberType.WORKER);
       log.info("Worker : " + worker);
       workerRepository.save(worker);
+
+      for (int i = 1; i <= 3; i++) {
+        Worker workerPlus = Worker.builder()
+            .username("W_testWorker"+i)
+            .password(passwordEncoder.encode("0000"))
+            .email("test" + i + "@worker.com")
+            .name("라주엽")
+            .phone("010-8888-888" + i)
+            .address("부산 광역시 수영구")
+            .addressDetail("수영4동 401번지")
+            .managerId(6L) // 위의 테스트에서 만들어진 Admin
+            .contact("010-8888-888"+i)
+            .workGroup("해운대 구청") // 이게 들어가는게 맞나?
+            .workAddress("부산 광역시 해운대구")
+            .workAddressDetail("중동2로 11 해운대구청")
+            .startDate(LocalDate.now()) // 실제는 화면에서 선택
+            .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
+            .vehicleCapacity(i)
+            .build();
+
+        worker.getMemberRoleList().add(MemberType.WORKER);
+        log.info("workerPlus : " + workerPlus);
+        workerRepository.save(workerPlus);
+      }
     }else {
       log.info("Worker already exists");
     }
