@@ -1,12 +1,17 @@
 package com.boogionandon.backend.service;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.PickUpRepository;
+import jakarta.persistence.EntityNotFoundException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,6 +35,81 @@ public class PickUpLocalServiceImpl implements PickUpService {
         log.info("---------- : " + pickUp);
         pickUpRepository.save(pickUp);
     }
+
+    @Override
+    public List<PickUpListForCollectorResponseDTO> findPickUpWithAdmin(Long adminId) {
+
+        List<PickUp> findList = pickUpRepository.findPickUpWithAdminAndImages(
+            adminId);
+
+        List<PickUpListForCollectorResponseDTO> dtoList = findList.stream()
+            .map(pickUp -> {
+
+                return PickUpListForCollectorResponseDTO.builder()
+                    .id(pickUp.getId())
+                    .submmiterName(pickUp.getSubmitter().getName())
+                    .pickUpPlace(pickUp.getPickUpPlace())
+                    .latitude(pickUp.getLatitude())
+                    .longitude(pickUp.getLongitude())
+                    .mainTrashType(pickUp.getMainTrashType())
+                    .actualCollectedVolume(pickUp.getActualCollectedVolume())
+                    .images(pickUp.getImages().stream()
+                        .map(image -> "S_" + image.getFileName())
+                        .collect(Collectors.toList()))
+                    .status(pickUp.getStatus())
+                    // 필요한 다른 필드들도 여기에 추가
+                    .build();
+            })
+            .collect(Collectors.toList());
+        return dtoList;
+    }
+
+    @Override
+    public void updatePickUpStatusToAddedToRoute(Long pickUpId) {
+        // 영속 처리 된것임
+        PickUp findPickUp = pickUpRepository.findById(pickUpId)
+            .orElseThrow(() -> new EntityNotFoundException("ResearchMain not found with id: " + pickUpId));
+
+
+        if (ReportStatus.ASSIGNMENT_NEEDED.equals(findPickUp.getStatus())) {
+            log.info("상태 변경 시작: {}", findPickUp.getStatus());
+            findPickUp.changeStatusToAddedToRoute(ReportStatus.ASSIGNMENT_ADDED_TO_ROUTE);
+            log.info("상태 변경 완료: {}", findPickUp.getStatus());
+        } else {
+            throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+        }
+    }
+
+    @Override
+    public void updatePickUpStatusToCompleted(Long pickUpId) {
+        // 영속 처리 된것임
+        PickUp findPickUp = pickUpRepository.findById(pickUpId)
+            .orElseThrow(() -> new EntityNotFoundException("ResearchMain not found with id: " + pickUpId));
+
+        if (ReportStatus.ASSIGNMENT_NEEDED.equals(findPickUp.getStatus()) || ReportStatus.ASSIGNMENT_ADDED_TO_ROUTE.equals(findPickUp.getStatus())) {
+            log.info("상태 변경 시작: {}", findPickUp.getStatus());
+            findPickUp.changeStatusToCompleted(ReportStatus.ASSIGNMENT_COMPLETED);
+            log.info("상태 변경 완료: {}", findPickUp.getStatus());
+        } else {
+            throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+        }
+    }
+
+    @Override
+    public void updatePickUpStatusFromAddedToNeeded(Long pickUpId) {
+        // 영속 처리 된것임
+        PickUp findPickUp = pickUpRepository.findById(pickUpId)
+            .orElseThrow(() -> new EntityNotFoundException("ResearchMain not found with id: " + pickUpId));
+
+        if (ReportStatus.ASSIGNMENT_ADDED_TO_ROUTE.equals(findPickUp.getStatus())) {
+            log.info("상태 변경 시작: {}", findPickUp.getStatus());
+            findPickUp.changeStatusFromAddedToNeeded(ReportStatus.ASSIGNMENT_NEEDED);
+            log.info("상태 변경 완료: {}", findPickUp.getStatus());
+        } else {
+            throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+        }
+    }
+
 
     private PickUp createPickUpFromDTO(PickUpRequestDTO pickUpRequestDTO) {
         Worker submitter = findSubmitter(pickUpRequestDTO.getSubmitterUsername());

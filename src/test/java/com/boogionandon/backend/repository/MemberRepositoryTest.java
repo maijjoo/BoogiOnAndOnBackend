@@ -97,7 +97,7 @@ class MemberRepositoryTest {
         .phone("010-1111-2222")
         .address("부산 광역시 수영구")
         .addressDetail("수영1동 101번지")
-        .managerId(6L) // 위의 테스트에서 만들어진 Admin
+        .managerId(5L) // 위의 테스트에서 만들어진 Admin
         .contact("010-1234-1234")
         .workGroup("해운대 구청") // 이게 들어가는게 맞나?
         .workAddress("부산 광역시 해운대구")
