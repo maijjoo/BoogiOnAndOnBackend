@@ -21,7 +21,9 @@ public interface CleanService {
   // 관리자 화면에서 보는 기초통계에서 사용할 메서드
   BasicStatisticsResponseDTO getBasicStatistics(String tapCondition, Integer year, Integer month, String beachName);
 
-  Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable);
+  // 관리자 화면에서 보는 new, closed 작업에 관한 메서드
+  Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable, Long adminId);
+  Page<Clean> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
 
   CleanDetailResponseDTO getCleanDetail(Long cleanId);
 

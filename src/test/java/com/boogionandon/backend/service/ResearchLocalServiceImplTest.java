@@ -73,10 +73,15 @@ class ResearchLocalServiceImplTest {
     researchService.updateStatus(id);
   }
   // ----------- findByStatusChange 테스트 끝 -----------
-  // ----------- findResearchByStatusNeededAndSearch 테스트 시작 -----------
+  // ----------- findResearchByStatusNeededAndSearch, findResearchByStatusCompletedAndSearch 테스트 시작 -----------
   @Test
   @DisplayName("findResearchByStatusNeededAndSearch 테스트")
   void testFindResearchByStatusNeededAndSearch() {
+
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 1L;
+
     String beachSearch = "광안리";
 
     // 기본으로 사용
@@ -90,8 +95,35 @@ class ResearchLocalServiceImplTest {
             Sort.by("reportTime").ascending()
     );
 
-//    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(beachSearch, pageable);
-    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(null, pageable);
+//    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
+    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(null, pageable, adminId);
+
+    log.info("findList : " + findList);
+    log.info("findList : " + findList.getContent());
+  }
+  @Test
+  @DisplayName("findResearchByStatusCompletedAndSearch 테스트")
+  void testFindResearchByStatusCompletedAndSearch() {
+
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 7L;
+
+    String beachSearch = "광안리";
+
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("reportTime").descending() :
+            Sort.by("reportTime").ascending()
+    );
+
+    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+//    Page<ResearchMain> findList = researchService.findResearchByStatusCompletedAndSearch(null, pageable);
 
     log.info("findList : " + findList);
     log.info("findList : " + findList.getContent());

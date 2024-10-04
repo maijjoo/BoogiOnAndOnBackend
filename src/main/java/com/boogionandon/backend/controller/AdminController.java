@@ -57,12 +57,15 @@ public class AdminController {
   private final JPAQueryFactory queryFactory;
   private final ResearchService researchService;
 
+  // 리팩토링은 나중에 여유 있을때 하기
+
 
   // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 API
   // 어차피 지도로 표현하는 거니 페이징은 없을것 같아 아래 DTO 만들어씀
   // start가 end 보다 이전 일이게 들어오는건 리액트에서 체크하고 보내야 하지 않을까? 서버쪽에서도 필요한가?
   // 리액트에서 년, 년/월 을 하다가 시작~끝 으로 바뀌거나 그 반대일때 이전 년, 년/월 값을 null로 초기화 해야하고 반대도 마찬가지
   // 4가지 다 들어오면 값을 못찾고 있음, 여기서 수정할 수 있긴 한데 이건 리액트에서 값이 제대로 들어와야 하는 문제가 아닐까?
+  // 관리자 상관없이 모든 데이터 다 볼 수 있음
   @GetMapping("/trash-distribution")
   public TrashMapResponseDTO trashDistribution(
       @RequestParam(required = false) Integer year,
@@ -81,6 +84,7 @@ public class AdminController {
   // 관리자 페이지에서 기초 통계 볼때 필요한 API
   // 연도별, 월별, 일별을 탭으로 표현한다고 했는데, 그래서 하나의 주소로 받음
   // 내려줄때 시군구, beachName은 넣어 줘야 하나?
+  // 관리자 상관없이 모든 데이터 다 볼 수 있음
   @GetMapping("/basic-statistics")
   public BasicStatisticsResponseDTO basicStatistics(
       @RequestParam String tapCondition,
@@ -100,8 +104,9 @@ public class AdminController {
   }
 
   // 관리자 페이지에서 new-작업 에서 보이는 화면
-  @GetMapping("/new-tasks")
-  public PageResponseDTO getNewTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO) {
+  // 작업한 Worker의 관리자의 내용만 보여져야함
+  @GetMapping("/new-tasks/{adminId}")
+  public PageResponseDTO<?> getNewTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
 
     if (tabCondition.equals("조사 완료")) {
 
@@ -112,7 +117,7 @@ public class AdminController {
         pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("reportTime").ascending());
       }
 
-      Page<ResearchMain> findList = researchLocalServiceImpl.findResearchByStatusNeededAndSearch(beachSearch, pageable);
+      Page<ResearchMain> findList = researchLocalServiceImpl.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
 
 
 
@@ -143,7 +148,8 @@ public class AdminController {
         pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("cleanDateTime").ascending());
       }
 
-      Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(beachSearch, pageable);
+      Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
+
       List<CleanListResponseDTO> responseDTOList = findList.stream().map(clean -> {
         return CleanListResponseDTO.builder()
             .id(clean.getId())
@@ -164,6 +170,71 @@ public class AdminController {
     return null;
   }
 
+  // TODO : 작업한 Worker의 관리자의 내용만 보여져야함
+  @GetMapping("/completed-tasks")
+  public PageResponseDTO<?> getClosedTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO) {
+
+    if (tabCondition.equals("조사")) {
+
+      Pageable pageable = null;
+      if (pageRequestDTO.getSort().equals("desc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("reportTime").descending());
+      } else if (pageRequestDTO.getSort().equals("asc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("reportTime").ascending());
+      }
+
+      Page<ResearchMain> findList = researchLocalServiceImpl.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+
+      List<ResearchMainListResponseDTO> responseDTOList = findList.stream().map(research -> {
+        return ResearchMainListResponseDTO.builder()
+            .id(research.getId())
+            .beachName(research.getBeach().getBeachName())
+            .researcherName(research.getResearcher().getName())
+            .totalBeachLength(research.getTotalBeachLength())
+            .expectedTrashAmount(research.getExpectedTrashAmount())
+            .reportTime(research.getReportTime())
+            .status(research.getStatus())
+            .weather(research.getWeather())
+            .specialNote(research.getSpecialNote())
+            .thumbnail(research.getImages().stream()
+                .min(Comparator.comparing(Image::getOrd))
+                .map(image -> "S_" + image.getFileName())
+                .orElse(null))
+            .build();
+      }).collect(Collectors.toList());
+      return new PageResponseDTO(responseDTOList, pageRequestDTO, findList.getTotalElements());
+    } else if (tabCondition.equals("청소")) {
+      Pageable pageable = null;
+      if (pageRequestDTO.getSort().equals("desc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("cleanDateTime").descending());
+      } else if (pageRequestDTO.getSort().equals("asc")) {
+        pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("cleanDateTime").ascending());
+      }
+
+      Page<Clean> findList = cleanService.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+      List<CleanListResponseDTO> responseDTOList = findList.stream().map(clean -> {
+        return CleanListResponseDTO.builder()
+            .id(clean.getId())
+            .beachName(clean.getBeach().getBeachName())
+            .cleanerName(clean.getCleaner().getName())
+            .realTrashAmount(clean.getRealTrashAmount())
+            .cleanDateTime(clean.getCleanDateTime())
+            .beachLength(clean.getBeachLength())
+            .mainTrashType(clean.getMainTrashType())
+            .status(clean.getStatus())
+            .thumbnail(clean.getImages() != null && !clean.getImages().isEmpty()
+                ? "S_" + clean.getImages().get(0).getFileName()
+                : null)
+            .build();
+      }).collect(Collectors.toList());
+      return new PageResponseDTO(responseDTOList, pageRequestDTO, findList.getTotalElements());
+    } else if (tabCondition.equals("수거")) {
+
+    }
+
+    return null;
+  }
+
   @GetMapping("/new-tasks/research/{researchId}")
   public ResearchMainDetailResponseDTO getNewTasksByResearch(@PathVariable("researchId") Long researchId) {
 
@@ -172,7 +243,7 @@ public class AdminController {
 
   // 한번 배정하면 취소 안됨!!
   @PatchMapping("/new-tasks/research/completed/{researchId}")
-  public Map<String,String> ResearchUpdateStatusToCompleted(@PathVariable("researchId") Long researchId) {
+  public Map<String,String> researchUpdateStatusToCompleted(@PathVariable("researchId") Long researchId) {
     researchService.updateStatus(researchId);
     return Map.of("message", "success");
   }
