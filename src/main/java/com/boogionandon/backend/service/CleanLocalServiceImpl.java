@@ -4,7 +4,9 @@ import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
 import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
@@ -16,6 +18,7 @@ import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.CleanRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -123,6 +127,47 @@ public class CleanLocalServiceImpl implements CleanService{
   public Page<Clean> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable) {
     // tapCondition은 컨트롤러에서 처리하기
     return cleanRepository.findByStatusNeededAndSearch(beachSearch, pageable);
+  }
+
+  @Override
+  public CleanDetailResponseDTO getCleanDetail(Long cleanId) {
+
+    Clean clean = cleanRepository.findByIdWithImage(cleanId)
+        .orElseThrow(() -> new EntityNotFoundException("해당 Clean을 찾을 수 없습니다. : " + cleanId));
+
+    return CleanDetailResponseDTO.builder()
+        .id(clean.getId())
+        .cleanerName(clean.getCleaner().getUsername())
+        .beachName(clean.getBeach().getBeachName())
+        .realTrashAmount(clean.getRealTrashAmount())
+        .cleanDateTime(clean.getCleanDateTime())
+        .startLatitude(clean.getStartLatitude())
+        .startLongitude(clean.getStartLongitude())
+        .endLatitude(clean.getEndLatitude())
+        .endLongitude(clean.getEndLongitude())
+        .mainTrashType(clean.getMainTrashType())
+        .status(clean.getStatus())
+        .images(clean.getImages().stream().map(image -> {
+          return "S_" +image.getFileName();
+        }).collect(Collectors.toList()))
+        .build();
+  }
+
+  @Override
+  public void updateStatus(Long cleanId) {
+
+    //영속 처리 된것임
+    Clean findClean = cleanRepository.findById(cleanId)
+        .orElseThrow(() -> new EntityNotFoundException("해당 Clean을 찾을 수 없습니다. : " + cleanId));
+
+    if(ReportStatus.ASSIGNMENT_NEEDED.equals(findClean.getStatus())) {
+      log.info("상태 변경 시작: {}", findClean.getStatus());
+      findClean.changeStatusToCompleted(ReportStatus.ASSIGNMENT_COMPLETED);
+      log.info("상태 변경 완료: {}", findClean.getStatus());
+    } else {
+      throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+    }
+
   }
   // ------------getBasicStatistics 관련 메서드 시작-------
   /**

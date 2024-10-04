@@ -7,12 +7,15 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
+import com.boogionandon.backend.dto.ResearchSubDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.ResearchMainRepository;
+import com.boogionandon.backend.repository.ResearchSubRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -38,6 +41,7 @@ public class ResearchLocalServiceImpl implements ResearchService{
   private final BeachRepository beachRepository;
   private final MemberRepository memberRepository;
   private final ResearchMainRepository researchMainRepository;
+  private final ResearchSubRepository researchSubRepository;
 
   @Override
   public void insertResearch(ResearchMainRequestDTO mainDTO) {
@@ -66,7 +70,6 @@ public class ResearchLocalServiceImpl implements ResearchService{
 
   @Override
   public void updateStatus(Long id) {
-  // status는 보내줄 때 리액트에서 detail로 받은 정보에서 뽑아서 보낼거임
 
     // 영속 처리 된것임
     ResearchMain findResearchMain = researchMainRepository.findById(id)
@@ -75,7 +78,7 @@ public class ResearchLocalServiceImpl implements ResearchService{
 
     if (ReportStatus.ASSIGNMENT_NEEDED.equals(findResearchMain.getStatus())) {
       log.info("상태 변경 시작: {}", findResearchMain.getStatus());
-      findResearchMain.changeStatus(ReportStatus.ASSIGNMENT_COMPLETED);
+      findResearchMain.changeStatusToCompleted(ReportStatus.ASSIGNMENT_COMPLETED);
       log.info("상태 변경 완료: {}", findResearchMain.getStatus());
     } else {
       throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
@@ -86,6 +89,42 @@ public class ResearchLocalServiceImpl implements ResearchService{
   public Page<ResearchMain> findResearchByStatusNeededAndSearch(String search, Pageable pageable) {
     // tapCondition은 컨트롤러에서 처리하기
     return researchMainRepository.findByStatusNeededAndSearch(search, pageable);
+  }
+
+  @Override
+  public ResearchMainDetailResponseDTO getResearchDetail(Long researchId) {
+
+    ResearchMain findMain = researchMainRepository.findByIdWithOutSub(researchId)
+        .orElseThrow(() -> new EntityNotFoundException("해당 Research를 찾을 수 없습니다. : " + researchId));
+
+    List<ResearchSub> findSubList = researchSubRepository.findListByMainId(researchId);
+
+    return ResearchMainDetailResponseDTO.builder()
+        .id(findMain.getId())
+        .researcherName(findMain.getResearcher().getName())
+        .beachName(findMain.getBeach().getBeachName())
+        .totalBeachLength(findMain.getTotalBeachLength())
+        .expectedTrashAmount(findMain.getExpectedTrashAmount())
+        .reportTime(findMain.getReportTime())
+        .status(findMain.getStatus())
+        .weather(findMain.getWeather())
+        .specialNote(findMain.getSpecialNote())
+        .images(findMain.getImages().stream().map(image -> {
+          return "S_" + image.getFileName();
+        }).collect(Collectors.toList()))
+        .researchSubList(findSubList.stream().map(sub -> {
+          return ResearchSubDetailResponseDTO.builder()
+              .id(sub.getId())
+              .beachNameWithIndex(sub.getBeachNameWithIndex())
+              .startLatitude(sub.getStartLatitude())
+              .startLongitude(sub.getStartLongitude())
+              .endLatitude(sub.getEndLatitude())
+              .endLongitude(sub.getEndLongitude())
+              .mainTrashType(sub.getMainTrashType())
+              .researchLength(sub.getResearchLength())
+              .build();
+        }).collect(Collectors.toList()))
+        .build();
   }
 
   private ResearchMain createResearchMainFromDTO(ResearchMainRequestDTO mainDTO) {

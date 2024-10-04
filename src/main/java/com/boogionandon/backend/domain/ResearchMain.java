@@ -129,7 +129,7 @@ public class ResearchMain extends BaseEntity{
     }
   }
 
-  public void changeStatus(ReportStatus status) {
-    this.status = status;
+  public void changeStatusToCompleted(ReportStatus reportStatus) {
+    this.status = reportStatus;
   }
 }

@@ -121,4 +121,7 @@ public class Clean extends BaseEntity {
     }
   }
 
+  public void changeStatusToCompleted(ReportStatus reportStatus) {
+    this.status = reportStatus;
+  }
 }
