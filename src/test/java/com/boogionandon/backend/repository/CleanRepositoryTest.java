@@ -9,6 +9,7 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.util.DistanceCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
@@ -271,4 +272,19 @@ class CleanRepositoryTest {
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
   }
+  // ------ findByStatusNeededAndSearch 끝 ------
+  // ------ findByIdWithImage 시작 ------
+  @Test
+  @DisplayName("findByIdWithImage 메서드 테스트")
+  void testFindByIdWithImage() {
+    Long cleanId = 1L; // initData에서 만들어진 Clean id => 1L
+
+    Clean findClean = cleanRepository.findByIdWithImage(cleanId)
+       .orElseThrow(() -> new EntityNotFoundException("Clean with id "+ cleanId +" not found"));
+
+    log.info("clean : " + findClean.toString());
+    log.info("clean images : " + findClean.getImages());
+  }
+
+  // ------ findByIdWithImage 끝 ------
 }

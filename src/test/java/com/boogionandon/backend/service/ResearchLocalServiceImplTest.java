@@ -7,6 +7,7 @@ import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import jakarta.persistence.Column;
@@ -96,5 +97,17 @@ class ResearchLocalServiceImplTest {
     log.info("findList : " + findList.getContent());
   }
   // ----------- findResearchByStatusNeededAndSearch 테스트 끝 -----------
+  // ----------- getResearchDetail 테스트 시작 -----------
+  @Test
+  @DisplayName("getResearchDetail 메서드 테스트")
+  void testGetResearchDetail() {
+
+    Long researchId = 1L;
+
+    ResearchMainDetailResponseDTO findMain = researchService.getResearchDetail(researchId);
+    log.info("findMain : " + findMain.toString());
+  }
+
+  // ----------- getResearchDetail 테스트 끝 -----------
 
 }

@@ -100,7 +100,7 @@ public class InitialDataConfig {
             .contact("051-9999-999" + i)
             .build();
 
-        admin.getMemberRoleList().add(MemberType.ADMIN);
+        adminPlus.getMemberRoleList().add(MemberType.ADMIN);
         adminRepository.save(adminPlus);
         log.info("adminPlus : " + adminPlus);
 
@@ -152,7 +152,7 @@ public class InitialDataConfig {
             .vehicleCapacity(i)
             .build();
 
-        worker.getMemberRoleList().add(MemberType.WORKER);
+        workerPlus.getMemberRoleList().add(MemberType.WORKER);
         log.info("workerPlus : " + workerPlus);
         workerRepository.save(workerPlus);
       }

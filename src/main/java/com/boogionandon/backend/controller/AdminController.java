@@ -5,10 +5,12 @@ import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.QImage;
 import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.ResearchMain;
+import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanListResponseDTO;
 import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PageResponseDTO;
+import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
@@ -17,6 +19,7 @@ import com.boogionandon.backend.repository.CleanRepository;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
 import com.boogionandon.backend.service.ResearchLocalServiceImpl;
+import com.boogionandon.backend.service.ResearchService;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
@@ -36,6 +39,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +55,7 @@ public class AdminController {
   private final BeachService beachService;
   private final ResearchLocalServiceImpl researchLocalServiceImpl;
   private final JPAQueryFactory queryFactory;
+  private final ResearchService researchService;
 
 
   // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 API
@@ -157,5 +163,31 @@ public class AdminController {
     }
     return null;
   }
+
+  @GetMapping("/new-tasks/research/{researchId}")
+  public ResearchMainDetailResponseDTO getNewTasksByResearch(@PathVariable("researchId") Long researchId) {
+
+    return researchService.getResearchDetail(researchId);
+  }
+
+  // 한번 배정하면 취소 안됨!!
+  @PatchMapping("/new-tasks/research/completed/{researchId}")
+  public Map<String,String> ResearchUpdateStatusToCompleted(@PathVariable("researchId") Long researchId) {
+    researchService.updateStatus(researchId);
+    return Map.of("message", "success");
+  }
+
+  @GetMapping("/new-tasks/clean/{cleanId}")
+  public CleanDetailResponseDTO getNewTasksByClean(@PathVariable("cleanId") Long cleanId) {
+    return cleanService.getCleanDetail(cleanId);
+  }
+
+  // 한번 배정하면 취소 안됨!!
+  @PatchMapping("/new-tasks/clean/completed/{cleanId}")
+  public Map<String,String> cleanUpdateStatusToCompleted(@PathVariable("cleanId") Long cleanId) {
+    cleanService.updateStatus(cleanId);
+    return Map.of("message", "success");
+  }
+
 
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.ResearchMain;
+import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
@@ -151,4 +152,15 @@ class CleanLocalServiceImplTest {
     log.info("findList : " + findList.getContent());
   }
   // ----------- findResearchByStatusNeededAndSearch 테스트 끝 -----------
+  // ----------- getCleanDetail 테스트 시작 -----------
+  @Test
+  @DisplayName("getCleanDetail 테스트")
+  void testGetCleanDetail() {
+    Long cleanId = 1L;
+
+    CleanDetailResponseDTO cleanDTO = cleanService.getCleanDetail(cleanId);
+
+    log.info("cleanDTO : " + cleanDTO);
+  }
+  // ----------- getCleanDetail 테스트 끝 -----------
 }

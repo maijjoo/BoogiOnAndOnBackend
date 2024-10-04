@@ -3,6 +3,7 @@ package com.boogionandon.backend.service;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,4 +22,6 @@ public interface ResearchService {
 
   //  findByStatusNeededAndSearch 활용해 sevice 만들기
   public Page<ResearchMain> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable);
-  }
+
+  ResearchMainDetailResponseDTO getResearchDetail(Long researchId);
+}

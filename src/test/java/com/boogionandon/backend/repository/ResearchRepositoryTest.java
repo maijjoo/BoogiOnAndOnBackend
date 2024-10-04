@@ -10,6 +10,7 @@ import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.util.DistanceCalculator;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,7 +53,7 @@ class ResearchRepositoryTest {
   @DisplayName("research 추가 테스트")
   @Commit
   void testResearchInsert() {
-    Long researcherId = 6L; // initData에서 만들어진 Worer id => 6L
+    Long researcherId = 11L; // initData에서 만들어진 Worer id => 11L
     Worker researcher = (Worker) memberRepository.findById(researcherId)
         .orElseThrow(() -> new NoSuchElementException("Worker with id "+ researcherId +" not found"));
     // initData에서 만든 Worker의 id
@@ -145,8 +146,22 @@ class ResearchRepositoryTest {
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
     log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
   }
-
-
-
   // ------ findByStatusNeededAndSearch 끝 ------
+  // ------ findByIdWithOutSub, findListByMainId 시작 --------
+  @Test
+  @DisplayName("findByIdWithOutSub, findListByMainId 조회 ��스트")
+  void testFindByIdWithOutSubAndFindListByMainId() {
+
+    Long researchMainId = 1L;
+
+    ResearchMain findMain = researchMainRepository.findByIdWithOutSub(researchMainId)
+        .orElseThrow(() -> new EntityNotFoundException("해당 Research를 찾을 수 없습니다. : " + researchMainId));
+    log.info("findMain : " + findMain.toString());
+
+    List<ResearchSub> findSubList = researchSubRepository.findListByMainId(researchMainId);
+    log.info("findSubList : " + findSubList);
+
+
+  }
+  // ------ findByIdWithOutSub, findListByMainId 끝 --------
 }
