@@ -23,7 +23,7 @@ public interface ResearchService {
   //  findByStatusNeededAndSearch 활용해 sevice 만들기
   public Page<ResearchMain> findResearchByStatusNeededAndSearch(String beachSearch, Pageable pageable, Long adminId);
 
-  public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
+  public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId);
 
   ResearchMainDetailResponseDTO getResearchDetail(Long researchId);
 }

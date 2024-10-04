@@ -92,8 +92,8 @@ public class CustomSecurityConfig {
     // TODO : 모든 출처 허용 -> 나중에 마지막에 바꾸어야 할듯
     configuration.setAllowedOriginPatterns(Arrays.asList("*"));
 
-    // GET, POST, PUT, DELETE, HEAD, OPTIONS 메소드 허용
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
+    // GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS 메소드 허용
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"));
 
     // Authorization, Cache-Control, Content-Type 헤더 허용
     configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));

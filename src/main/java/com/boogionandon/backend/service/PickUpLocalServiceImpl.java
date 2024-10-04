@@ -1,9 +1,11 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Admin;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
@@ -14,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,6 +111,28 @@ public class PickUpLocalServiceImpl implements PickUpService {
             log.info("상태 변경 완료: {}", findPickUp.getStatus());
         } else {
             throw new IllegalStateException("Can only change status when current status is ASSIGNMENT_NEEDED");
+        }
+    }
+
+    @Override
+    public Page<PickUp> findPickUpByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId) {
+        // 수퍼 관리자 인지 아닌지 판별
+        // repository에서 결정 할까? 했지만 repository에서 repository를 import하는게 아닌거 같아서 여기서 나눔
+        Member admin = memberRepository.findById(adminId)
+            .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
+
+        log.info("admin role : " + admin.getMemberRoleList().toString());
+
+        // size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+        boolean isContainSuper = admin.getMemberRoleList().stream()
+            .anyMatch(role -> role == MemberType.SUPER_ADMIN);
+
+        if (isContainSuper) {
+            log.info("SuperAdmin 들어음");
+            return pickUpRepository.findByStatusCompletedAndSearchForSuper(beachSearch, pageable);
+        } else {
+            log.info("Admin 들어음");
+            return pickUpRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
         }
     }
 

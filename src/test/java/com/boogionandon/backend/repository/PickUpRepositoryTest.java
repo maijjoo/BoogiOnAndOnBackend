@@ -1,9 +1,13 @@
 package com.boogionandon.backend.repository;
 
+import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +17,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
@@ -158,5 +166,56 @@ class PickUpRepositoryTest {
 
     }
 
-    // ---------- findPickUpWithAdmin 조회 테스트 시작-----------
+    // ---------- findPickUpWithAdmin 조회 테스트 끝-----------
+    // ---------- findByStatusCompletedAndSearch 조회 테스트 시작-----------
+
+    @Test
+    @DisplayName("findByStatusCompletedAndSearch 조회 테스트")
+    void testFindByStatusCompletedAndSearch() {
+
+        // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+        // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+        Long adminId = 1L;
+
+        String search = "해운대";
+
+        // 기본으로 사용
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+            .build();
+
+
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+            pageRequestDTO.getSort().equals("desc") ?
+                Sort.by("submitDateTime").descending() :
+                Sort.by("submitDateTime").ascending()
+        );
+
+        Member admin = memberRepository.findById(adminId)
+            .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
+
+        log.info("admin role : " + admin.getMemberRoleList().toString());
+
+        // size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+        boolean isContainSuper = admin.getMemberRoleList().stream()
+            .anyMatch(role -> role == MemberType.SUPER_ADMIN);
+
+        if (isContainSuper) {
+            log.info("SuperAdmin 들어음");
+//      Page<PickUp> byStatusCompletedAndSearchForSuper = pickUpRepository.findByStatusCompletedAndSearchForSuper(beachSearch, pageable);
+            Page<PickUp> byStatusCompletedAndSearchForSuper = pickUpRepository.findByStatusCompletedAndSearchForSuper("", pageable);
+
+            log.info("byStatusCompletedAndSearchForSuper : " + byStatusCompletedAndSearchForSuper);
+            log.info("byStatusCompletedAndSearchForSuper : " + byStatusCompletedAndSearchForSuper.getContent());
+        } else {
+            log.info("Admin 들어음");
+//      Page<PickUp> byStatusCompletedAndSearchForRegular = pickUpRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
+            Page<PickUp> byStatusCompletedAndSearchForRegular = pickUpRepository.findByStatusCompletedAndSearchForRegular("", pageable, adminId);
+
+            log.info("byStatusCompletedAndSearchForRegular : " + byStatusCompletedAndSearchForRegular);
+            log.info("byStatusCompletedAndSearchForRegular : " + byStatusCompletedAndSearchForRegular.getContent());
+        }
+    }
+
+
+        // ---------- findByStatusCompletedAndSearch 조회 테스트 끝-----------
 }

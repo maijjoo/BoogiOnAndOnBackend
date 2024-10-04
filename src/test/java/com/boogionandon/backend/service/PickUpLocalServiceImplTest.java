@@ -1,6 +1,9 @@
 package com.boogionandon.backend.service;
 
+import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import java.util.List;
@@ -9,6 +12,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +57,35 @@ class PickUpLocalServiceImplTest {
         log.info("dtoList : " + dtoList.toString());
     }
 
+    // ----------- findResearchByStatusCompletedAndSearch 테스트 시작 -----------
+    @Test
+    @DisplayName("findPickUpByStatusCompletedAndSearch 테스트")
+    void testFindPickUpByStatusCompletedAndSearch() {
+
+        // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+        // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+        Long adminId = 5L;
+
+        String beachSearch = "해운대";
+
+        // 기본으로 사용
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+            .build();
+
+
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+            pageRequestDTO.getSort().equals("desc") ?
+                Sort.by("submitDateTime").descending() :
+                Sort.by("submitDateTime").ascending()
+        );
+
+    Page<PickUp> findList = pickUpService.findPickUpByStatusCompletedAndSearch(beachSearch, pageable, adminId);
+//        Page<PickUp> findList = pickUpService.findPickUpByStatusCompletedAndSearch(null, pageable, adminId);
+
+        log.info("findList : " + findList);
+        log.info("findList : " + findList.getContent());
+    }
+    // ----------- testFindPickUpByStatusCompletedAndSearch 테스트 끝 -----------
 
 
 }

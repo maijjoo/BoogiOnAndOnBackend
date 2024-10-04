@@ -165,7 +165,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
   }
 
   @Override
-  public Page<Clean> findByStatusCompletedAndSearch(String beachSearch, Pageable pageable) {
+  public Page<Clean> findByStatusCompletedAndSearchForSuper(String beachSearch, Pageable pageable) {
 
     QClean clean = QClean.clean;
     QBeach beach = QBeach.beach;
@@ -190,7 +190,45 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
 
     log.info("content : " + content);
 
-    long total = countByStatusCompletedAndSearch(beachSearch);
+    long total = countByStatusCompletedAndSearchForSuper(beachSearch);
+    log.info("total : " + total);
+
+    return new PageImpl<>(content, pageable, total);
+  }
+  @Override
+  public Page<Clean> findByStatusCompletedAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId) {
+
+    QClean clean = QClean.clean;
+    QBeach beach = QBeach.beach;
+    QImage image = QImage.image;
+    QWorker cleaner = QWorker.worker;
+    QMember member = QMember.member;
+
+    JPAQuery<Clean> query = queryFactory
+        .selectFrom(clean)
+        .leftJoin(clean.beach, beach).fetchJoin()
+        .leftJoin(clean.images, image).fetchJoin()
+        .leftJoin(clean.cleaner, cleaner).fetchJoin()
+        .innerJoin(member).on(member.id.eq(cleaner.id)) // Worker와 Member를 조인
+        .where(
+            checkStatusCompletedAndSearch(beachSearch),
+            member.managerId.eq(adminId) // member.managerId를 사용
+        );
+
+    // 정렬 적용
+    OrderSpecifier<?> orderSpecifier = createOrderSpecifier(pageable.getSort());
+    if (orderSpecifier != null) {
+      query.orderBy(orderSpecifier);
+    }
+
+    List<Clean> content = query
+        .offset(pageable.getOffset())
+        .limit(pageable.getPageSize())
+        .fetch();
+
+    log.info("content : " + content);
+
+    long total = countByStatusCompletedAndSearchForRegular(beachSearch, adminId);
     log.info("total : " + total);
 
     return new PageImpl<>(content, pageable, total);
@@ -238,6 +276,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
   }
 
   // ------------- Needed 끝-------------------
+  // ------------- Completed 시작-------------------
 
   private Predicate checkStatusCompletedAndSearch(String beachSearch) {
     QClean clean = QClean.clean;
@@ -253,6 +292,34 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
       return statusCondition;
     }
   }
+
+  private long countByStatusCompletedAndSearchForSuper(String search) {
+    QClean clean = QClean.clean;
+
+    return queryFactory
+        .select(clean.count())
+        .from(clean)
+        .where(checkStatusCompletedAndSearch(search))
+        .fetchOne();
+  }
+
+  private long countByStatusCompletedAndSearchForRegular(String search, Long adminId) {
+    QClean clean = QClean.clean;
+    QWorker cleaner = QWorker.worker;
+    QMember member = QMember.member; // Member 엔티티에 대한 Q 클래스를 추가 // 상속 받기 때문인것 같음
+
+    return queryFactory
+        .select(clean.count())
+        .from(clean)
+        .leftJoin(clean.cleaner, cleaner)
+        .innerJoin(member).on(member.id.eq(cleaner.id)) // Worker와 Member를 조인
+        .where(
+            checkStatusCompletedAndSearch(search),
+            member.managerId.eq(adminId)) // member.managerId를 사용)
+        .fetchOne();
+  }
+
+  // ------------- Completed 끝-------------------
 
   private OrderSpecifier<?> createOrderSpecifier(Sort sort) {
     if (sort.isEmpty()) {
@@ -271,19 +338,6 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
 
     return null;
   }
-
-
-  private long countByStatusCompletedAndSearch(String search) {
-    QClean clean = QClean.clean;
-
-    return queryFactory
-        .select(clean.count())
-        .from(clean)
-        .where(checkStatusCompletedAndSearch(search))
-        .fetchOne();
-  }
-
-  // ----------------------------------------------------------------
 
   private Predicate getBeachStatusInPeriod(String tapCondition, Integer year, Integer month, String beachName) {
     QClean clean = QClean.clean;
