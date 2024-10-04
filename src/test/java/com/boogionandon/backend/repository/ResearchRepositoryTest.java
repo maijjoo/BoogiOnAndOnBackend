@@ -177,7 +177,11 @@ class ResearchRepositoryTest {
   @DisplayName("findByStatusCompletedAndSearch 조회 테스트")
   void testFindByStatusCompletedAndSearch() {
 
-    String beachSearch = "광안리";
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 7L;
+
+    String beachSearch = "해운대";
 
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
@@ -190,12 +194,31 @@ class ResearchRepositoryTest {
             Sort.by("reportTime").ascending()
     );
 
-//    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusCompletedAndSearch(beachSearch, pageable);
-    Page<ResearchMain> byStatusNeededAndSearch = researchMainRepository.findByStatusCompletedAndSearch("", pageable);
+    Member admin = memberRepository.findById(adminId)
+        .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
+
+    log.info("admin role : " + admin.getMemberRoleList().toString());
+
+    // size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+    boolean isContainSuper = admin.getMemberRoleList().stream()
+        .anyMatch(role -> role == MemberType.SUPER_ADMIN);
 
 
-    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
-    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
+    if (isContainSuper) {
+      log.info("SuperAdmin 들어음");
+//      Page<ResearchMain> byStatusNeededAndSearchForSuper = researchMainRepository.findByStatusCompletedAndSearchForSuper(beachSearch, pageable);
+      Page<ResearchMain> byStatusNeededAndSearchForSuper = researchMainRepository.findByStatusCompletedAndSearchForSuper("", pageable);
+
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper);
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper.getContent());
+    } else {
+      log.info("Admin 들어음");
+//      Page<ResearchMain> byStatusNeededAndSearchForRegular = researchMainRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
+      Page<ResearchMain> byStatusNeededAndSearchForRegular = researchMainRepository.findByStatusCompletedAndSearchForRegular("", pageable, adminId);
+
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular);
+      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular.getContent());
+    }
   }
 
 

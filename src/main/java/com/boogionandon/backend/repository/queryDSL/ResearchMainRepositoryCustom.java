@@ -12,5 +12,6 @@ public interface ResearchMainRepositoryCustom {
   Page<ResearchMain> findByStatusNeededAndSearchForSuper(String beachSearch, Pageable pageable);
   Page<ResearchMain> findByStatusNeededAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId);
 
-  Page<ResearchMain> findByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
+  Page<ResearchMain> findByStatusCompletedAndSearchForSuper(String beachSearch, Pageable pageable);
+  Page<ResearchMain> findByStatusCompletedAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId);
 }

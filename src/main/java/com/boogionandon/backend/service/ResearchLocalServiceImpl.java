@@ -112,9 +112,27 @@ public class ResearchLocalServiceImpl implements ResearchService{
   }
 
   @Override
-  public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable) {
+  public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId) {
     // tapCondition은 컨트롤러에서 처리하기
-    return researchMainRepository.findByStatusCompletedAndSearch(beachSearch, pageable);
+
+    // 수퍼 관리자 인지 아닌지 판별
+    // repository에서 결정 할까? 했지만 repository에서 repository를 import하는게 아닌거 같아서 여기서 나눔
+    Member admin = memberRepository.findById(adminId)
+        .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
+
+    log.info("admin role : " + admin.getMemberRoleList().toString());
+
+    // size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+    boolean isContainSuper = admin.getMemberRoleList().stream()
+        .anyMatch(role -> role == MemberType.SUPER_ADMIN);
+
+    if (isContainSuper) {
+      log.info("SuperAdmin 들어음");
+      return researchMainRepository.findByStatusCompletedAndSearchForSuper(beachSearch, pageable);
+    } else {
+      log.info("Admin 들어음");
+      return researchMainRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
+    }
   }
 
   @Override

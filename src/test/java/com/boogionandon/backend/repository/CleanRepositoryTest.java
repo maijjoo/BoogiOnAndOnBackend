@@ -286,21 +286,25 @@ class CleanRepositoryTest {
       Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper(beachSearch, pageable);
 //      Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper("", pageable);
 
-      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper);
-      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForSuper.getContent());
+      log.info("byStatusNeededAndSearchForSuper : " + byStatusNeededAndSearchForSuper);
+      log.info("byStatusNeededAndSearchForSuper : " + byStatusNeededAndSearchForSuper.getContent());
     } else {
       log.info("Admin 들어음");
       Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular(beachSearch, pageable, adminId);
 //      Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular("", pageable, adminId);
 
-      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular);
-      log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearchForRegular.getContent());
+      log.info("byStatusNeededAndSearchForRegular : " + byStatusNeededAndSearchForRegular);
+      log.info("byStatusNeededAndSearchForRegular : " + byStatusNeededAndSearchForRegular.getContent());
     }
   }
 
   @Test
-  @DisplayName("findByStatusNeededAndSearch 조회 테스트")
+  @DisplayName("findByStatusCompletedAndSearch 조회 테스트")
   void testFindByStatusCompletedAndSearch() {
+
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 6L;
 
     String beachSearch = "해운대";
 
@@ -315,12 +319,30 @@ class CleanRepositoryTest {
             Sort.by("cleanDateTime").ascending()
     );
 
-    Page<Clean> byStatusNeededAndSearch = cleanRepository.findByStatusCompletedAndSearch(beachSearch, pageable);
-//    Page<Clean> byStatusNeededAndSearch = cleanRepository.findByStatusCompletedAndSearch("", pageable);
+    Member admin = memberRepository.findById(adminId)
+        .orElseThrow(() -> new UsernameNotFoundException("Admin not found with id: " + adminId));
 
+    log.info("admin role : " + admin.getMemberRoleList().toString());
 
-    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch);
-    log.info("byStatusNeededAndSearch : " + byStatusNeededAndSearch.getContent());
+// size나 0번째 같은 경우에는 에러가 날 수 있다고 생각해서 아래처럼 만듦
+    boolean isContainSuper = admin.getMemberRoleList().stream()
+        .anyMatch(role -> role == MemberType.SUPER_ADMIN);
+
+    if (isContainSuper) {
+      log.info("SuperAdmin 들어음");
+//      Page<Clean> byStatusCompletedAndSearchForSuper = cleanRepository.findByStatusCompletedAndSearchForSuper(beachSearch, pageable);
+      Page<Clean> byStatusCompletedAndSearchForSuper = cleanRepository.findByStatusCompletedAndSearchForSuper("", pageable);
+
+      log.info("byStatusCompletedAndSearchForSuper : " + byStatusCompletedAndSearchForSuper);
+      log.info("byStatusCompletedAndSearchForSuper : " + byStatusCompletedAndSearchForSuper.getContent());
+    } else {
+      log.info("Admin 들어음");
+//      Page<Clean> byStatusCompletedAndSearchForRegular = cleanRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
+      Page<Clean> byStatusCompletedAndSearchForRegular = cleanRepository.findByStatusCompletedAndSearchForRegular("", pageable, adminId);
+
+      log.info("byStatusCompletedAndSearchForRegular : " + byStatusCompletedAndSearchForRegular);
+      log.info("byStatusCompletedAndSearchForRegular : " + byStatusCompletedAndSearchForRegular.getContent());
+    }
   }
   // ------ findByStatusNeededAndSearch, findByStatusCompletedAndSearch 끝 ------
   // ------ findByIdWithImage 시작 ------
