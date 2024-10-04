@@ -95,6 +95,13 @@ public class Clean extends BaseEntity {
   @Column(nullable = false)
   private List<Image> images = new ArrayList<>(); // 청소 사진들
 
+  // TODO : 아래 내용 나중에 만들기, 지금 하면 헷깔리니까
+//  @Column(length = 20, nullable = false)
+//  private String weather;
+//
+//  @Column(length = 20, nullable = false)
+//  private String specialNote;
+
 
   // 아래는 추가로 필요할것 같은 필드들
 

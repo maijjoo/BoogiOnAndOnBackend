@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface ResearchMainRepositoryCustom {
 
-  Page<ResearchMain> findByStatusNeededAndSearch(String beachSearch, Pageable pageable);
+  Page<ResearchMain> findByStatusNeededAndSearchForSuper(String beachSearch, Pageable pageable);
+  Page<ResearchMain> findByStatusNeededAndSearchForRegular(String beachSearch, Pageable pageable, Long adminId);
 
+  Page<ResearchMain> findByStatusCompletedAndSearch(String beachSearch, Pageable pageable);
 }

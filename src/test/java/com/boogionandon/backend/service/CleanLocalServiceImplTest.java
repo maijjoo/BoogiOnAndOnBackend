@@ -128,10 +128,15 @@ class CleanLocalServiceImplTest {
     log.info("findBasicStatistics : " + findBasicStatistics);
   }
   // ---------- getBasicStatistics 메서드 테스트 끝 ---------
-  // ----------- findResearchByStatusNeededAndSearch 테스트 시작 -----------
+  // ----------- findResearchByStatusNeededAndSearch, findResearchByStatusCompletedAndSearch 테스트 시작 -----------
   @Test
   @DisplayName("findResearchByStatusNeededAndSearch 테스트")
   void testFindResearchByStatusNeededAndSearch() {
+
+    // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
+    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
+    Long adminId = 7L;
+
     String beachSearch = "광안리";
 
     // 기본으로 사용
@@ -145,13 +150,35 @@ class CleanLocalServiceImplTest {
             Sort.by("cleanDateTime").ascending()
     );
 
-    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(beachSearch, pageable);
-//    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(null, pageable);
+    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
+//    Page<Clean> findList = cleanService.findResearchByStatusNeededAndSearch(null, pageable, adminId);
 
     log.info("findList : " + findList);
     log.info("findList : " + findList.getContent());
   }
-  // ----------- findResearchByStatusNeededAndSearch 테스트 끝 -----------
+  @Test
+  @DisplayName("findResearchByStatusCompletedAndSearch 테스트")
+  void testFindResearchByStatusCompletedAndSearch() {
+    String beachSearch = "해운대";
+
+    // 기본으로 사용
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+        .build();
+
+
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("cleanDateTime").descending() :
+            Sort.by("cleanDateTime").ascending()
+    );
+
+    Page<Clean> findList = cleanService.findResearchByStatusCompletedAndSearch(beachSearch, pageable);
+//    Page<Clean> findList = cleanService.findResearchByStatusCompletedAndSearch(null, pageable);
+
+    log.info("findList : " + findList);
+    log.info("findList : " + findList.getContent());
+  }
+  // ----------- findResearchByStatusNeededAndSearch, findResearchByStatusCompletedAndSearch 테스트 끝 -----------
   // ----------- getCleanDetail 테스트 시작 -----------
   @Test
   @DisplayName("getCleanDetail 테스트")
