@@ -1,18 +1,13 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.ResearchMain;
-import com.boogionandon.backend.domain.enums.ReportStatus;
-import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
-import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
-import com.boogionandon.backend.dto.admin.predictionResponseDTO;
-import jakarta.persistence.EntityNotFoundException;
+import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface ResearchService {
 
@@ -29,5 +24,5 @@ public interface ResearchService {
 
   ResearchMainDetailResponseDTO getResearchDetail(Long researchId);
 
-  List<predictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end);
+  List<PredictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end);
 }

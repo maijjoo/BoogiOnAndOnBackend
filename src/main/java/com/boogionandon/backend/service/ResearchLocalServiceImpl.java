@@ -8,13 +8,11 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
-import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
-import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
-import com.boogionandon.backend.dto.admin.predictionResponseDTO;
+import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.ResearchMainRepository;
@@ -175,9 +173,23 @@ public class ResearchLocalServiceImpl implements ResearchService{
 
   // 수거 예측분석에 필요한 메서드
   @Override
-  public List<predictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end) {
-    return null;
+  public List<PredictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end) {
+    List<ResearchMain> findList = researchMainRepository.findByDateCriteria(year, month, start, end);
+
+    return findList.stream().map(main -> {
+      return PredictionResponseDTO.builder()
+          .id(main.getId())
+          .researcherName(main.getResearcher().getName())
+          .beachName(main.getBeach().getBeachName())
+          .expectedTrashAmount(main.getExpectedTrashAmount())
+          .reportTime(main.getReportTime())
+          .fixedLatitude(main.getBeach().getLatitude())
+          .fixedLongitude(main.getBeach().getLongitude())
+          .build();
+    }).collect(Collectors.toList());
+
   }
+
 
   private ResearchMain createResearchMainFromDTO(ResearchMainRequestDTO mainDTO) {
     // 필요한 researcher, beach를 찾고
