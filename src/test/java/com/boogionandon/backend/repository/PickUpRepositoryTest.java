@@ -83,7 +83,7 @@ class PickUpRepositoryTest {
     }
 
     @Test
-    @DisplayName("랜덤 PickUp 100개 추가 테스트 - 이미지 fileName도 추가")
+    @DisplayName("랜덤 PickUp 100개 추가 테스트 - 이미지 fileName 추가")
     @Commit
     void testRandomPickUpInsert100() {
         List<Worker> submitter = memberRepository.findAll().stream()

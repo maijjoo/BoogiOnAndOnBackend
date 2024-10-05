@@ -79,9 +79,9 @@ public class CustomSecurityConfig {
   }
 
   /**
-   * 이 방법은 애플리케이션에 대한 CORS(Cross-Origin Resource Sharing)를 구성합니다.
-   * 모든 원본, 메소드 및 헤더를 허용하는 {@link CorsConfigurationSource} Bean을 생성합니다.
-   * CORS 구성은 자격 증명을 허용하도록 설정되어 있습니다. 즉, 쿠키 및 기타 민감한 데이터를 공유할 수 있습니다.
+   * 이 메소드는 애플리케이션에 대한 CORS(Cross-Origin Resource Sharing)를 구성합니다.
+   * 특정 원본, 메소드 및 헤더를 허용하는 {@link CorsConfigurationSource} Bean을 생성합니다.
+   * CORS 구성은 자격 증명을 허용하도록 설정되어 있습니다.
    *
    * @return CORS 구성을 위한 {@link CorsConfigurationSource} Bean
    */
@@ -89,26 +89,32 @@ public class CustomSecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    // TODO : 모든 출처 허용 -> 나중에 마지막에 바꾸어야 할듯
-    configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+    // 허용할 원본 설정 (프로덕션 환경에서는 구체적인 도메인으로 변경해야 함)
+    configuration.setAllowedOrigins(Arrays.asList("https://localhost:5173", "http://localhost:5173", "https://10.30.0.238:5173", "https://192.168.64.1:5173", "https://10.30.0.197:5173", "https://10.200.31.47:5173"));
 
-    // GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS 메소드 허용
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"));
 
-    // Authorization, Cache-Control, Content-Type 헤더 허용
+    // 또는 개발 환경에서 모든 출처를 허용하려면 아래 라인을 사용 (프로덕션에서는 사용하지 않음)
+    // configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
+
+    // 허용할 HTTP 메소드 설정
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+
+    // 허용할 헤더 설정
     configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
 
-    // 자격 증명 허용
+    // 브라우저가 접근할 수 있는 헤더 설정
+    configuration.setExposedHeaders(Arrays.asList("Authorization"));
+
+    // 자격 증명 허용 (쿠키 등)
+    // 이것 때문에     configuration.setAllowedOrigins(Arrays.asList("*")); 처리가 안됨
     configuration.setAllowCredentials(true);
 
-    // URL 기반 CORS 구성 소스 생성
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // 프리플라이트 요청의 캐시 시간 설정 (1시간)
+    configuration.setMaxAge(3600L);
 
-    // 모든 URL에 대한 CORS 구성 등록
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
 
-    // CORS 구성 소스 Bean 반환
     return source;
   }
-
 }

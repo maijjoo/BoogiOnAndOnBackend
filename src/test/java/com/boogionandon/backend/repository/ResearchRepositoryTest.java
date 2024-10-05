@@ -132,7 +132,7 @@ class ResearchRepositoryTest {
 
     Random random = new Random();
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 900; i++) {
       Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
       Worker randomResearcher = researchers.get(random.nextInt(researchers.size()));
 
