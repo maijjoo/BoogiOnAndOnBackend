@@ -90,7 +90,7 @@ public class CustomSecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
 
     // 허용할 원본 설정 (프로덕션 환경에서는 구체적인 도메인으로 변경해야 함)
-    configuration.setAllowedOrigins(Arrays.asList("https://localhost:5173", "http://localhost:5173", "https://10.30.0.238:5173"));
+    configuration.setAllowedOrigins(Arrays.asList("https://localhost:5173", "http://localhost:5173", "https://10.30.0.238:5173", "https://192.168.64.1:5173", "https://10.30.0.197:5173", "https://10.200.31.47:5173"));
 
 
     // 또는 개발 환경에서 모든 출처를 허용하려면 아래 라인을 사용 (프로덕션에서는 사용하지 않음)
