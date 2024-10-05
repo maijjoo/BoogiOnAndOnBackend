@@ -3,14 +3,12 @@ package com.boogionandon.backend.service;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Member;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
-import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.DaysDataForTheMonthDTO;
 import com.boogionandon.backend.dto.admin.FiveYearAgoToLastYearDTO;
@@ -60,31 +58,24 @@ public class CleanLocalServiceImpl implements CleanService{
   // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 메서드
   @Override
   @Transactional(readOnly = true) // 어차피 조회용 이니까
-  public TrashMapResponseDTO getTrashDistribution(Integer year, Integer month, LocalDate start, LocalDate end) {
+  public List<TrashMapResponseDTO> getTrashDistribution(Integer year, Integer month, LocalDate start, LocalDate end) {
     List<Clean> cleanData = cleanRepository.findByDateCriteria(year, month, start, end);
 
-    TrashMapResponseDTO trashMapResponseDTO = new TrashMapResponseDTO();
-
-    cleanData.forEach(clean -> {
-          CleanResponseDTO cleanResponseDTO = CleanResponseDTO.builder()
-             .id(clean.getId())
-             .cleanerUsername(clean.getCleaner().getUsername())
-             .beachName(clean.getBeach().getBeachName())
-             .realTrashAmount(clean.getRealTrashAmount())
-             .cleanDateTime(clean.getCleanDateTime())
-              // 시작, 끝 위경도는 여기에서는 필요없어 null 값으로
-              // beachLength도 여기선 필요 없을듯
-              // 이미지도 동일
-              .mainTrashType(clean.getMainTrashType())
-              .fixedLatitude(clean.getBeach().getLatitude())
-              .fixedLongitude(clean.getBeach().getLongitude())
-             .build();
-            trashMapResponseDTO.getCleanDataList().add(cleanResponseDTO);
-        });
-
-    log.info("trashMapResponseDTO : " + trashMapResponseDTO);
-
-    return trashMapResponseDTO;
+    return cleanData.stream().map(clean -> {
+      return TrashMapResponseDTO.builder()
+          .id(clean.getId())
+          .cleanerUsername(clean.getCleaner().getUsername())
+          .beachName(clean.getBeach().getBeachName())
+          .realTrashAmount(clean.getRealTrashAmount())
+          .cleanDateTime(clean.getCleanDateTime())
+          // 시작, 끝 위경도는 여기에서는 필요없어 null 값으로
+          // beachLength도 여기선 필요 없을듯
+          // 이미지도 동일
+          .mainTrashType(clean.getMainTrashType())
+          .fixedLatitude(clean.getBeach().getLatitude())
+          .fixedLongitude(clean.getBeach().getLongitude())
+          .build();
+    }).collect(Collectors.toList());
   }
 
   // 관리자 페이지에서 기초 통계 관련 데이터
