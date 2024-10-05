@@ -10,7 +10,10 @@ import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
+import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
+import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import jakarta.persistence.Column;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
@@ -141,5 +144,48 @@ class ResearchLocalServiceImplTest {
   }
 
   // ----------- getResearchDetail 테스트 끝 -----------
+  // ---------- getCollectPrediction 메서드 테스트 시작 ---------
+  @Test
+  @DisplayName("getCollectPrediction 메서드 테스트 - 년")
+  void testGetCollectPredictionWithYear() {
+    Integer year = 2022;
+
+    List<PredictionResponseDTO> findCollectPrediction = researchService.getCollectPrediction(year, null,
+        null, null);
+
+    log.info("findCollectPrediction : " + findCollectPrediction);
+    log.info("findCollectPrediction : " + findCollectPrediction.size());
+
+  }
+
+  @Test
+  @DisplayName("getCollectPrediction 메서드 테스트 - 년/월")
+  void testGetCollectPredictionWithYearAndMonth() {
+    Integer year = 2022;
+    Integer month = 1;
+
+    List<PredictionResponseDTO> findCollectPrediction = researchService.getCollectPrediction(year,
+        month, null, null);
+
+    log.info("findCollectPrediction : " + findCollectPrediction);
+    log.info("findCollectPrediction : " + findCollectPrediction.size());
+
+  }
+
+  @Test
+  @DisplayName("getCollectPrediction 메서드 테스트 - 시작 ~ 끝")
+  void testGetCollectPredictionBetweenStartAndEnd() {
+
+    LocalDate start = LocalDate.of(2023,3,5);
+    LocalDate end = LocalDate.of(2023,3,31);
+
+    List<PredictionResponseDTO> findCollectPrediction = researchService.getCollectPrediction(null, null,
+        start, end);
+
+    log.info("findCollectPrediction : " + findCollectPrediction);
+    log.info("findCollectPrediction : " + findCollectPrediction.size());
+
+  }
+  // ---------- getCollectPrediction 메서드 테스트 끝 ---------
 
 }

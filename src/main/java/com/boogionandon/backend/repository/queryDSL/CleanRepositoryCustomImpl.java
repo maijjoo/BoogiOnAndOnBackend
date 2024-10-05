@@ -58,6 +58,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
             betweenDates(start, end))
         .fetch();
   }
+  // ----------- findByDateCriteria 관련 시작 ----------------------
 
   private BooleanExpression yearEq(Integer year) {
     // year가 null이 아닐 경우에만 조건 생성, 그렇지 않으면 null 반환 (조건 무시)
@@ -66,6 +67,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
 
   private BooleanExpression monthEq(Integer year, Integer month) {
     // year와 month가 모두 null이 아닐 경우에만 조건 생성, 그렇지 않으면 null 반환 (조건 무시)
+    // 아래가 yearEq에서 이미 year가 true가 되어 있다고 판단하기 때문에 month만 판별
     return (year != null && month != null) ? QClean.clean.cleanDateTime.month().eq(month) : null;
   }
 
@@ -80,6 +82,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     }
     return null;
   }
+  // ----------- findByDateCriteria 관련 끝 ----------------------
 
   // 관리자 페이지에서 기초 통계를 보영주는 화면에서 보여줄 내용 뽑아오기
   @Override

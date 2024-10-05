@@ -14,7 +14,7 @@ import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
-import com.boogionandon.backend.dto.admin.predictionResponseDTO;
+import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
 import com.boogionandon.backend.service.PickUpService;
@@ -65,6 +65,7 @@ public class AdminController {
   // 리액트에서 년, 년/월 을 하다가 시작~끝 으로 바뀌거나 그 반대일때 이전 년, 년/월 값을 null로 초기화 해야하고 반대도 마찬가지
   // 4가지 다 들어오면 값을 못찾고 있음, 여기서 수정할 수 있긴 한데 이건 리액트에서 값이 제대로 들어와야 하는 문제가 아닐까?
   // 관리자 상관없이 모든 데이터 다 볼 수 있음
+  // TODO : tabCondition으로 구분을 안해서 현재 값이 4개가 다 들어 오면 값에 에러가 생김, 리액트에서 잘 보내주면 상관 없지만, 이런건 사전에 서버에서 차단해야 하는게 아닐까? - 파라미터랑 리턴을 건드리지 않으면서 해결할 수 있는 방법 찾아보고 리팩토링 하기
   @GetMapping("/trash-distribution")
   public List<TrashMapResponseDTO> trashDistribution(
       @RequestParam(required = false) Integer year,
@@ -81,8 +82,9 @@ public class AdminController {
   }
 
   // 관리자 페이지에서 수거 예측량 분포도 볼때 필요한 API - 조사 테이블을 활용해서 만드는 분포도 trashDistribution와 비슷하게
+  // TODO : tabCondition으로 구분을 안해서 현재 값이 4개가 다 들어 오면 값에 에러가 생김, 리액트에서 잘 보내주면 상관 없지만, 이런건 사전에 서버에서 차단해야 하는게 아닐까? - 파라미터랑 리턴을 건드리지 않으면서 해결할 수 있는 방법 찾아보고 리팩토링 하기
   @GetMapping("/collect-prediction") // collect이지만 research 테이블들을 바탕으로 조사를 전체적으로 보여준 것임
-  public List<predictionResponseDTO> collectPrediction(
+  public List<PredictionResponseDTO> collectPrediction(
       @RequestParam(required = false) Integer year,
       @RequestParam(required = false) Integer month,
       @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate start,
