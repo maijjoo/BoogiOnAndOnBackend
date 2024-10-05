@@ -64,13 +64,10 @@ public class CleanLocalServiceImpl implements CleanService{
     return cleanData.stream().map(clean -> {
       return TrashMapResponseDTO.builder()
           .id(clean.getId())
-          .cleanerUsername(clean.getCleaner().getUsername())
+          .cleanerName(clean.getCleaner().getUsername())
           .beachName(clean.getBeach().getBeachName())
           .realTrashAmount(clean.getRealTrashAmount())
           .cleanDateTime(clean.getCleanDateTime())
-          // 시작, 끝 위경도는 여기에서는 필요없어 null 값으로
-          // beachLength도 여기선 필요 없을듯
-          // 이미지도 동일
           .mainTrashType(clean.getMainTrashType())
           .fixedLatitude(clean.getBeach().getLatitude())
           .fixedLongitude(clean.getBeach().getLongitude())

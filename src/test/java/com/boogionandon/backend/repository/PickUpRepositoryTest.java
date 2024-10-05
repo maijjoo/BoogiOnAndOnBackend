@@ -1,6 +1,8 @@
 package com.boogionandon.backend.repository;
 
+import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.ResearchMain;
@@ -8,12 +10,17 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.service.BeachService;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,6 +47,8 @@ class PickUpRepositoryTest {
     private PickUpRepository pickUpRepository;
     @Autowired
     private MemberRepository memberRepository;
+    @Autowired
+    private BeachRepository beachRepository;
 
     // ---------- PickUp 추가 테스트 시작-----------
 
@@ -74,81 +83,94 @@ class PickUpRepositoryTest {
     }
 
     @Test
-    @DisplayName("랜덤 PickUp random개 추가 테스트")
+    @DisplayName("랜덤 PickUp 100개 추가 테스트 - 이미지 fileName도 추가")
     @Commit
-    void testRandomPickUpInsert() {
+    void testRandomPickUpInsert100() {
+        List<Worker> submitter = memberRepository.findAll().stream()
+            .filter(member -> member instanceof Worker)
+            .map(member -> (Worker) member)
+            .collect(Collectors.toList());
+
+        List<Beach> beaches = beachRepository.findAll();
+
         Random random = new Random();
-        // workerUsernames 에는 W_testWorker, W_testWorker1, W_testWorker2, W_testWorker3
-        // 4개가 initData에 의해 실행시 만들어짐
-        String workerUsernames = "W_testWorker3";
+
         List<String> pickUpPlaces = Arrays.asList(
-            "해운대 해수욕장 입구",
-            "해운대 미포철길",
-            "해운대 달맞이고개",
-            "해운대 청사포",
-            "해운대 동백섬",
-            "해운대 해운대역 앞",
-            "해운대 센텀시티",
-            "해운대 영화의전당",
-            "해운대 마린시티",
-            "해운대 아쿠아리움",
-            "해운대 APEC 누리마루",
-            "해운대 오렌지족 거리",
-            "해운대 해운대시장",
-            "해운대 구남로",
-            "해운대 해운대해변로",
-            "해운대 송정해수욕장",
-            "해운대 수영강 산책로",
-            "해운대 반송동 습지",
-            "해운대 벡스코",
-            "해운대 우동 메가마트 앞"
+            "해수욕장 입구",
+            "해변 산책로",
+            "등대 주변",
+            "해안 전망대",
+            "해변 공원",
+            "해변 근처 기차역",
+            "해안가 상업지구",
+            "해변 문화센터",
+            "마리나",
+            "해양 생물 관람장",
+            "해변 컨벤션 센터",
+            "해변 거리",
+            "해안 시장",
+            "해변 메인 도로",
+            "해변 둘레길",
+            "인근 소규모 해변",
+            "해안 습지",
+            "해변 근처 대형 마트",
+            "해변 주차장",
+            "해변 캠핑장"
         );
 
-        List<PickUp> savedPickups = new ArrayList<>();
-
-        int max = 10;
-        int min = 1;
-        int oneToTen = random.nextInt(max - min + 1) + min;
-
-        for (int i = 0; i < oneToTen ; i++) {
-
-            Worker worker = (Worker) memberRepository.findByUsernameWithDetails(workerUsernames)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이름의 회원을 찾을 수 없습니다: " + workerUsernames));
+        for (int i = 0; i < 100 ; i++) {
+            Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
+            Worker randomSubmitter = submitter.get(random.nextInt(submitter.size()));
 
             String randomPlace = pickUpPlaces.get(random.nextInt(pickUpPlaces.size()));
 
+            // 지정된 범위 내에서 임의의 날짜를 생성합니다.
+            LocalDate startDate = LocalDate.of(2022, 2, 1);
+            LocalDate endDate = LocalDate.now();
+            long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+            LocalDate randomDate = startDate.plusDays(random.nextInt((int) daysBetween + 1));
+
+            // 필요한 경우 월을 조정하세요.
+            if (randomDate.getMonthValue() == 12 || randomDate.getMonthValue() == 1) {
+                randomDate = randomDate.withMonth(random.nextInt(2, 12)); //2월부터 11월까지
+            }
+
+            LocalDateTime randomSubmitDateTimee = LocalDateTime.of(
+                randomDate,
+                LocalTime.of(random.nextInt(24), random.nextInt(60))
+            );
+
+            int randomNumber = random.nextInt(13) + 3;
+            List<Image> images = new ArrayList<>();
+            for (int j=0; j < randomNumber; j++) {
+                Image image = Image.builder()
+                    .fileName("P_20241006005731_test.jpeg")
+                    .ord(i)
+                    .build();
+                images.add(image);
+            }
+
+            double randomOffset = random.nextDouble() * 200 + 300; // 300에서 500 사이의 미터 값?? 이거 확인 필요
+
+            double startLat = randomBeach.getLatitude() + randomOffset;
+            double startLon = randomBeach.getLongitude() + randomOffset;
+
+
             PickUp pickup = PickUp.builder()
-                .submitter(worker)
+                .submitter(randomSubmitter)
                 .pickUpPlace(randomPlace)
-                .latitude(getRandomLatitude())
-                .longitude(getRandomLongitude())
-                .mainTrashType(getRandomTrashType())
-                .submitDateTime(LocalDateTime.now().minusHours(random.nextInt(24))) // 최근 24시간 내의 랜덤 시간
+                .latitude(startLat)
+                .longitude(startLon)
+                .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
+                .submitDateTime(randomSubmitDateTimee) // 최근 24시간 내의 랜덤 시간
                 .actualCollectedVolume(50.0 + random.nextDouble() * 200.0) // 50.0에서 250.0 사이의 랜덤 값
+                .images(images)
                 .build();
 
-            PickUp savedPickup = pickUpRepository.save(pickup);
-            savedPickups.add(savedPickup);
+            log.info("pickup : " + pickup.toString());
 
-            assertNotNull(savedPickup);
-            assertNotNull(savedPickup.getId());
-            log.info("집하지 등록이 성공적으로 저장되었습니다. ID: {}, 장소: {}", savedPickup.getId(), savedPickup.getPickUpPlace());
+            pickUpRepository.save(pickup);
         }
-    }
-
-    private double getRandomLatitude() {
-        // 부산 지역의 대략적인 위도 범위
-        return 35.0 + (new Random().nextDouble() * 0.3);
-    }
-
-    private double getRandomLongitude() {
-        // 부산 지역의 대략적인 경도 범위
-        return 128.8 + (new Random().nextDouble() * 0.5);
-    }
-
-    private TrashType getRandomTrashType() {
-        TrashType[] types = TrashType.values();
-        return types[new Random().nextInt(types.length)];
     }
     // ---------- PickUp 추가 테스트 끝-----------
 

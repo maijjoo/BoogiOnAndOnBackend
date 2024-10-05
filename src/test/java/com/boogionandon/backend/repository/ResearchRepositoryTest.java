@@ -3,6 +3,7 @@ package com.boogionandon.backend.repository;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.boogionandon.backend.domain.Beach;
+import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
@@ -13,9 +14,15 @@ import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.util.DistanceCalculator;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -52,8 +59,9 @@ class ResearchRepositoryTest {
     log.info("researchSubRepository : " + researchSubRepository.getClass().getName());
   }
 
+  // --------- insert 테스트 시작 ------------
   @Test
-  @DisplayName("research 추가 테스트")
+  @DisplayName("research 추가 테스트 - 이미지 x 나중에 리팩토링 필요")
   @Commit
   void testResearchInsert() {
     Long researcherId = 8L; // initData에서 만들어진 Worer id => 11L
@@ -110,6 +118,110 @@ class ResearchRepositoryTest {
 
     savedResearchMain.setTotalResearch(totalBeachLength);
   }
+
+  @Test
+  @DisplayName("100개 random insert 테스트 - 이미지 fileName 추가")
+  @Transactional
+  @Commit
+  void testCreateRandomResearches() {
+    List<Beach> beaches = beachRepository.findAll();
+    List<Worker> researchers = memberRepository.findAll().stream()
+        .filter(member -> member instanceof Worker)
+        .map(member -> (Worker) member)
+        .collect(Collectors.toList());
+
+    Random random = new Random();
+
+    for (int i = 0; i < 100; i++) {
+      Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
+      Worker randomResearcher = researchers.get(random.nextInt(researchers.size()));
+
+      // 지정된 범위 내에서 임의의 날짜를 생성합니다.
+      LocalDate startDate = LocalDate.of(2022, 2, 1);
+      LocalDate endDate = LocalDate.now();
+      long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+      LocalDate randomDate = startDate.plusDays(random.nextInt((int) daysBetween + 1));
+
+      // 필요한 경우 월을 조정하세요.
+      if (randomDate.getMonthValue() == 12 || randomDate.getMonthValue() == 1) {
+        randomDate = randomDate.withMonth(random.nextInt(2, 12)); //2월부터 11월까지
+      }
+
+      LocalDateTime randomReportTime = LocalDateTime.of(
+          randomDate,
+          LocalTime.of(random.nextInt(24), random.nextInt(60))
+      );
+
+      int randomNumber = random.nextInt(13) + 3;
+      List<Image> images = new ArrayList<>();
+      for (int j=0; j < randomNumber; j++) {
+        Image image = Image.builder()
+            .fileName("R_20241006005731_test.jpeg")
+            .ord(i)
+            .build();
+        images.add(image);
+      }
+
+      String[] weatherOptions = {"맑음", "흐림", "비", "눈", "안개"};
+      String randomWeather = weatherOptions[random.nextInt(weatherOptions.length)];
+
+      String[] specialNotes = {"태풍", "해양 축제", "해변 청소 이벤트", "해양 오염 사고", "일반"};
+      String randomSpecialNote = specialNotes[random.nextInt(specialNotes.length)];
+
+      ResearchMain researchMain = ResearchMain.builder()
+          .researcher(randomResearcher)
+          .beach(randomBeach)
+          .expectedTrashAmount(random.nextInt(50, 501))
+          .reportTime(randomReportTime)
+          .images(images)
+          .status(ReportStatus.ASSIGNMENT_NEEDED)
+          .weather(randomWeather)
+          .specialNote(randomSpecialNote)
+          .totalBeachLength(0.0)
+          .build();
+
+      ResearchMain savedResearchMain = researchMainRepository.save(researchMain);
+
+      Double totalBeachLength = 0.0;
+
+      for (int j = 1; j <= 4; j++) {
+        double randomOffset = (random.nextDouble() - 0.5) * 0.002; // 대략 100-200 meters
+
+        double startLat = randomBeach.getLatitude() + randomOffset;
+        double startLon = randomBeach.getLongitude() + randomOffset;
+        double endLat = startLat + (random.nextDouble() - 0.5) * 0.0002; // 대략 10-20 meters
+        double endLon = startLon + (random.nextDouble() - 0.5) * 0.0002;
+
+
+
+        ResearchSub researchSub = ResearchSub.builder()
+            .research(savedResearchMain)
+            .beachNameWithIndex(randomBeach.getBeachName() + j)
+            .startLatitude(startLat)
+            .startLongitude(startLon)
+            .endLatitude(endLat)
+            .endLongitude(endLon)
+            .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
+            .researchLength(random.nextDouble(5, 20))
+            .build();
+
+        ResearchSub savedResearchSub = researchSubRepository.save(researchSub);
+
+        totalBeachLength += DistanceCalculator.calculateDistance(
+            researchSub.getStartLatitude(), researchSub.getStartLongitude(),
+            researchSub.getEndLatitude(), researchSub.getEndLongitude()
+        );
+
+        savedResearchMain.getResearchSubList().add(savedResearchSub);
+      }
+
+      savedResearchMain.setTotalResearch(totalBeachLength);
+      researchMainRepository.save(savedResearchMain);
+    }
+  }
+
+  // --------- insert 테스트 시작 ------------
+
 
   @Test
   @DisplayName("research 조회 테스트")
@@ -240,4 +352,26 @@ class ResearchRepositoryTest {
 
   }
   // ------ findByIdWithOutSub, findListByMainId 끝 --------
+
+  // ------ findByDateCriteria 메서드 테스트 시작 ---------
+
+  @Test
+  @DisplayName("findByDateCriteria 메서드 테스트")
+  void testFindByDateCriteria() {
+
+    Integer year = 2022;
+    Integer month = 1;
+    LocalDate start = LocalDate.of(2023,3,5);
+    LocalDate end = LocalDate.of(2023,3,31);
+
+//    List<ResearchMain> findList = researchMainRepository.findByDateCriteria(year, null, null, null);
+//    List<ResearchMain> findList = researchMainRepository.findByDateCriteria(year, month, null, null);
+    List<ResearchMain> findList = researchMainRepository.findByDateCriteria(null, null, start, end);
+
+    log.info("findList : " + findList);
+    log.info("findList.size() : " + findList.size());
+    log.info("findList.get(0).getResearchSubList() : " + findList.get(0).getResearchSubList());
+
+  }
+  // ------ findByDateCriteria 메서드 테스트 끝 ---------
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
+import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
@@ -14,11 +15,15 @@ import com.boogionandon.backend.util.DistanceCalculator;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Year;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,7 +59,7 @@ class CleanRepositoryTest {
   }
 
   @Test
-  @DisplayName("clean 추가 테스트")
+  @DisplayName("clean 추가 테스트 - 이미지 x 나중에 리팩토링 필요")
   @Commit
   void testCleanInsert() {
 
@@ -97,61 +102,74 @@ class CleanRepositoryTest {
   @DisplayName("clean 추가 100개 테스트 - 이미지 제외")
   @Commit
   void testCleanInsert100() {
-    final List<String> BEACH_NAMES = List.of(
-        "해운대해수욕장", "광안리해수욕장", "송정해수욕장", "다대포해수욕장", "송도해수욕장",
-        "일광해수욕장", "임랑해수욕장", "감지해변", "국립부산과학관 해변", "다선해변",
-        "몰운대", "미포", "송림해변", "암남공원", "오륙도", "이기대", "일광해안",
-        "장안사계해변", "죽성성게마을", "청사포", "태종대"
-    );
-
-    final List<TrashType> TRASH_TYPES = List.of(
-        TrashType.폐어구류, TrashType.부표류, TrashType.생활쓰레기류,
-        TrashType.대형_투기쓰레기류, TrashType.초목류
-    );
+    List<Beach> beaches = beachRepository.findAll();
+    List<Worker> cleaner = memberRepository.findAll().stream()
+        .filter(member -> member instanceof Worker)
+        .map(member -> (Worker) member)
+        .collect(Collectors.toList());
 
     Random random = new Random();
 
-    Long cleanerId = 9L; // initData에서 만들어진 Worer id => 8L, 9L, 10L, 11L
-    Worker findCleaner = (Worker) memberRepository.findById(cleanerId)
-        .orElseThrow(() -> new NoSuchElementException("Worker with id "+ cleanerId +" not found"));
-    // initData에서 만든 Worker의 id
-
     for (int i = 0; i < 100; i++) {
-      String beachName = BEACH_NAMES.get(random.nextInt(BEACH_NAMES.size()));
+      Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
+      Worker randomCleaner = cleaner.get(random.nextInt(cleaner.size()));
 
-      Beach findBeach = beachRepository.findById(beachName)
-          .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
+      // 지정된 범위 내에서 임의의 날짜를 생성합니다.
+      LocalDate startDate = LocalDate.of(2022, 2, 1);
+      LocalDate endDate = LocalDate.now();
+      long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
+      LocalDate randomDate = startDate.plusDays(random.nextInt((int) daysBetween + 1));
 
-      double baseLatitude = findBeach.getLatitude();
-      double baseLongitude = findBeach.getLongitude();
+      // 필요한 경우 월을 조정하세요.
+      if (randomDate.getMonthValue() == 12 || randomDate.getMonthValue() == 1) {
+        randomDate = randomDate.withMonth(random.nextInt(2, 12)); //2월부터 11월까지
+      }
 
-      double startLatitude = baseLatitude + (random.nextDouble() - 0.5) * 0.002;
-      double startLongitude = baseLongitude + (random.nextDouble() - 0.5) * 0.002;
-      double endLatitude = startLatitude + (random.nextDouble() - 0.5) * 0.001;
-      double endLongitude = startLongitude + (random.nextDouble() - 0.5) * 0.001;
-
-      double beachLength = DistanceCalculator.calculateDistance(
-          startLatitude, startLongitude, endLatitude, endLongitude);
-
-      LocalDateTime cleanDateTime = LocalDateTime.of(
-          ThreadLocalRandom.current().nextInt(2020, 2025),
-          ThreadLocalRandom.current().nextInt(1, 13),
-          ThreadLocalRandom.current().nextInt(1, 29),
-          ThreadLocalRandom.current().nextInt(0, 24),
-          ThreadLocalRandom.current().nextInt(0, 60)
+      LocalDateTime randomCleanDateTime = LocalDateTime.of(
+          randomDate,
+          LocalTime.of(random.nextInt(24), random.nextInt(60))
       );
 
+      int beforeRandomNumber = random.nextInt(13) + 3;
+      int afterRandomNumber = random.nextInt(13) + 3;
+      List<Image> images = new ArrayList<>();
+      for (int j=0; j < beforeRandomNumber; j++) {
+        Image image = Image.builder()
+            .fileName("B_20241006005731_test.jpeg")
+            .ord(i)
+            .build();
+        images.add(image);
+      }
+      for (int j=0; j < afterRandomNumber; j++) {
+        Image image = Image.builder()
+            .fileName("A_20241006005731_test.jpeg")
+            .ord(i)
+            .build();
+        images.add(image);
+      }
+      double randomOffset = (random.nextDouble() - 0.5) * 0.002; // 대략 100-200 meters
+
+      double startLat = randomBeach.getLatitude() + randomOffset;
+      double startLon = randomBeach.getLongitude() + randomOffset;
+      double endLat = startLat + (random.nextDouble() - 0.5) * 0.0002; // 대략 10-20 meters
+      double endLon = startLon + (random.nextDouble() - 0.5) * 0.0002;
+
+      double beachLength = DistanceCalculator.calculateDistance(
+          startLat, startLon, endLat, endLon);
+
+
       Clean clean = Clean.builder()
-          .cleaner(findCleaner)
-          .beach(findBeach)
+          .cleaner(randomCleaner)
+          .beach(randomBeach)
           .realTrashAmount(random.nextInt(10) + 1)
-          .cleanDateTime(cleanDateTime)
-          .startLatitude(startLatitude)
-          .startLongitude(startLongitude)
-          .endLatitude(endLatitude)
-          .endLongitude(endLongitude)
+          .cleanDateTime(randomCleanDateTime)
+          .startLatitude(startLat)
+          .startLongitude(startLon)
+          .endLatitude(endLat)
+          .endLongitude(endLon)
           .beachLength(beachLength)
-          .mainTrashType(TRASH_TYPES.get(random.nextInt(TRASH_TYPES.size())))
+          .images(images)
+          .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
           .build();
 
       log.info("clean : " + clean.toString());
