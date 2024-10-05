@@ -10,15 +10,17 @@ import org.springframework.data.repository.query.Param;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
   @EntityGraph(attributePaths = {"memberRoleList"})
-  @Query("select m from Member m LEFT JOIN FETCH Admin a on m.id = a.id LEFT JOIN FETCH Worker w on m.id = w.id WHERE m.username = :username")
+  @Query("select m from Member m "
+      + "LEFT JOIN FETCH Admin a on m.id = a.id "
+      + "LEFT JOIN FETCH Worker w on m.id = w.id "
+      + "WHERE m.username = :username")
   Optional<Member> findByUsernameWithDetails(@Param("username") String username);
 
-//  @EntityGraph(attributePaths = {"memberRoleList"})
-//  @Query("select a from Admin a where a.username = :username")
-//  Optional<Admin> getAdminWithRoles(@Param("username") String username);
-//
-//  @EntityGraph(attributePaths = {"memberRoleList"})
-//  @Query("select w from Worker w where w.username = :username")
-//  Optional<Worker> getWorkerWithRoles(@Param("username") String username);
 
+
+  @Query("select m from Member m "
+      + "LEFT JOIN FETCH Admin a on m.managerId = a.id "
+      + "LEFT JOIN FETCH Worker w on m.id = w.id "
+      + "WHERE m.id = :workerId")
+  Optional<Object> findByIdWithManager(@Param("workerId") Long workerId);
 }

@@ -4,6 +4,7 @@ import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import java.util.List;
@@ -86,6 +87,18 @@ class PickUpLocalServiceImplTest {
         log.info("findList : " + findList.getContent());
     }
     // ----------- testFindPickUpByStatusCompletedAndSearch 테스트 끝 -----------
+    // ----------- getPickUpDetail 테스트 시작 -----------
+    @Test
+    @DisplayName("getPickUpDetail 메서드 테스트")
+    void testGetPickUpDetail() {
+        Long pickUpId = 8L;
+
+        PickUpDetailResponseDTO findPickUp = pickUpService.getPickUpDetail(pickUpId);
+
+        log.info("findPickUp : " + findPickUp.toString());
+        log.info("findPickUp : " + findPickUp.getImages().toString());
+    }
+    // ----------- getPickUpDetail 테스트 끝 -----------
 
 
 }

@@ -31,7 +31,7 @@ public class BasicStatisticsResponseDTO {
   List<DaysDataForTheMonthDTO> days = new ArrayList<>();
 
   // 아래 필드는 guGun, 그리고 beachName을 자동완성으로 찾기 위해 내리는 데이터
-  Set<String> guGun = null;
+  List<String> guGun = null;
 
   Map<String, List<String>> beachName = null;
 }

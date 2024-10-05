@@ -8,10 +8,13 @@ import com.boogionandon.backend.repository.AdminRepository;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.WorkerRepository;
+import com.boogionandon.backend.service.BeachService;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
@@ -32,8 +35,42 @@ public class InitialDataConfig {
   @PostConstruct
   @Transactional
   public void initMembers() {
+
+    // siList : [부산광역시]
+    // create 때에는 다 지워졌기 때문에 없음
+//    List<String> siList = beachService.SortedSiList();
+//    Map<String, List<String>> guGunMap = beachService.sortedSiGuGunMap();
+//    Map<String, List<String>> beachNameMap = beachService.SortedBeachNameMap();
+
+    String si = "부산광역시";
+
+    // 여기선 guGunList 말고 다른걸로
+    // sortedSiGuGunMap : {부산광역시=[강서구, 기장군, 남구, 사하구, 서구, 수영구, 영도구, 중구, 해운대구]}
+
+    // beachNameMap : {강서구=[명지항, 천성항],
+    // 기장군=[감지해변, 국립부산과학관 해변, 기장항, 대변항, 송림해변, 일광해수욕장, 일광해안, 임랑해수욕장, 장안사계해변, 죽성성게마을, 칠암항],
+    // 남구=[오륙도, 용호부두, 이기대],
+    // 사하구=[감천항, 다대포항, 다대포해수욕장, 몰운대, 아미산 전망대, 조도],
+    // 서구=[송도해수욕장, 암남공원], 수영구=[광안리해수욕장, 남천동 해안, 민락수변공원],
+    // 영도구=[다선해변, 부산항, 영도, 영도 깍천, 태종대], 중구=[남포동, 용두산공원, 자갈치시장, 충무동],
+    // 해운대구=[동백섬, 미포, 미포항, 송정항, 송정해수욕장, 청사포, 해운대해수욕장]}
+
+
     if (memberRepository.count() == 0) {
       for( int i=1; i<=4; i++ ) {
+
+        List<String> assignmentAreaList = Arrays.asList(
+            "명지항", "천성항",
+            "감지해변", "국립부산과학관 해변", "기장항", "대변항", "송림해변", "일광해수욕장", "일광해안", "임랑해수욕장", "장안사계해변", "죽성성게마을", "칠암항",
+            "오륙도", "용호부두", "이기대",
+            "감천항", "다대포항", "다대포해수욕장", "몰운대", "아미산 전망대", "조도",
+            "송도해수욕장", "암남공원",
+            "광안리해수욕장", "남천동 해안", "민락수변공원",
+            "다선해변", "부산항", "영도", "영도 깍천", "태종대",
+            "남포동", "용두산공원", "자갈치시장", "충무동",
+            "동백섬", "미포", "미포항", "송정항", "송정해수욕장", "청사포", "해운대해수욕장"
+        );
+
         Admin admin = Admin.builder()
             .username("S_Busan" + i)
             .password(passwordEncoder.encode("0000"))
@@ -42,10 +79,11 @@ public class InitialDataConfig {
             .phone("010-1111-111"+i)
             .address("부산 연제구")
             .addressDetail("중앙대로 1001 부산광역시청")
+            .workCity(si)
             .workPlace("부산 시청")
             .department("해양농수산국") // 일단 할거 같은 곳
             .position("공무원") // 어떤 직급이 할지 모르겠음
-            .assignmentArea("부산") // 수퍼 관리자라 부산 전체로 잡음
+            .assignmentAreaList(assignmentAreaList) // 수퍼 관리자라 부산 전체로 잡음
             .contact("051-1111-111"+i)
             .delFlag(false)
             .build();
@@ -63,6 +101,9 @@ public class InitialDataConfig {
     // TODO : Admin이랑 Worker를 test용으로 만들까? 말까?
 
     if (memberRepository.count() == 4) {
+
+      List<String> namGuBeaches = Arrays.asList("오륙도", "용호부두", "이기대");
+
       Admin admin = Admin.builder()
           .username("A_testAdmin")
           .password(passwordEncoder.encode("0000"))
@@ -72,10 +113,11 @@ public class InitialDataConfig {
           .address("부산 광역시 수영구")
           .addressDetail("수영1동 100번지")
           .managerId(1L) // Super Admin1
-          .workPlace("수영 구청")
+          .workCity(si)
+          .workPlace("남구")
           .department("해양수산")
           .position("공무원") // 직급체계 잘 모름
-          .assignmentArea("해운대 해수욕장")
+          .assignmentAreaList(namGuBeaches)
           .contact("051-9999-9999")
           .build();
 
@@ -83,28 +125,54 @@ public class InitialDataConfig {
       adminRepository.save(admin);
       log.info("Admin created");
 
-      for (int i = 1 ; i <= 2; i++) {
-        Admin adminPlus = Admin.builder()
-            .username("A_testAdmin" + i)
-            .password(passwordEncoder.encode("0000"))
-            .email("test" + i + "@admin.com")
-            .name("송지현")
-            .phone("010-9999-999" + i)
-            .address("부산 광역시 수영구")
-            .addressDetail("수영2동 200번지")
-            .managerId(1L) // Super Admin1
-            .workPlace("수영 구청")
-            .department("해양수산")
-            .position("공무원") // 직급체계 잘 모름
-            .assignmentArea("해운대 해수욕장")
-            .contact("051-9999-999" + i)
-            .build();
+      List<String> suYeongGuBeaches = Arrays.asList("광안리해수욕장", "남천동 해안", "민락수변공원");
 
-        adminPlus.getMemberRoleList().add(MemberType.ADMIN);
-        adminRepository.save(adminPlus);
-        log.info("adminPlus : " + adminPlus);
+      Admin admin1 = Admin.builder()
+          .username("A_testAdmin1")
+          .password(passwordEncoder.encode("0000"))
+          .email("test1@admin.com")
+          .name("송지현")
+          .phone("010-9999-9991")
+          .address("부산 광역시 수영구")
+          .addressDetail("수영2동 200번지")
+          .managerId(1L) // Super Admin1
+          .workCity(si)
+          .workPlace("수영구")
+          .department("해양수산")
+          .position("공무원") // 직급체계 잘 모름
+          .assignmentAreaList(suYeongGuBeaches)
+          .contact("051-9999-9991")
+          .build();
 
-      }
+      admin1.getMemberRoleList().add(MemberType.ADMIN);
+      adminRepository.save(admin1);
+      log.info("admin1 : " + admin1);
+
+      List<String> haeUnDaeGuBeaches = Arrays.asList(
+          "동백섬", "미포", "미포항", "송정항", "송정해수욕장", "청사포", "해운대해수욕장"
+      );
+
+      Admin admin2 = Admin.builder()
+          .username("A_testAdmin2")
+          .password(passwordEncoder.encode("0000"))
+          .email("test2@admin.com")
+          .name("송지현")
+          .phone("010-9999-9992")
+          .address("부산 광역시 수영구")
+          .addressDetail("수영2동 200번지")
+          .managerId(1L) // Super Admin1
+          .workCity(si)
+          .workPlace("해운대구")
+          .department("해양수산")
+          .position("공무원") // 직급체계 잘 모름
+          .assignmentAreaList(haeUnDaeGuBeaches)
+          .contact("051-9999-9992")
+          .build();
+
+      admin2.getMemberRoleList().add(MemberType.ADMIN);
+      adminRepository.save(admin2);
+      log.info("admin2 : " + admin2);
+
     } else {
       log.info("Amin already exists");
     }
@@ -142,7 +210,7 @@ public class InitialDataConfig {
             .phone("010-8888-888" + i)
             .address("부산 광역시 수영구")
             .addressDetail("수영4동 401번지")
-            .managerId(6L) // 위의 테스트에서 만들어진 Admin
+            .managerId(i+4L) // 위의 테스트에서 만들어진 Admin
             .contact("010-8888-888"+i)
             .workGroup("해운대 구청") // 이게 들어가는게 맞나?
             .workAddress("부산 광역시 해운대구")
