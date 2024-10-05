@@ -99,7 +99,7 @@ class CleanRepositoryTest {
   }
 
   @Test
-  @DisplayName("clean 추가 100개 테스트 - 이미지 제외")
+  @DisplayName("clean 추가 100개 테스트 - 이미지 fileName 추가")
   @Commit
   void testCleanInsert100() {
     List<Beach> beaches = beachRepository.findAll();
