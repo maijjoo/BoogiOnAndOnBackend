@@ -8,9 +8,11 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
@@ -163,6 +165,7 @@ class PickUpRepositoryTest {
 
         log.info("findPickUpWithAdmin.size : " + findPickUpWithAdminAndImages.size());
         log.info("findPickUpWithAdmin : " + findPickUpWithAdminAndImages.toString());
+        log.info("findPickUpWithAdmin : " + findPickUpWithAdminAndImages.get(1).getImages());
 
     }
 
@@ -216,6 +219,19 @@ class PickUpRepositoryTest {
         }
     }
 
+    // ---------- findByStatusCompletedAndSearch 조회 테스트 끝-----------
+    // ---------- findByIdWithImage 조회 테스트 시작 -----------
+    @Test
+    @DisplayName("findByIdWithImage 조회 테스트")
+    void testFindByIdWithImage() {
+        Long pickUpId = 33L;
 
-        // ---------- findByStatusCompletedAndSearch 조회 테스트 끝-----------
+        PickUp findPickUp = pickUpRepository.findByIdWithImage(pickUpId)
+            .orElseThrow(() -> new EntityNotFoundException("해당 PickUp을 찾을 수 없습니다. : " + pickUpId));
+
+        log.info("findByIdWithImage : " + findPickUp.toString());
+        log.info("findByIdWithImage : " + findPickUp.getImages().toString());
+    }
+    // ---------- findByIdWithImage 조회 테스트 끝-----------
+
 }

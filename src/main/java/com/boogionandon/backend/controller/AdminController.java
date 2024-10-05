@@ -11,6 +11,7 @@ import com.boogionandon.backend.dto.CleanListResponseDTO;
 import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PageResponseDTO;
+import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
@@ -101,19 +102,19 @@ public class AdminController {
 
     BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, beachName);
 
-    Set<String> guGunSet = beachService.guGunSet();
-    Map<String, List<String>> beachNameMap = beachService.beachNameMap();
+    List<String> guGunList = beachService.SortedGuGunList();
+    Map<String, List<String>> beachNameMap = beachService.SortedBeachNameMap();
 
-    findBasicStatistics.setGuGun(guGunSet);
+    findBasicStatistics.setGuGun(guGunList);
     findBasicStatistics.setBeachName(beachNameMap);
 
     return findBasicStatistics;
   }
 
-  // 관리자 페이지에서 new-작업 에서 보이는 화면
+  // 관리자 페이지에서 NEW-작업 에서 보이는 화면
   // 작업한 Worker의 관리자의 내용만 보여져야함
   @GetMapping("/new-tasks/{adminId}")
-  public PageResponseDTO<?> getNewTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
+  public PageResponseDTO<?> getNewTaskList(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
 
     if (tabCondition.equals("조사 완료")) {
 
@@ -177,9 +178,35 @@ public class AdminController {
     return null;
   }
 
-  // TODO : 작업한 Worker의 관리자의 내용만 보여져야함
+  @GetMapping("/new-tasks/research/{researchId}")
+  public ResearchMainDetailResponseDTO getNewTasksByResearch(@PathVariable("researchId") Long researchId) {
+
+    return researchService.getResearchDetail(researchId);
+  }
+
+  // 한번 배정하면 취소 안됨!!
+  @PatchMapping("/new-tasks/research/completed/{researchId}")
+  public Map<String,String> researchUpdateStatusToCompleted(@PathVariable("researchId") Long researchId) {
+    researchService.updateStatus(researchId);
+    return Map.of("message", "success");
+  }
+
+  @GetMapping("/new-tasks/clean/{cleanId}")
+  public CleanDetailResponseDTO getNewTasksByClean(@PathVariable("cleanId") Long cleanId) {
+    return cleanService.getCleanDetail(cleanId);
+  }
+
+  // 한번 배정하면 취소 안됨!!
+  @PatchMapping("/new-tasks/clean/completed/{cleanId}")
+  public Map<String,String> cleanUpdateStatusToCompleted(@PathVariable("cleanId") Long cleanId) {
+    cleanService.updateStatus(cleanId);
+    return Map.of("message", "success");
+  }
+
+  // 관리자 페이지에서 작업 조회(completed-작업) 에서 보이는 화면
+  // 작업한 Worker의 관리자의 내용만 보여져야함
   @GetMapping("/completed-tasks/{adminId}")
-  public PageResponseDTO<?> getCompletedTask(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
+  public PageResponseDTO<?> getCompletedTaskList(String tabCondition, String beachSearch, PageRequestDTO pageRequestDTO, @PathVariable("adminId") Long adminId) {
 
     if (tabCondition.equals("조사")) {
 
@@ -270,29 +297,18 @@ public class AdminController {
     return null;
   }
 
-  @GetMapping("/new-tasks/research/{researchId}")
-  public ResearchMainDetailResponseDTO getNewTasksByResearch(@PathVariable("researchId") Long researchId) {
-
+  // completed-tasks에서 List를 보낼때 어차피 COMPLETED 들만 나오니 추가로 거를 필요 없음
+  @GetMapping("/completed-tasks/research/{researchId}")
+  public ResearchMainDetailResponseDTO getCompletedTasksByResearch(@PathVariable("researchId") Long researchId) {
     return researchService.getResearchDetail(researchId);
   }
-
-  // 한번 배정하면 취소 안됨!!
-  @PatchMapping("/new-tasks/research/completed/{researchId}")
-  public Map<String,String> researchUpdateStatusToCompleted(@PathVariable("researchId") Long researchId) {
-    researchService.updateStatus(researchId);
-    return Map.of("message", "success");
-  }
-
-  @GetMapping("/new-tasks/clean/{cleanId}")
-  public CleanDetailResponseDTO getNewTasksByClean(@PathVariable("cleanId") Long cleanId) {
+  @GetMapping("/completed-tasks/clean/{cleanId}")
+  public CleanDetailResponseDTO getCompletedTasksByClean(@PathVariable("cleanId") Long cleanId) {
     return cleanService.getCleanDetail(cleanId);
   }
-
-  // 한번 배정하면 취소 안됨!!
-  @PatchMapping("/new-tasks/clean/completed/{cleanId}")
-  public Map<String,String> cleanUpdateStatusToCompleted(@PathVariable("cleanId") Long cleanId) {
-    cleanService.updateStatus(cleanId);
-    return Map.of("message", "success");
+  @GetMapping("/completed-tasks/pick-up/{pickUpId}")
+  public PickUpDetailResponseDTO getCompletedTasksByPickUp(@PathVariable("pickUpId") Long pickUpId) {
+    return pickUpService.getPickUpDetail(pickUpId);
   }
 
   @GetMapping("/view/{fileName}")

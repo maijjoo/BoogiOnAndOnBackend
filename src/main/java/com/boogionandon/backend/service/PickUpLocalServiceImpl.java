@@ -8,6 +8,7 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import com.boogionandon.backend.repository.MemberRepository;
@@ -51,7 +52,7 @@ public class PickUpLocalServiceImpl implements PickUpService {
 
                 return PickUpListForCollectorResponseDTO.builder()
                     .id(pickUp.getId())
-                    .submmiterName(pickUp.getSubmitter().getName())
+                    .submitterName(pickUp.getSubmitter().getName())
                     .pickUpPlace(pickUp.getPickUpPlace())
                     .latitude(pickUp.getLatitude())
                     .longitude(pickUp.getLongitude())
@@ -134,6 +135,28 @@ public class PickUpLocalServiceImpl implements PickUpService {
             log.info("Admin 들어음");
             return pickUpRepository.findByStatusCompletedAndSearchForRegular(beachSearch, pageable, adminId);
         }
+    }
+
+    @Override
+    public PickUpDetailResponseDTO getPickUpDetail(Long pickUpId) {
+
+        PickUp pickUp = pickUpRepository.findByIdWithImage(pickUpId)
+            .orElseThrow(() -> new EntityNotFoundException("해당 PickUp을 찾을 수 없습니다. : " + pickUpId));
+
+        return PickUpDetailResponseDTO.builder()
+            .id(pickUp.getId())
+            .submitterName(pickUp.getSubmitter().getName())
+            .pickUpPlace(pickUp.getPickUpPlace())
+            .latitude(pickUp.getLatitude())
+            .longitude(pickUp.getLongitude())
+            .mainTrashType(pickUp.getMainTrashType())
+            .submitDateTime(pickUp.getSubmitDateTime())
+            .actualCollectedVolume(pickUp.getActualCollectedVolume())
+            .status(pickUp.getStatus())
+            .images(pickUp.getImages().stream()
+                .map(image -> "S_" + image.getFileName())
+                .collect(Collectors.toList()))
+            .build();
     }
 
 

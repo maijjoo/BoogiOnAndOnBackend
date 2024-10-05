@@ -131,7 +131,7 @@ class ResearchRepositoryTest {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 7L;
+    Long adminId = 6L;
 
     String beachSearch = "광안리";
     
@@ -179,7 +179,7 @@ class ResearchRepositoryTest {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 7L;
+    Long adminId = 5L;
 
     String beachSearch = "해운대";
 
