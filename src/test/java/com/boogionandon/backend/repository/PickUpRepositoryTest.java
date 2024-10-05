@@ -116,7 +116,7 @@ class PickUpRepositoryTest {
             "해변 근처 대형 마트",
             "해변 주차장",
             "해변 캠핑장"
-        );
+        );it
 
         for (int i = 0; i < 100 ; i++) {
             Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
@@ -150,10 +150,16 @@ class PickUpRepositoryTest {
                 images.add(image);
             }
 
-            double randomOffset = random.nextDouble() * 200 + 300; // 300에서 500 사이의 미터 값?? 이거 확인 필요
+//            double randomOffset = random.nextDouble() * 200 + 300; // 300에서 500 사이의 미터 값?? 이거 확인 필요
+//
+//            double startLat = randomBeach.getLatitude() + randomOffset;
+//            double startLon = randomBeach.getLongitude() + randomOffset;
 
-            double startLat = randomBeach.getLatitude() + randomOffset;
-            double startLon = randomBeach.getLongitude() + randomOffset;
+            double randomOffsetLat = (random.nextDouble() - 0.5) * 0.001; // -0.0005 ~ +0.0005
+            double randomOffsetLon = (random.nextDouble() - 0.5) * 0.001; // -0.0005 ~ +0.0005
+
+            double startLat = randomBeach.getLatitude() + randomOffsetLat;
+            double startLon = randomBeach.getLongitude() + randomOffsetLon;
 
 
             PickUp pickup = PickUp.builder()
