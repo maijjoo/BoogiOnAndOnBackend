@@ -227,7 +227,7 @@ class CleanRepositoryTest {
   void testShowGetBasicStatisticsWithMonthlyOfYearAndBeachName() {
 
     String tapCondition = "월별";
-    Integer year = 2022;
+    Integer year = 2021;
     String beachName = "해운대해수욕장";
 
     List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, beachName);
@@ -241,11 +241,12 @@ class CleanRepositoryTest {
   void testShowGetBasicStatisticsWithDaysInMonthInYearAndBeachName() {
 
     String tapCondition = "일별";
-    Integer year = 2023;
-    Integer month = 5;
-    String beachName = "해운대해수욕장";
+    Integer year = 2021;
+    Integer month = 11;
+    String beachName = "국립";
 
-    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, beachName);
+//    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, beachName);
+    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, null);
 
     log.info("basicStatistics: " + basicStatistics);
   }
@@ -283,15 +284,15 @@ class CleanRepositoryTest {
 
     if (isContainSuper) {
       log.info("SuperAdmin 들어음");
-      Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper(beachSearch, pageable);
-//      Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper("", pageable);
+//      Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper(beachSearch, pageable);
+      Page<Clean> byStatusNeededAndSearchForSuper = cleanRepository.findByStatusNeededAndSearchForSuper("", pageable);
 
       log.info("byStatusNeededAndSearchForSuper : " + byStatusNeededAndSearchForSuper);
       log.info("byStatusNeededAndSearchForSuper : " + byStatusNeededAndSearchForSuper.getContent());
     } else {
       log.info("Admin 들어음");
-      Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular(beachSearch, pageable, adminId);
-//      Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular("", pageable, adminId);
+//      Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular(beachSearch, pageable, adminId);
+      Page<Clean> byStatusNeededAndSearchForRegular = cleanRepository.findByStatusNeededAndSearchForRegular("", pageable, adminId);
 
       log.info("byStatusNeededAndSearchForRegular : " + byStatusNeededAndSearchForRegular);
       log.info("byStatusNeededAndSearchForRegular : " + byStatusNeededAndSearchForRegular.getContent());
@@ -349,7 +350,7 @@ class CleanRepositoryTest {
   @Test
   @DisplayName("findByIdWithImage 메서드 테스트")
   void testFindByIdWithImage() {
-    Long cleanId = 1L; // initData에서 만들어진 Clean id => 1L
+    Long cleanId = 103L; // initData에서 만들어진 Clean id => 1L
 
     Clean findClean = cleanRepository.findByIdWithImage(cleanId)
        .orElseThrow(() -> new EntityNotFoundException("Clean with id "+ cleanId +" not found"));

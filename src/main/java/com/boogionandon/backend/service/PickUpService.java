@@ -1,6 +1,7 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.PickUp;
+import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import java.util.List;
@@ -21,4 +22,5 @@ public interface PickUpService {
 
     Page<PickUp> findPickUpByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId);
 
+    PickUpDetailResponseDTO getPickUpDetail(Long pickUpId);
 }

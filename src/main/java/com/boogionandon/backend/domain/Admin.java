@@ -1,8 +1,15 @@
 package com.boogionandon.backend.domain;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +25,26 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class Admin extends Member{
 
+  // 일하는 지역
+  @Column(length = 20, nullable = false)
+  private String workCity;
+
+  // 근무처
+  // 일반 관리자는 구청이라고 생각하고 -> Beach 테이블의 guGun
+  // 아이디를 만들때 Beach 테이블의 guGun 값을 Set 같은 걸로 내려주고
+  // 그리고 guGun에 해당하는 guGun이 일치하는 beachName을 넣어줄 예정
+  // 거기서 자동 완성 같은 걸로 하는게 낫지 않을까? (관리자가 회원가입 시키는 페이지에서 필요)
   @Column(length = 40, nullable = false)
-  private String workPlace; // 근무처
+  private String workPlace;
+
+  // guGun : [guGun이 일치하는 beachName (담당지역)]
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(
+      name = "admin_assignment_areas",
+      joinColumns = @JoinColumn(name = "admin_id")
+  )
+  @Column(name = "area", length = 50)
+  private List<String> assignmentAreaList = new ArrayList<>(); // 담당지역
 
   @Column(length = 20, nullable = false)
   private String department;  // 부서
@@ -27,8 +52,7 @@ public class Admin extends Member{
   @Column(length = 20, nullable = false)
   private String position; // 직급
 
-  @Column(length = 50, nullable = false)
-  private String assignmentArea; // 담당지역  // 담당 지역이 여러개일 수도 있나? 여러개면 enum 쓰는게 나을듯
+
 
   @Column(length = 20, unique = true, nullable = false)
   private String contact; // 근무처 연락처
