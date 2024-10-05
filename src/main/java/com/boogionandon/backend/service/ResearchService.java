@@ -6,7 +6,9 @@ import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
+import com.boogionandon.backend.dto.admin.predictionResponseDTO;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,4 +28,6 @@ public interface ResearchService {
   public Page<ResearchMain> findResearchByStatusCompletedAndSearch(String beachSearch, Pageable pageable, Long adminId);
 
   ResearchMainDetailResponseDTO getResearchDetail(Long researchId);
+
+  List<predictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end);
 }

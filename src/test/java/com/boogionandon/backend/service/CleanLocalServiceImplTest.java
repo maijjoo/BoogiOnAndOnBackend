@@ -10,6 +10,7 @@ import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class CleanLocalServiceImplTest {
   void testGetTrashDistributionWithYear() {
     Integer year = 2022;
 
-    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(year, null, null, null);
+    List<TrashMapResponseDTO> findTrashDistribution = cleanService.getTrashDistribution(year, null, null, null);
 
     log.info("findTrashDistribution : " + findTrashDistribution);
 
@@ -66,7 +67,7 @@ class CleanLocalServiceImplTest {
     Integer year = 2022;
     Integer month = 12;
 
-    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(year, month, null, null);
+    List<TrashMapResponseDTO> findTrashDistribution = cleanService.getTrashDistribution(year, month, null, null);
 
     log.info("findTrashDistribution : " + findTrashDistribution);
   }
@@ -78,7 +79,7 @@ class CleanLocalServiceImplTest {
     LocalDate start = LocalDate.of(2023, 6, 1);
     LocalDate end = LocalDate.of(2023, 6, 30);
 
-    TrashMapResponseDTO findTrashDistribution = cleanService.getTrashDistribution(null, null, start, end);
+    List<TrashMapResponseDTO> findTrashDistribution = cleanService.getTrashDistribution(null, null, start, end);
 
     log.info("findTrashDistribution : " + findTrashDistribution);
   }

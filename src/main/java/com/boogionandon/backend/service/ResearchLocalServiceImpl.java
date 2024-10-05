@@ -14,12 +14,14 @@ import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
+import com.boogionandon.backend.dto.admin.predictionResponseDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.ResearchMainRepository;
 import com.boogionandon.backend.repository.ResearchSubRepository;
 import com.boogionandon.backend.util.DistanceCalculator;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -169,6 +171,12 @@ public class ResearchLocalServiceImpl implements ResearchService{
               .build();
         }).collect(Collectors.toList()))
         .build();
+  }
+
+  // 수거 예측분석에 필요한 메서드
+  @Override
+  public List<predictionResponseDTO> getCollectPrediction(Integer year, Integer month, LocalDate start, LocalDate end) {
+    return null;
   }
 
   private ResearchMain createResearchMainFromDTO(ResearchMainRequestDTO mainDTO) {

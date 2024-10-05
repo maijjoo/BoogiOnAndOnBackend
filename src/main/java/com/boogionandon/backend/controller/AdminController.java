@@ -3,12 +3,9 @@ package com.boogionandon.backend.controller;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.PickUp;
-import com.boogionandon.backend.domain.QImage;
-import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanListResponseDTO;
-import com.boogionandon.backend.dto.CleanResponseDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PageResponseDTO;
 import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
@@ -17,23 +14,17 @@ import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
-import com.boogionandon.backend.repository.BeachRepository;
-import com.boogionandon.backend.repository.CleanRepository;
+import com.boogionandon.backend.dto.admin.predictionResponseDTO;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
 import com.boogionandon.backend.service.PickUpService;
 import com.boogionandon.backend.service.ResearchLocalServiceImpl;
 import com.boogionandon.backend.service.ResearchService;
 import com.boogionandon.backend.util.CustomFileUtil;
-import com.querydsl.core.group.GroupBy;
-import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -75,7 +66,7 @@ public class AdminController {
   // 4가지 다 들어오면 값을 못찾고 있음, 여기서 수정할 수 있긴 한데 이건 리액트에서 값이 제대로 들어와야 하는 문제가 아닐까?
   // 관리자 상관없이 모든 데이터 다 볼 수 있음
   @GetMapping("/trash-distribution")
-  public TrashMapResponseDTO trashDistribution(
+  public List<TrashMapResponseDTO> trashDistribution(
       @RequestParam(required = false) Integer year,
       @RequestParam(required = false) Integer month,
       @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate start,
@@ -88,6 +79,25 @@ public class AdminController {
 
     return cleanService.getTrashDistribution(year, month, start, end);
   }
+
+  // 관리자 페이지에서 수거 예측량 분포도 볼때 필요한 API - 조사 테이블을 활용해서 만드는 분포도 trashDistribution와 비슷하게
+  @GetMapping("/collect-prediction") // collect이지만 research 테이블들을 바탕으로 조사를 전체적으로 보여준 것임
+  public List<predictionResponseDTO> collectPrediction(
+      @RequestParam(required = false) Integer year,
+      @RequestParam(required = false) Integer month,
+      @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate start,
+      @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate end) {
+
+    // 매개변수가 제공되지 않으면 현재 연도를 사용합니다.
+    if (year == null && month == null && start == null && end == null) {
+      year = LocalDate.now().getYear();
+    }
+
+    return researchService.getCollectPrediction(year, month, start, end);
+
+  }
+
+
 
   // 관리자 페이지에서 기초 통계 볼때 필요한 API
   // 연도별, 월별, 일별을 탭으로 표현한다고 했는데, 그래서 하나의 주소로 받음
