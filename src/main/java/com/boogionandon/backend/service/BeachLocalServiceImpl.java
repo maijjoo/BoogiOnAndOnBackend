@@ -2,6 +2,7 @@ package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.repository.BeachRepository;
+import com.boogionandon.backend.repository.WorkerRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -122,4 +123,21 @@ public class BeachLocalServiceImpl implements BeachService{
 
     return beachNameMap;
   }
+
+  @Override
+  public List<String> sortedBeachNameList() {
+
+    // 1. 모든 해변 정보를 가져옵니다.
+    List<Beach> allBeaches = beachRepository.findAll();
+
+    // 2. 결과를 저장할 TreeSet을 생성합니다. (자동 정렬 및 중복 제거)
+    Set<String> uniqueSortedBeachName = new TreeSet<>();
+
+    // 3. 각 해변에서 구/군 정보를 추출하여 Set에 추가합니다.
+    for (Beach beach : allBeaches) {
+      String beachName = beach.getBeachName();
+      uniqueSortedBeachName.add(beachName);
+    }
+    log.info("uniqueSortedBeachName : " + uniqueSortedBeachName);
+    return uniqueSortedBeachName.stream().toList();  }
 }

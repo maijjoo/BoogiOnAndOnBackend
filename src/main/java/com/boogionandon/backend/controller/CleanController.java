@@ -1,7 +1,10 @@
 package com.boogionandon.backend.controller;
 
+import com.boogionandon.backend.dto.BasicPageResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
+import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
+import com.boogionandon.backend.service.WorkerService;
 import com.boogionandon.backend.util.CustomFileUtil;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +27,20 @@ public class CleanController {
 
   private final CustomFileUtil fileUtil;
   private final CleanService cleanService;
+  private final BeachService beachService;
+  private final WorkerService workerService;
+
+
+  // research 보고서 작성하는 페이지에 내려줄 메서드
+  @GetMapping("/")
+  public BasicPageResponseDTO viewResearchReportPage() {
+
+    return BasicPageResponseDTO.builder()
+        .beachNameList(beachService.sortedBeachNameList())
+        .nameWithNumberList(workerService.findSortedWorkerNameList())
+        .build();
+  }
+
 
   @PostMapping("/")
   public Map<String, String> insertClean(CleanRequestDTO cleanDTO) {
