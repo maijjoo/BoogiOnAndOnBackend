@@ -56,4 +56,13 @@ class BeachLocalServiceImplTest {
 
     log.info("beachName : " + beachName);
   }
+
+  @Test
+  @DisplayName("sortedBeachNameList 테스트")
+  void testSortedBeachNameList() {
+
+    List<String> sortedBeachNameList = beachService.sortedBeachNameList();
+
+    log.info("sortedBeachNameList : " + sortedBeachNameList);
+  }
 }

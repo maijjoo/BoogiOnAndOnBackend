@@ -150,10 +150,12 @@ class PickUpRepositoryTest {
                 images.add(image);
             }
 
-            double randomOffset = random.nextDouble() * 200 + 300; // 300에서 500 사이의 미터 값?? 이거 확인 필요
+            double randomOffsetLat = (random.nextDouble() - 0.5) * 0.001; // -0.0005 ~ +0.0005
+            double randomOffsetLon = (random.nextDouble() - 0.5) * 0.001; // -0.0005 ~ +0.0005
 
-            double startLat = randomBeach.getLatitude() + randomOffset;
-            double startLon = randomBeach.getLongitude() + randomOffset;
+            double startLat = randomBeach.getLatitude() + randomOffsetLat;
+            double startLon = randomBeach.getLongitude() + randomOffsetLon;
+
 
 
             PickUp pickup = PickUp.builder()

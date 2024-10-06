@@ -50,11 +50,13 @@ public class CustomFileUtil {
       return null;
     }
 
+    int count = 1;
+
     List<String> uploadNames = new ArrayList<>();
     for (MultipartFile file : files) {
 
       String savedName = prefix + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
-          +"_" + file.getOriginalFilename();
+          + count +"_" + file.getOriginalFilename();
 
       Path savePath = Paths.get(uploadPath, savedName);
 

@@ -21,4 +21,6 @@ public interface BeachService {
   //  Map<String, List<String>> beachName = new HashMap<String, List<String>>();
   // 형태로 반환하기
   public Map<String, List<String>> SortedBeachNameMap();
+
+  List<String> sortedBeachNameList();
 }

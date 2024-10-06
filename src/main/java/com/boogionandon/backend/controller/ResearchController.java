@@ -1,7 +1,10 @@
 package com.boogionandon.backend.controller;
 
+import com.boogionandon.backend.dto.BasicPageResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
+import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.ResearchService;
+import com.boogionandon.backend.service.WorkerService;
 import com.boogionandon.backend.util.CustomFileUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +33,8 @@ public class ResearchController {
 
   private final CustomFileUtil fileUtil;
   private final ResearchService researchService;
+  private final BeachService beachService;
+  private final WorkerService workerService;
 
 
   // 현재 DTO로 값을 받으려 하니 files는 MultipartFile로 form-data형식으로 와야 하는데
@@ -65,6 +70,18 @@ public class ResearchController {
   // files : []
   // }
   // 의 형태로 와야함
+
+
+  // research 보고서 작성하는 페이지에 내려줄 메서드
+  @GetMapping("/")
+  public BasicPageResponseDTO viewResearchReportPage() {
+
+    return BasicPageResponseDTO.builder()
+        .beachNameList(beachService.sortedBeachNameList())
+        .nameWithNumberList(workerService.findSortedWorkerNameList())
+        .build();
+  }
+
   @PostMapping("/")
   public Map<String, String> insertResearch(
 //      @ModelAttribute ResearchMainRequestDTO mainDTO, 이거 researchSubList안에 넣지를 못함
