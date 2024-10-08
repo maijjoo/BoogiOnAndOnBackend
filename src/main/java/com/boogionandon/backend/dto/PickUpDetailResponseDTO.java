@@ -29,7 +29,7 @@ public class PickUpDetailResponseDTO {
 
   private LocalDateTime submitDateTime;
 
-  private Double actualCollectedVolume;
+  private Integer realTrashAmount;
 
   private ReportStatus status;
 

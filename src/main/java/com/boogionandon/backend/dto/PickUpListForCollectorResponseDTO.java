@@ -25,7 +25,7 @@ public class PickUpListForCollectorResponseDTO {
 
   private TrashType mainTrashType;
 
-  private Double actualCollectedVolume; // 50L 쓰레기 봉투 갯수
+  private Integer realTrashAmount; // 50L 쓰레기 봉투 갯수
 
   private List<String> images;
 
