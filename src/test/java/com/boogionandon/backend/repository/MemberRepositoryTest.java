@@ -5,6 +5,7 @@ import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.service.BeachService;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,6 +20,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Commit;
@@ -171,5 +176,53 @@ class MemberRepositoryTest {
     log.info("worker : " + worker.toString());
   }
 
+  // ------------ 회원 조회 관련 메서드 시작 -----------------
+  @Test
+  @DisplayName("findAllByWorkerManagedAdminWithNameSearchForRegular 메서드 테스트")
+  void testFindAllByWorkerManagedAdminWithNameSearchForRegularTest() {
+
+    // 일반 admin의 id를 사용
+    Long adminId = 5L; // initData에 의해 자동으로 들어가있는 테스트용 -> 5L,6L,7L
+
+    String nameSearch = "";
+
+    String tabCondition = "수거자"; // 전체, 조사/청소, 수거자
+
+    // pageable 생성
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("createdDate").descending() :
+            Sort.by("createdDate").ascending()
+    );
+
+    Page<Member> memberList = memberRepository.findAllByWorkerManagedAdminWithNameSearchForRegular(adminId, tabCondition, nameSearch, pageable);
+    log.info("memberList : " + memberList);
+  }
+
+  @Test
+  @DisplayName("findAllByWorkerManagedAdminWithNameSearchForSuper 메서드 테스트")
+  void testFindAllByWorkerManagedAdminWithNameSearchForSuperTest() {
+
+    // Super admin의 id를 사용
+    Long adminId = 1L; // initData에 의해 자동으로 들어가있는 테스트용 -> 1L,2L,3L
+
+    String nameSearch = "";
+
+    String tabCondition = "관리자"; // 관리자, 조사/청소, 수거자
+
+    // pageable 생성
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("createdDate").descending() :
+            Sort.by("createdDate").ascending()
+    );
+
+    Page<Member> memberList = memberRepository.findAllByWorkerManagedAdminWithNameSearchForSuper(adminId, tabCondition, nameSearch, pageable);
+    log.info("memberList : " + memberList);
+
+  }
+  // ------------ 회원 조회 관련 메서드 시작 -----------------
 
 }

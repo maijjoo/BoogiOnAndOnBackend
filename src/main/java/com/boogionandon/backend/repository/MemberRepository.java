@@ -1,13 +1,14 @@
 package com.boogionandon.backend.repository;
 
 import com.boogionandon.backend.domain.Member;
+import com.boogionandon.backend.repository.queryDSL.MemberRepositoryCustom;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface MemberRepository extends JpaRepository<Member, Long>, MemberRepositoryCustom {
 
   @EntityGraph(attributePaths = {"memberRoleList"})
   @Query("select m from Member m "

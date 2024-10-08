@@ -39,7 +39,7 @@ public class WorkerResponseDTO {
 
   private String workAddressDetail; // 소속 상세 주소
 
-  private int vehicleCapacity; // 차량정보(무게 ton)
+  private Double vehicleCapacity; // 차량정보(무게 ton)
 
   private LocalDate startDate;
 

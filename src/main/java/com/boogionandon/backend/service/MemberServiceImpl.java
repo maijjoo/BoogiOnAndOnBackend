@@ -2,6 +2,7 @@ package com.boogionandon.backend.service;
 
 
 import com.boogionandon.backend.domain.Admin;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
@@ -11,6 +12,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,4 +92,16 @@ public class MemberServiceImpl implements MemberService{
         .assignmentAreaList(assignmentAreaList)
         .build();
   }
+
+  @Override
+  public Page<Member> getMemberByRegularAdmin(Long adminId, String tabCondition, String nameSearch, Pageable pageable) {
+    return memberRepository.findAllByWorkerManagedAdminWithNameSearchForRegular(adminId, tabCondition, nameSearch, pageable);
+  }
+
+  @Override
+  public Page<Member> getMemberBySuperAdmin(Long adminId, String tabCondition, String nameSearch, Pageable pageable) {
+    return memberRepository.findAllByWorkerManagedAdminWithNameSearchForSuper(adminId, tabCondition, nameSearch, pageable);
+  }
+
+
 }
