@@ -57,7 +57,7 @@ public class PickUpLocalServiceImpl implements PickUpService {
                     .latitude(pickUp.getLatitude())
                     .longitude(pickUp.getLongitude())
                     .mainTrashType(pickUp.getMainTrashType())
-                    .actualCollectedVolume(pickUp.getActualCollectedVolume())
+                    .realTrashAmount(pickUp.getRealTrashAmount())
                     .images(pickUp.getImages().stream()
                         .map(image -> "S_" + image.getFileName())
                         .collect(Collectors.toList()))
@@ -151,7 +151,7 @@ public class PickUpLocalServiceImpl implements PickUpService {
             .longitude(pickUp.getLongitude())
             .mainTrashType(pickUp.getMainTrashType())
             .submitDateTime(pickUp.getSubmitDateTime())
-            .actualCollectedVolume(pickUp.getActualCollectedVolume())
+            .realTrashAmount(pickUp.getRealTrashAmount())
             .status(pickUp.getStatus())
             .images(pickUp.getImages().stream()
                 .map(image -> "S_" + image.getFileName())
@@ -169,7 +169,7 @@ public class PickUpLocalServiceImpl implements PickUpService {
                 .latitude(pickUpRequestDTO.getLatitude())
                 .longitude(pickUpRequestDTO.getLongitude())
                 .mainTrashType(TrashType.valueOf(pickUpRequestDTO.getMainTrashType()))
-                .actualCollectedVolume(pickUpRequestDTO.getActualCollectedVolume())
+                .realTrashAmount(pickUpRequestDTO.getRealTrashAmount())
                 .submitDateTime(LocalDateTime.now())
                 .build();
 

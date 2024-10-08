@@ -23,7 +23,7 @@ public class PickUpRequestDTO {
     private Double latitude;    // 위도
     private Double longitude;   // 경도
     private String mainTrashType;    //주요 쓰레기 타입
-    private Double actualCollectedVolume;   // 실제 수거량
+    private Integer realTrashAmount;   // 실제 수거량
 
     // 등록/수정용의 진짜 파일들
     @Builder.Default

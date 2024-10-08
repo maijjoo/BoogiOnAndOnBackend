@@ -61,6 +61,7 @@ class PickUpRepositoryTest {
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이름의 회원을 찾을 수 없습니다. :" + userName));
 
 
+        Random random = new Random();
         String pickUpPlace = "해운대 경찰서 앞"; // 집하지명 임의 설정
 
         PickUp pickup = PickUp.builder()
@@ -70,7 +71,7 @@ class PickUpRepositoryTest {
                 .longitude(35.15768265599188)
                 .mainTrashType(TrashType.대형_투기쓰레기류)
                 .submitDateTime(LocalDateTime.now())
-                .actualCollectedVolume(150.0)
+                .realTrashAmount(random.nextInt(1, 10))
                 .build();
 
         // 3. PickUp 엔티티 리포지토리에 저장
@@ -165,7 +166,7 @@ class PickUpRepositoryTest {
                 .longitude(startLon)
                 .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
                 .submitDateTime(randomSubmitDateTimee) // 최근 24시간 내의 랜덤 시간
-                .actualCollectedVolume(50.0 + random.nextDouble() * 200.0) // 50.0에서 250.0 사이의 랜덤 값
+                .realTrashAmount(random.nextInt(1, 10)) // 50.0에서 250.0 사이의 랜덤 값
                 .images(images)
                 .build();
 

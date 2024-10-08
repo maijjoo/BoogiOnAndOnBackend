@@ -295,7 +295,7 @@ public class AdminController {
             .longitude(pickUp.getLongitude())
             .mainTrashType(pickUp.getMainTrashType())
             .submitDateTime(pickUp.getSubmitDateTime())
-            .actualCollectedVolume(pickUp.getActualCollectedVolume())
+            .realTrashAmount(pickUp.getRealTrashAmount())
             .status(pickUp.getStatus())
             .thumbnail(pickUp.getImages().stream()
                 .min(Comparator.comparing(Image::getOrd))

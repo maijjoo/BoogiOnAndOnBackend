@@ -47,7 +47,7 @@ public class PickUp extends BaseEntity {
 
   // TODO : 이걸 청소자가 작성할지, 수거자가 작성할지 아니면 각각 다 입력할지
   @Column(nullable = false)
-  private Double actualCollectedVolume;
+  private Integer realTrashAmount;
 
   // 집하장소 사진은 C_202409251220.... 같이 생각 (3장 이하)
   @ElementCollection
