@@ -8,6 +8,7 @@ import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
 import com.boogionandon.backend.dto.PickUpRequestDTO;
 import java.util.List;
+import java.util.Random;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,13 +34,16 @@ class PickUpLocalServiceImplTest {
     @DisplayName("insertPickUp 메서드 테스트")
     @Commit
     void insertPickUp() {
+
+        Random random = new Random();
+
         PickUpRequestDTO pickUpRequestDTO = PickUpRequestDTO.builder()
                 .submitterUsername("W_testWorker")
                 .pickUpPlace("해운대 앞 경찰서")
                 .latitude(35.15768265599188)
                 .longitude(129.1572648115502)
                 .mainTrashType("초목류")
-                .actualCollectedVolume(150.0)
+                .realTrashAmount(random.nextInt(1, 10))
                 .build();
 
         pickUpService.insertPickUp(pickUpRequestDTO);
