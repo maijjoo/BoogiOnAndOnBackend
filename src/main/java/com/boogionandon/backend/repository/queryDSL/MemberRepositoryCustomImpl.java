@@ -7,6 +7,7 @@ import com.boogionandon.backend.domain.QMember;
 import com.boogionandon.backend.domain.QWorker;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
@@ -111,6 +112,21 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
 
     return new PageImpl<>(content, pageable, total);
   }
+
+//  @Override
+//  public Optional<Tuple> findWorkerWithAdminInfo(Long workerId) {
+//    QWorker worker = QWorker.worker;
+//    QMember managedAdmin = new QMember("managedAdmin");
+//    QAdmin admin = QAdmin.admin;
+//
+//    return Optional.ofNullable(queryFactory
+//        .select(worker, admin)
+//        .from(worker)
+//        .leftJoin(managedAdmin).on(worker.managerId.eq(managedAdmin.id))
+//        .leftJoin(admin).on(managedAdmin.id.eq(admin.id))
+//        .where(worker.id.eq(workerId))
+//        .fetchOne());
+//  }
 
 
   // -------------- For Regular 시작 ---------------------

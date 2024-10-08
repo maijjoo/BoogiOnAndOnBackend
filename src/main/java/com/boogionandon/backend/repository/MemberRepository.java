@@ -18,8 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
   Optional<Member> findByUsernameWithDetails(@Param("username") String username);
 
 
-
-  @Query("select m from Member m "
+  @Query("select m, a from Member m "
       + "LEFT JOIN FETCH Admin a on m.managerId = a.id "
       + "LEFT JOIN FETCH Worker w on m.id = w.id "
       + "WHERE m.id = :workerId")

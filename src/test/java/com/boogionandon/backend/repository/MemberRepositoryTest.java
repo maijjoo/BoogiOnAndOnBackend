@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -223,6 +224,66 @@ class MemberRepositoryTest {
     log.info("memberList : " + memberList);
 
   }
-  // ------------ 회원 조회 관련 메서드 시작 -----------------
+  // ------------ 회원 조회 관련 메서드 끝 -----------------
+
+  @Test
+  @DisplayName("findWorkerWithAdminInfo Test")
+  void testFindWorkerWithAdminInfo() {
+    Long workerId = 5L; // initData에 의해 자동으로 들어가��는 ��스트용 -> 5L,6L,7L
+
+    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
+
+    if (workerWithAdminInfo.isPresent()) {
+      log.info("workerWithAdminInfo : " + workerWithAdminInfo.get());
+    } else {
+      log.info("workerWithAdminInfo is not found.");
+    }
+  }
+
+  @Test
+  @DisplayName("findByIdWithManager Test")
+  void testFindByIdWithManager() {
+    Long workerId = 8L; // initData에 의해 자동저장된 8L, 9L, 10L, 11L
+
+    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
+
+    workerWithAdminInfo.ifPresent(result -> {
+      if (result instanceof Object[]) {
+        Object[] resultArray = (Object[]) result;
+        if (resultArray.length >= 2) {
+          Object memberInfo = resultArray[0];
+          Object adminInfo = resultArray[1];
+
+          log.info("Member Info: {}", memberInfo);
+          log.info("Admin Info: {}", adminInfo);
+
+          // Worker 정보 처리
+          if (memberInfo instanceof Worker) {
+            Worker worker = (Worker) memberInfo;
+            log.info("Worker Name: {}", worker.getName());
+            // 추가 Worker 필드 접근...
+          } else if (memberInfo instanceof Admin) {
+            Admin admin = (Admin) memberInfo;
+            log.info("Admin Name: {}", admin.getName());
+          }
+
+          // Admin 정보 처리
+          if (adminInfo instanceof Admin) {
+            Admin admin = (Admin) adminInfo;
+            log.info("Admin Name: {}", admin.getName());
+            // 추가 Admin 필드 접근...
+          }
+        } else {
+          log.info("Result array does not contain expected number of elements");
+        }
+      } else {
+        log.info("Unexpected result type: {}", result.getClass().getName());
+      }
+    });
+
+    if (workerWithAdminInfo.isEmpty()) {
+      log.info("No result found for worker ID: {}", workerId);
+    }
+  }
 
 }

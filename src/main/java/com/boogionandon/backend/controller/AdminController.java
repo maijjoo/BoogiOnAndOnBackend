@@ -16,11 +16,13 @@ import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
+import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
 import com.boogionandon.backend.dto.admin.MemberInquiryPageForRegularResponseDTO;
 import com.boogionandon.backend.dto.admin.MemberInquiryPageForSuperResponseDTO;
 import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.repository.AdminRepository;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
@@ -350,7 +352,7 @@ public class AdminController {
   // ------------ 회원 관리 탭 시작 ----------------------
 
   // 회원 조회에 관련된 메서드
-  @GetMapping("/member-inquiry/{adminId}")
+  @GetMapping("/member-inquiry/{adminId}")  // 여기서 adminId는 로그인한 adminId
   public PageResponseDTO<?> getMemberInquiryList(
       @PathVariable("adminId") Long adminId,
       @RequestParam String tabCondition,
@@ -424,6 +426,17 @@ public class AdminController {
 
       return new PageResponseDTO(regularResponseDTOList, pageRequestDTO, findList.getTotalElements());
     }
+  }
+
+  // 회원 상세에 관련된 메서드
+  @GetMapping("/member-inquiry/worker/{workerId}") // 여기서 workerId는 상세보기할 것의 id
+  public WorkerDetailResponseDTO getWorkerDetail(@PathVariable("workerId") Long workerId) {
+    return memberService.getWorkerById(workerId);
+  }
+
+  @GetMapping("/member-inquiry/admin/{adminId}") // 여기서 adminId는 상세보기할 것의 id
+  public AdminDetailResponseDTO getAdminDetail(@PathVariable("adminId") Long adminId) {
+    return memberService.getAdminById(adminId);
   }
 
   // ------------ 작업 관리 탭 끝 ----------------------

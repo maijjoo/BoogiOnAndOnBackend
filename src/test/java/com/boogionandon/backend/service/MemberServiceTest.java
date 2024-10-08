@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
+import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import lombok.extern.log4j.Log4j2;
@@ -91,5 +93,27 @@ class MemberServiceTest {
     Page<Member> memberList = memberService.getMemberBySuperAdmin(adminId, tabCondition, nameSearch, pageable);
 
     log.info("memberList : " + memberList);
+  }
+
+  @Test
+  @DisplayName("getWorkerById 테스트")
+  void testGetWorkerById() {
+
+    Long workerId = 8L; // initData에 의해 자동저장된 8L, 9L, 10L, 11L
+
+    WorkerDetailResponseDTO workerById = memberService.getWorkerById(workerId);
+
+    log.info("workerById : " + workerById);
+  }
+
+  @Test
+  @DisplayName("getAdminById 테스트")
+  void testGetAdminById() {
+
+    Long adminId = 5L; // initData에 의해 자동저장된 5L, 6L, 7L
+
+    AdminDetailResponseDTO adminById = memberService.getAdminById(adminId);
+
+    log.info("adminById : " + adminById);
   }
 }
