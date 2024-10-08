@@ -1,9 +1,13 @@
 package com.boogionandon.backend.controller;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
 import com.boogionandon.backend.domain.ResearchMain;
+import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanListResponseDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
@@ -12,11 +16,17 @@ import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
+import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
-import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import com.boogionandon.backend.dto.admin.MemberInquiryPageForRegularResponseDTO;
+import com.boogionandon.backend.dto.admin.MemberInquiryPageForSuperResponseDTO;
 import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
+import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
+import com.boogionandon.backend.repository.AdminRepository;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
+import com.boogionandon.backend.service.MemberService;
 import com.boogionandon.backend.service.PickUpService;
 import com.boogionandon.backend.service.ResearchLocalServiceImpl;
 import com.boogionandon.backend.service.ResearchService;
@@ -55,9 +65,15 @@ public class AdminController {
   private final ResearchService researchService;
   private final PickUpService pickUpService;
   private final CustomFileUtil fileUtil;
+  private final AdminRepository adminRepository;
+  private final MemberService memberService;
 
   // 리팩토링은 나중에 여유 있을때 하기
+  // 1. trashDistribution, collectPrediction 메서드에도 tabCondition이 있었으면 좀더 명확하게 구분이 되었을텐데
+  // 2. 시간이 부족해서 일단 만들고 보자 해서 중복 코드들이 많이 발생한거 같음
 
+
+  // ------------ 데이터 관리 탭 시작 ----------------------
 
   // 관리자 페이지에서 쓰레기 분포도 볼때 필요한 API
   // 어차피 지도로 표현하는 거니 페이징은 없을것 같아 아래 DTO 만들어씀
@@ -122,6 +138,10 @@ public class AdminController {
 
     return findBasicStatistics;
   }
+
+  // ------------ 데이터 관리 탭 끝 ----------------------
+
+  // ------------ 작업 관리 탭 시작 ----------------------
 
   // 관리자 페이지에서 NEW-작업 에서 보이는 화면
   // 작업한 Worker의 관리자의 내용만 보여져야함
@@ -327,6 +347,100 @@ public class AdminController {
   public ResponseEntity<Resource> viewFileGET(@PathVariable("fileName") String fileName) {
     return fileUtil.getFile(fileName);
   }
+
+  // ------------ 작업 관리 탭 끝 ----------------------
+  // ------------ 회원 관리 탭 시작 ----------------------
+
+  // 회원 조회에 관련된 메서드
+  @GetMapping("/member-inquiry/{adminId}")  // 여기서 adminId는 로그인한 adminId
+  public PageResponseDTO<?> getMemberInquiryList(
+      @PathVariable("adminId") Long adminId,
+      @RequestParam String tabCondition,
+      PageRequestDTO pageRequestDTO,
+      String nameSearch) {
+
+    Admin admin = adminRepository.findById(adminId)
+        .orElseThrow(() -> new IllegalArgumentException("해당 adminId로 Admin을 찾을 수 없습니다. : " + adminId));
+
+    List<MemberType> memberRoleList = admin.getMemberRoleList();
+    boolean isSuper = memberRoleList.contains(MemberType.SUPER_ADMIN);
+
+    pageRequestDTO.setSize(20); // 이 페이지에서는 기본으로 20으로 쓰기 위해
+
+    Pageable pageable = null;
+    if (pageRequestDTO.getSort().equals("desc")) {
+      pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("createdDate").descending());
+    } else if (pageRequestDTO.getSort().equals("asc")) {
+      pageable = PageRequest.of(pageRequestDTO.getPage() - 1, pageRequestDTO.getSize(), Sort.by("createdDate").ascending());
+    }
+
+    List<MemberInquiryPageForSuperResponseDTO> superResponseDTOList = null;
+
+    if (isSuper) {
+      Page<Member> findList = memberService.getMemberBySuperAdmin(adminId, tabCondition, nameSearch, pageable);
+        if ("관리자".equals(tabCondition)) {
+          superResponseDTOList = findList.stream().map(member -> {
+            Admin memberToAdmin = (Admin) member;
+            return MemberInquiryPageForSuperResponseDTO.builder()
+              .id(memberToAdmin.getId())
+              .name(memberToAdmin.getName())
+              .role("ADMIN")
+              .workPlace(memberToAdmin.getWorkPlace())
+              .department(memberToAdmin.getDepartment())
+              .contact(memberToAdmin.getContact())
+              .email(memberToAdmin.getEmail())
+              .build();
+          }).collect(Collectors.toList());
+        } else if ("조사/청소".equals(tabCondition) || "수거자".equals(tabCondition)) {
+          superResponseDTOList = findList.stream().map(member -> {
+            Worker memberToWorker = (Worker) member;
+            return MemberInquiryPageForSuperResponseDTO.builder()
+                .id(memberToWorker.getId())
+                .name(memberToWorker.getName())
+                .role("WORKER")
+                .phone(memberToWorker.getPhone())
+                .vehicleCapacity(memberToWorker.getVehicleCapacity())
+                .createdDate(memberToWorker.getCreatedDate())
+                .startDate(memberToWorker.getStartDate())
+                .endDate(memberToWorker.getEndDate())
+                .build();
+          }).collect(Collectors.toList());
+        }
+
+      return new PageResponseDTO(superResponseDTOList, pageRequestDTO, findList.getTotalElements());
+    } else {
+      Page<Member> findList = memberService.getMemberByRegularAdmin(adminId, tabCondition, nameSearch, pageable);
+
+        List<MemberInquiryPageForRegularResponseDTO> regularResponseDTOList = findList.stream().map(member -> {
+          Worker worker = (Worker) member;
+          return MemberInquiryPageForRegularResponseDTO.builder()
+              .id(member.getId())
+              .name(member.getName())
+              .phone(member.getPhone())
+              .createdDate(member.getCreatedDate())
+              .vehicleCapacity(worker.getVehicleCapacity())
+              .startDate(worker.getStartDate())
+              .endDate(worker.getEndDate())
+              .build();
+      }).collect(Collectors.toList());
+
+      return new PageResponseDTO(regularResponseDTOList, pageRequestDTO, findList.getTotalElements());
+    }
+  }
+
+  // 회원 상세에 관련된 메서드
+  @GetMapping("/member-inquiry/worker/{workerId}") // 여기서 workerId는 상세보기할 것의 id
+  public WorkerDetailResponseDTO getWorkerDetail(@PathVariable("workerId") Long workerId) {
+    return memberService.getWorkerById(workerId);
+  }
+
+  @GetMapping("/member-inquiry/admin/{adminId}") // 여기서 adminId는 상세보기할 것의 id
+  public AdminDetailResponseDTO getAdminDetail(@PathVariable("adminId") Long adminId) {
+    return memberService.getAdminById(adminId);
+  }
+
+  // ------------ 작업 관리 탭 끝 ----------------------
+
 
 
 }

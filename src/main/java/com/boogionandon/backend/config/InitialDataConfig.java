@@ -217,7 +217,7 @@ public class InitialDataConfig {
             .workAddressDetail("중동2로 11 해운대구청")
             .startDate(LocalDate.now()) // 실제는 화면에서 선택
             .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
-            .vehicleCapacity(i)
+            .vehicleCapacity(Double.valueOf(i))
             .build();
 
         workerPlus.getMemberRoleList().add(MemberType.WORKER);

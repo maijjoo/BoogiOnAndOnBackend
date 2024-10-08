@@ -18,6 +18,8 @@ public class MemberController {
 
   private final MemberService memberService;
 
+  // TODO : 정보 수정 만들기
+
 
   @GetMapping("/my-page/worker/{workerId}")
   public WorkerResponseDTO getWorkerProfile(@PathVariable("workerId") Long workerId) {

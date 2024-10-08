@@ -32,14 +32,14 @@ public class Worker extends Member{
   private String workAddressDetail; // 소속 상세 주소
 
   @Column
-  private int vehicleCapacity; // 차량정보(무게 ton)
+  private Double vehicleCapacity; // 차량정보(무게 ton)
 
   // 추가로 필요한 필드가 있다면 추가
 
-  @Column
+  @Column(nullable = false)
   private LocalDate startDate; // 관리자가 등록해주는 할 수 있는 일자 (시작)
 
-  @Column
+  @Column(nullable = false)
   private LocalDate endDate; // 관리자가 등록해주는 할 수 있는 일자 (종료)
 
 }
