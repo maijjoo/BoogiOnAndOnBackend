@@ -30,7 +30,7 @@ public class WorkerDTO extends User {
   private String workAddress; //// 소속 주소
   private String workAddressDetail; // 소속 상세 주소
 
-  private int vehicleCapacity; // 차량정보(무게 ton)
+  private Double vehicleCapacity; // 차량정보(무게 ton)
 
   private Long managerId; // 해당 아이디를 만든 관리자
   private boolean delFlag;  // 소프트 딜리트를 위해
@@ -38,7 +38,7 @@ public class WorkerDTO extends User {
   public WorkerDTO(String username, String password, String email,
       String name,
       String phone, String address, String addressDetail, List<String> roleNames, String contact,
-      String workGroup, String workAddress, String workAddressDetail, int vehicleCapacity,
+      String workGroup, String workAddress, String workAddressDetail, Double vehicleCapacity,
       Long managerId, boolean delFlag) {
     super(username, password, roleNames.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(
         Collectors.toList()));
@@ -87,11 +87,11 @@ public class WorkerDTO extends User {
         ? (List<String>) claims.get("roleNames")
         : new ArrayList<>();
 
-    Integer vehicleCapacity = claims.get("vehicleCapacity") instanceof Integer
-        ? (Integer) claims.get("vehicleCapacity")
+    Double vehicleCapacity = claims.get("vehicleCapacity") instanceof Double
+        ? (Double) claims.get("vehicleCapacity")
         : (claims.get("vehicleCapacity") instanceof String
-            ? Integer.parseInt((String) claims.get("vehicleCapacity"))
-            : 0);
+            ? Double.parseDouble((String) claims.get("vehicleCapacity"))
+            : 0.0);
 
     Long managerId = claims.get("managerId") instanceof Number
         ? ((Number) claims.get("managerId")).longValue()

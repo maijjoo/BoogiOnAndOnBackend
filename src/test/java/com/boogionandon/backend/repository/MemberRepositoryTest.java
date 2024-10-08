@@ -5,12 +5,14 @@ import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
+import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.service.BeachService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -19,6 +21,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Commit;
@@ -171,5 +177,113 @@ class MemberRepositoryTest {
     log.info("worker : " + worker.toString());
   }
 
+  // ------------ 회원 조회 관련 메서드 시작 -----------------
+  @Test
+  @DisplayName("findAllByWorkerManagedAdminWithNameSearchForRegular 메서드 테스트")
+  void testFindAllByWorkerManagedAdminWithNameSearchForRegularTest() {
+
+    // 일반 admin의 id를 사용
+    Long adminId = 5L; // initData에 의해 자동으로 들어가있는 테스트용 -> 5L,6L,7L
+
+    String nameSearch = "";
+
+    String tabCondition = "수거자"; // 전체, 조사/청소, 수거자
+
+    // pageable 생성
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("createdDate").descending() :
+            Sort.by("createdDate").ascending()
+    );
+
+    Page<Member> memberList = memberRepository.findAllByWorkerManagedAdminWithNameSearchForRegular(adminId, tabCondition, nameSearch, pageable);
+    log.info("memberList : " + memberList);
+  }
+
+  @Test
+  @DisplayName("findAllByWorkerManagedAdminWithNameSearchForSuper 메서드 테스트")
+  void testFindAllByWorkerManagedAdminWithNameSearchForSuperTest() {
+
+    // Super admin의 id를 사용
+    Long adminId = 1L; // initData에 의해 자동으로 들어가있는 테스트용 -> 1L,2L,3L
+
+    String nameSearch = "";
+
+    String tabCondition = "관리자"; // 관리자, 조사/청소, 수거자
+
+    // pageable 생성
+    PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+    Pageable pageable = PageRequest.of(pageRequestDTO.getPage() -1, pageRequestDTO.getSize(),
+        pageRequestDTO.getSort().equals("desc") ?
+            Sort.by("createdDate").descending() :
+            Sort.by("createdDate").ascending()
+    );
+
+    Page<Member> memberList = memberRepository.findAllByWorkerManagedAdminWithNameSearchForSuper(adminId, tabCondition, nameSearch, pageable);
+    log.info("memberList : " + memberList);
+
+  }
+  // ------------ 회원 조회 관련 메서드 끝 -----------------
+
+  @Test
+  @DisplayName("findWorkerWithAdminInfo Test")
+  void testFindWorkerWithAdminInfo() {
+    Long workerId = 5L; // initData에 의해 자동으로 들어가��는 ��스트용 -> 5L,6L,7L
+
+    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
+
+    if (workerWithAdminInfo.isPresent()) {
+      log.info("workerWithAdminInfo : " + workerWithAdminInfo.get());
+    } else {
+      log.info("workerWithAdminInfo is not found.");
+    }
+  }
+
+  @Test
+  @DisplayName("findByIdWithManager Test")
+  void testFindByIdWithManager() {
+    Long workerId = 8L; // initData에 의해 자동저장된 8L, 9L, 10L, 11L
+
+    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
+
+    workerWithAdminInfo.ifPresent(result -> {
+      if (result instanceof Object[]) {
+        Object[] resultArray = (Object[]) result;
+        if (resultArray.length >= 2) {
+          Object memberInfo = resultArray[0];
+          Object adminInfo = resultArray[1];
+
+          log.info("Member Info: {}", memberInfo);
+          log.info("Admin Info: {}", adminInfo);
+
+          // Worker 정보 처리
+          if (memberInfo instanceof Worker) {
+            Worker worker = (Worker) memberInfo;
+            log.info("Worker Name: {}", worker.getName());
+            // 추가 Worker 필드 접근...
+          } else if (memberInfo instanceof Admin) {
+            Admin admin = (Admin) memberInfo;
+            log.info("Admin Name: {}", admin.getName());
+          }
+
+          // Admin 정보 처리
+          if (adminInfo instanceof Admin) {
+            Admin admin = (Admin) adminInfo;
+            log.info("Admin Name: {}", admin.getName());
+            // 추가 Admin 필드 접근...
+          }
+        } else {
+          log.info("Result array does not contain expected number of elements");
+        }
+      } else {
+        log.info("Unexpected result type: {}", result.getClass().getName());
+      }
+    });
+
+    if (workerWithAdminInfo.isEmpty()) {
+      log.info("No result found for worker ID: {}", workerId);
+    }
+  }
 
 }
