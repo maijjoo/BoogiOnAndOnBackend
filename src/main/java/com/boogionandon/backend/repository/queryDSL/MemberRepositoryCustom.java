@@ -11,5 +11,4 @@ public interface MemberRepositoryCustom {
   Page<Member> findAllByWorkerManagedAdminWithNameSearchForRegular(Long adminId, String tabCondition, String nameSearch, Pageable pageable);
   Page<Member> findAllByWorkerManagedAdminWithNameSearchForSuper(Long adminId, String tabCondition, String nameSearch, Pageable pageable);
 
-//  Optional<Tuple> findWorkerWithAdminInfo(Long workerId);
 }

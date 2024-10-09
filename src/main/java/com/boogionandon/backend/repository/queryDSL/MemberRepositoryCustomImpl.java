@@ -113,21 +113,6 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom{
     return new PageImpl<>(content, pageable, total);
   }
 
-//  @Override
-//  public Optional<Tuple> findWorkerWithAdminInfo(Long workerId) {
-//    QWorker worker = QWorker.worker;
-//    QMember managedAdmin = new QMember("managedAdmin");
-//    QAdmin admin = QAdmin.admin;
-//
-//    return Optional.ofNullable(queryFactory
-//        .select(worker, admin)
-//        .from(worker)
-//        .leftJoin(managedAdmin).on(worker.managerId.eq(managedAdmin.id))
-//        .leftJoin(admin).on(managedAdmin.id.eq(admin.id))
-//        .where(worker.id.eq(workerId))
-//        .fetchOne());
-//  }
-
 
   // -------------- For Regular 시작 ---------------------
   private static BooleanExpression getWhereByTabConditionForRegular(Long adminId, String tabCondition, String nameSearch) {

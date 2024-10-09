@@ -22,5 +22,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
       + "LEFT JOIN FETCH Admin a on m.managerId = a.id "
       + "LEFT JOIN FETCH Worker w on m.id = w.id "
       + "WHERE m.id = :workerId")
-  Optional<Object> findByIdWithManager(@Param("workerId") Long workerId);
+  Optional<Object[]> findByIdWithManager(@Param("workerId") Long workerId);
 }

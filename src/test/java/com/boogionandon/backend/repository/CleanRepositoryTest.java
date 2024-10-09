@@ -60,7 +60,7 @@ class CleanRepositoryTest {
   }
 
   @Test
-  @DisplayName("clean 추가 테스트 - 이미지 x 나중에 리팩토링 필요")
+  @DisplayName("clean 추가 테스트")
   @Commit
   void testCleanInsert() {
 
@@ -406,7 +406,7 @@ class CleanRepositoryTest {
   @Test
   @DisplayName("findByIdWithImage 메서드 테스트")
   void testFindByIdWithImage() {
-    Long cleanId = 103L; // initData에서 만들어진 Clean id => 1L
+    Long cleanId = 12L; // initData에서 만들어진 Clean id => 1L
 
     Clean findClean = cleanRepository.findByIdWithImage(cleanId)
        .orElseThrow(() -> new EntityNotFoundException("Clean with id "+ cleanId +" not found"));
