@@ -7,8 +7,11 @@ import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.service.BeachService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,62 +227,48 @@ class MemberRepositoryTest {
   // ------------ 회원 조회 관련 메서드 끝 -----------------
 
   @Test
-  @DisplayName("findWorkerWithAdminInfo Test")
-  void testFindWorkerWithAdminInfo() {
-    Long workerId = 5L; // initData에 의해 자동으로 들어가있는 테스트용 -> 5L,6L,7L
-
-    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
-
-    if (workerWithAdminInfo.isPresent()) {
-      log.info("workerWithAdminInfo : " + workerWithAdminInfo.get());
-    } else {
-      log.info("workerWithAdminInfo is not found.");
-    }
-  }
-
-  @Test
   @DisplayName("findByIdWithManager Test")
   void testFindByIdWithManager() {
-    Long workerId = 8L; // initData에 의해 자동저장된 8L, 9L, 10L, 11L
+    Long workerId = 10L; // initData에 의해 자동저장된 8L, 9L, 10L, 11L
 
-    Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
+    Object[] findData = memberRepository.findByIdWithManager(workerId)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found with workerId: " + workerId));
 
-    workerWithAdminInfo.ifPresent(result -> {
-      if (result instanceof Object[]) {
-        Object[] resultArray = (Object[]) result;
-        if (resultArray.length >= 2) {
-          Object memberInfo = resultArray[0];
-          Object adminInfo = resultArray[1];
+    log.info("findData length: " + findData.length);
+    for (int i = 0; i < findData.length; i++) {
+      log.info("findData[" + i + "] type: " + (findData[i] != null ? findData[i].getClass().getName() : "null"));
+    }
 
-          log.info("Member Info: {}", memberInfo);
-          log.info("Admin Info: {}", adminInfo);
+    if (findData.length > 0 && findData[0] instanceof Object[]) {
+      Object[] innerArray = (Object[]) findData[0];
+      log.info("Inner array length: " + innerArray.length);
 
-          // Worker 정보 처리
-          if (memberInfo instanceof Worker) {
-            Worker worker = (Worker) memberInfo;
-            log.info("Worker Name: {}", worker.getName());
-            // 추가 Worker 필드 접근...
-          } else if (memberInfo instanceof Admin) {
-            Admin admin = (Admin) memberInfo;
-            log.info("Admin Name: {}", admin.getName());
-          }
+      for (int i = 0; i < innerArray.length; i++) {
+        log.info("innerArray[" + i + "] type: " + (innerArray[i] != null ? innerArray[i].getClass().getName() : "null"));
+      }
 
-          // Admin 정보 처리
-          if (adminInfo instanceof Admin) {
-            Admin admin = (Admin) adminInfo;
-            log.info("Admin Name: {}", admin.getName());
-            // 추가 Admin 필드 접근...
-          }
+      if (innerArray.length >= 1 && innerArray[0] instanceof Member) {
+        Member member = (Member) innerArray[0];
+        log.info("Member : " + member);
+
+        if (member instanceof Worker) {
+          Worker worker = (Worker) member;
+          log.info("Worker : " + worker);
         } else {
-          log.info("Result array does not contain expected number of elements");
+          log.info("Member is not a Worker");
         }
       } else {
-        log.info("Unexpected result type: {}", result.getClass().getName());
+        log.info("Member not found or null");
       }
-    });
 
-    if (workerWithAdminInfo.isEmpty()) {
-      log.info("No result found for worker ID: {}", workerId);
+      if (innerArray.length > 1 && innerArray[1] instanceof Admin) {
+        Admin admin = (Admin) innerArray[1];
+        log.info("Admin : " + admin);
+      } else {
+        log.info("Admin not found or null");
+      }
+    } else {
+      log.info("Unexpected data structure");
     }
   }
 

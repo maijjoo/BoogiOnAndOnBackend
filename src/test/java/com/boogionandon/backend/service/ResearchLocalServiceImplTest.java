@@ -2,8 +2,10 @@ package com.boogionandon.backend.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.ResearchSub;
+import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
@@ -12,9 +14,12 @@ import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
+import com.boogionandon.backend.repository.MemberRepository;
 import jakarta.persistence.Column;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Random;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,14 +40,31 @@ class ResearchLocalServiceImplTest {
 
   @Autowired
   private ResearchService researchService;
+  @Autowired
+  private MemberRepository memberRepository;
 
   @Test
   @DisplayName("insertResearch 메서드 테스트")
   @Commit
   void testInsertResearch() {
+
+    Random random = new Random();
+
+    String researcherUsername = "W_testWorker";
+
+    Worker researcher = (Worker) memberRepository.findByUsernameWithDetails(researcherUsername)
+        .orElseThrow(() -> new UsernameNotFoundException("Worker with username "+ researcherUsername +" not found"));
+
+    Admin managedAdmin = (Admin) memberRepository.findById(researcher.getManagerId())
+        .orElseThrow(() -> new NoSuchElementException("Admin with id "+ researcher.getManagerId() +" not found"));
+
+    String randpmBeachName = managedAdmin.getAssignmentAreaList().get(random.nextInt(managedAdmin.getAssignmentAreaList().size()));
+
+    LocalDate currentDate = LocalDate.now();;
+
     ResearchMainRequestDTO mainDTO = ResearchMainRequestDTO.builder()
-        .researcherUsername("W_testWorker")
-        .beachName("해운대해수욕장")
+        .researcherUsername(researcherUsername)
+        .beachName(randpmBeachName)
         .expectedTrashAmount(180)
         .weather("소나기") // 당일 날씨
         .specialNote("태풍")  // 쓰레기가 영향을 받았을 것 같은 이상기후
@@ -70,10 +93,10 @@ class ResearchLocalServiceImplTest {
   @DisplayName("findByStatusChange 테스트")
   @Commit
   void testFindByStatusChange() {
-    Long id = 2L;
+    Long researchId = 2L;
     // 따로 값이 필요 없다고 판단 status 파라미터 같은거
 
-    researchService.updateStatus(id);
+    researchService.updateStatus(researchId);
   }
   // ----------- findByStatusChange 테스트 끝 -----------
   // ----------- findResearchByStatusNeededAndSearch, findResearchByStatusCompletedAndSearch 테스트 시작 -----------
@@ -98,10 +121,10 @@ class ResearchLocalServiceImplTest {
             Sort.by("reportTime").ascending()
     );
 
-//    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
-    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(null, pageable, adminId);
+    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(beachSearch, pageable, adminId);
+//    Page<ResearchMain> findList = researchService.findResearchByStatusNeededAndSearch(null, pageable, adminId);
 
-    log.info("findList : " + findList);
+    log.info("findList : " + findList.getTotalElements());
     log.info("findList : " + findList.getContent());
   }
   @Test
@@ -109,10 +132,10 @@ class ResearchLocalServiceImplTest {
   void testFindResearchByStatusCompletedAndSearch() {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
-    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 7L;
+    // admin -> 5L, 6L, 7L, 8L, 9L initData 에서 자동으로 만들어진 regular
+    Long adminId = 8L;
 
-    String beachSearch = "해운대";
+    String beachSearch = "광안리";
 
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
@@ -137,7 +160,7 @@ class ResearchLocalServiceImplTest {
   @DisplayName("getResearchDetail 메서드 테스트")
   void testGetResearchDetail() {
 
-    Long researchId = 1L;
+    Long researchId = 2L;
 
     ResearchMainDetailResponseDTO findMain = researchService.getResearchDetail(researchId);
     log.info("findMain : " + findMain.toString());
@@ -162,7 +185,7 @@ class ResearchLocalServiceImplTest {
   @DisplayName("getCollectPrediction 메서드 테스트 - 년/월")
   void testGetCollectPredictionWithYearAndMonth() {
     Integer year = 2022;
-    Integer month = 1;
+    Integer month = 2;
 
     List<PredictionResponseDTO> findCollectPrediction = researchService.getCollectPrediction(year,
         month, null, null);
@@ -176,7 +199,7 @@ class ResearchLocalServiceImplTest {
   @DisplayName("getCollectPrediction 메서드 테스트 - 시작 ~ 끝")
   void testGetCollectPredictionBetweenStartAndEnd() {
 
-    LocalDate start = LocalDate.of(2023,3,5);
+    LocalDate start = LocalDate.of(2023,1,5);
     LocalDate end = LocalDate.of(2023,3,31);
 
     List<PredictionResponseDTO> findCollectPrediction = researchService.getCollectPrediction(null, null,

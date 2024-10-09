@@ -10,6 +10,10 @@ import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO.WorkerDetailRe
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import com.boogionandon.backend.repository.MemberRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.google.gson.Gson;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -33,16 +37,29 @@ public class MemberServiceImpl implements MemberService{
   @Override
   public WorkerResponseDTO getWorkerProfile(Long workerId) {
 
-    Worker worker = (Worker) memberRepository.findByIdWithManager(workerId)
+    Object[] findData = memberRepository.findByIdWithManager(workerId)
         .orElseThrow(() -> new EntityNotFoundException("Worker not found with id: " + workerId));
 
-    log.info("worker : " + worker);
+    Worker worker = null;
+    Admin admin = null;
+    List<String> assignmentAreaList = null;
 
-    Admin admin = (Admin) memberRepository.findByIdWithManager(worker.getManagerId())
-        .orElseThrow(() -> new EntityNotFoundException("Admin not found with id: " + worker.getManagerId()));
-    log.info("admin : " + admin);
+    if (findData.length > 0 && findData[0] instanceof Object[]) {
+      Object[] innerArray = (Object[]) findData[0];
 
-    List<String> assignmentAreaList = adminService.getAssignmentAreaList(worker.getManagerId());
+      if (innerArray.length >= 1 && innerArray[0] instanceof Worker) {
+        worker = (Worker) innerArray[0];
+        log.info("Worker: name={}, email={}", worker.getName(), worker.getEmail());
+      }
+
+      if (innerArray.length >= 2 && innerArray[1] instanceof Admin) {
+        admin = (Admin) innerArray[1];
+        log.info("Admin: name={}, email={}", admin.getName(), admin.getEmail());
+        assignmentAreaList = adminService.getAssignmentAreaList(admin.getId());
+      }
+    }
+
+
     log.info("assignmentAreaList : " + assignmentAreaList);
 
     return WorkerResponseDTO.builder()
@@ -69,12 +86,29 @@ public class MemberServiceImpl implements MemberService{
   @Override
   public AdminResponseDTO getAdminProfile(Long adminId) {
 
-    Admin admin = (Admin) memberRepository.findByIdWithManager(adminId)
+    Object[] findData = memberRepository.findByIdWithManager(adminId)
         .orElseThrow(() -> new EntityNotFoundException("Admin not found with id: " + adminId));
 
-    log.info("admin : " + admin);
+    Admin admin = null;
+    Admin managedAdmin = null;
+    List<String> assignmentAreaList = null;
 
-    List<String> assignmentAreaList = adminService.getAssignmentAreaList(admin.getId());
+    if (findData.length > 0 && findData[0] instanceof Object[]) {
+      Object[] innerArray = (Object[]) findData[0];
+
+      if (innerArray.length >= 1 && innerArray[0] instanceof Admin) {
+        admin = (Admin) innerArray[0];
+        log.info("Admin: name={}, email={}", admin.getName(), admin.getEmail());
+      }
+
+      if (innerArray.length >= 2 && innerArray[1] instanceof Admin) {
+        managedAdmin = (Admin) innerArray[1];
+        log.info("managedAdmin: name={}, email={}", managedAdmin.getName(), managedAdmin.getEmail());
+        assignmentAreaList = adminService.getAssignmentAreaList(admin.getId());
+      }
+    }
+
+
     log.info("assignmentAreaList : " + assignmentAreaList);
 
     return AdminResponseDTO.builder()
@@ -108,16 +142,16 @@ public class MemberServiceImpl implements MemberService{
   public WorkerDetailResponseDTO getWorkerById(Long memberId) {
 
     // Member 엔티티에 왜 Long 값으로 managerId를 받았는지 설명 해놓음
-    Optional<Object> byIdWithManager = memberRepository.findByIdWithManager(memberId);
+    Optional<Object[]> byIdWithManager = memberRepository.findByIdWithManager(memberId);
 
     WorkerDetailResponseDTOBuilder builder = WorkerDetailResponseDTO.builder();
 
-    byIdWithManager.ifPresent(result -> {
-      if (result instanceof Object[]) {
-        Object[] resultArray = (Object[]) result;
-        if (resultArray.length >= 2) {
-          Object memberInfo = resultArray[0];
-          Object adminInfo = resultArray[1];
+    byIdWithManager.ifPresent(find -> {
+      if (find instanceof Object[]) {
+        Object[] result = (Object[]) find[0];
+        if (result.length >= 2) {
+          Object memberInfo = result[0];
+          Object adminInfo = result[1];
 
           log.info("Member Info: {}", memberInfo);
           log.info("Admin Info: {}", adminInfo);
@@ -156,7 +190,7 @@ public class MemberServiceImpl implements MemberService{
           log.info("Result array does not contain expected number of elements");
         }
       } else {
-        log.info("Unexpected result type: {}", result.getClass().getName());
+        log.info("Unexpected result type: {}", find.getClass().getName());
       }
     });
 
