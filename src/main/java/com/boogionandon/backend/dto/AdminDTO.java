@@ -12,8 +12,7 @@ import org.springframework.security.core.userdetails.User;
 @Slf4j
 public class AdminDTO extends User {
 
-  // id는 쓰일일도 보여줄일도 없을 것 같아서 안올림
-
+  private Long id;
   private String username;
   private String password;
   private String email;
@@ -37,7 +36,7 @@ public class AdminDTO extends User {
   private Long managerId; // 해당 아이디를 만든 관리자
   private boolean delFlag;  // 소프트 딜리트를 위해
 
-  public AdminDTO(String username, String password, String email,
+  public AdminDTO(Long id, String username, String password, String email,
       String name,
       String phone, String address, String addressDetail, List<String> roleNames, String workCity,String workPlace,
       String department, String position, String contact, Long managerId,
@@ -45,6 +44,7 @@ public class AdminDTO extends User {
     super(username, password, roleNames.stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role)).collect(
         Collectors.toList()));
 
+    this.id = id;
     this.username = username;
     this.password = password;
     this.email = email;
@@ -66,6 +66,7 @@ public class AdminDTO extends User {
   // 클레임이 JWT로 변환 되어 내보내질 것이니 여기에 password를 안담으면 될듯
   public Map<String, Object> getClaims() {
     Map<String, Object> dataMap = new HashMap<>();
+    dataMap.put("id", id);
     dataMap.put("username", username);
     dataMap.put("password", password);
     dataMap.put("email", email);
@@ -91,6 +92,8 @@ public class AdminDTO extends User {
 
     List<String> roleNames = getListFromClaims(claims, "roleNames");
 
+    Long id = getIdFromClaims(claims);
+
     Long managerId = getManagerIdFromClaims(claims);
 
     Boolean delFlag = getBooleanFromClaims(claims, "delFlag");
@@ -99,6 +102,7 @@ public class AdminDTO extends User {
     // List<String> assignmentAreaList = getListFromClaims(claims, "assignmentAreaList");
 
     AdminDTO dto = new AdminDTO(
+        id,
         (String) claims.get("username"),
         (String) claims.get("password"),
         (String) claims.get("email"),
@@ -142,6 +146,21 @@ public class AdminDTO extends User {
       }
     }
     log.warn("managerId is not a Number or String in claims");
+    return null;
+  }
+  private static Long getIdFromClaims(Map<String, Object> claims) {
+    Object value = claims.get("id");
+    if (value instanceof Number) {
+      return ((Number) value).longValue();
+    }
+    if (value instanceof String) {
+      try {
+        return Long.parseLong((String) value);
+      } catch (NumberFormatException e) {
+        log.warn("Failed to parse id: " + value, e);
+      }
+    }
+    log.warn("id is not a Number or String in claims");
     return null;
   }
 

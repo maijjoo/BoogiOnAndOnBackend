@@ -78,7 +78,7 @@ class MemberRepositoryTest {
     Admin admin = Admin.builder()
         .username("A_testAdmin9")
         .password(passwordEncoder.encode("0000"))
-        .email("test99@admin.com")
+        .email("test9@admin.com")
         .name("김재원")
         .phone("010-1234-9678")
         .address("부산 광역시 수영구")
@@ -129,18 +129,15 @@ class MemberRepositoryTest {
   void createWorkerTest() {
 
     Worker worker = Worker.builder()
-        .username("W_testWorker13")
+        .username("W_testWorker100")
         .password(passwordEncoder.encode("0000"))
-        .email("test16@worker.com")
-        .name("이석현")
+        .email("test100@worker.com")
+        .name("이석")
         .phone("010-1111-2422")
         .address("부산 광역시 수영구")
         .addressDetail("수영1동 101번지")
         .managerId(5L) // 위의 테스트에서 만들어진 Admin
         .contact("010-1234-1234")
-        .workGroup("해운대 구청") // 이게 들어가는게 맞나?
-        .workAddress("부산 광역시 해운대구")
-        .workAddressDetail("중동2로 11 해운대구청")
         .startDate(LocalDate.now()) // 실제는 화면에서 선택
         .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
         .build();
@@ -210,7 +207,7 @@ class MemberRepositoryTest {
 
     String nameSearch = "";
 
-    String tabCondition = "관리자"; // 관리자, 조사/청소, 수거자
+    String tabCondition = "수거자"; // 관리자, 조사/청소, 수거자
 
     // pageable 생성
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
@@ -229,7 +226,7 @@ class MemberRepositoryTest {
   @Test
   @DisplayName("findWorkerWithAdminInfo Test")
   void testFindWorkerWithAdminInfo() {
-    Long workerId = 5L; // initData에 의해 자동으로 들어가��는 ��스트용 -> 5L,6L,7L
+    Long workerId = 5L; // initData에 의해 자동으로 들어가있는 테스트용 -> 5L,6L,7L
 
     Optional<Object> workerWithAdminInfo = memberRepository.findByIdWithManager(workerId);
 

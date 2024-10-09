@@ -2,6 +2,7 @@ package com.boogionandon.backend.repository;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
@@ -64,19 +65,35 @@ class ResearchRepositoryTest {
   @DisplayName("research 추가 테스트 - 이미지 x 나중에 리팩토링 필요")
   @Commit
   void testResearchInsert() {
-    Long researcherId = 8L; // initData에서 만들어진 Worer id => 11L
+    Random random = new Random();
+    Long researcherId = 11L; // initData에서 만들어진 Worer id => 11L
     Worker researcher = (Worker) memberRepository.findById(researcherId)
         .orElseThrow(() -> new NoSuchElementException("Worker with id "+ researcherId +" not found"));
     // initData에서 만든 Worker의 id
 
-    String beachName = "광안리해수욕장";
-    Beach findBeach = beachRepository.findById(beachName)
-        .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
+    Admin managedAdmin = (Admin) memberRepository.findById(researcher.getManagerId())
+        .orElseThrow(() -> new NoSuchElementException("Admin with id "+ researcher.getManagerId() +" not found"));
+
+    List<String> assignmentAreaList = managedAdmin.getAssignmentAreaList();
+
+    Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
+        .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
+
+
+    int randomNumber = random.nextInt(1+27) + 3;
+    List<Image> images = new ArrayList<>();
+    for (int j=0; j < randomNumber; j++) {
+      Image image = Image.builder()
+          .fileName("R_20241006005731_test.jpeg")
+          .ord(j)
+          .build();
+      images.add(image);
+    }
 
     // 리서치 메인 먼저 만들고 그다음 서브 넣을 예정
     ResearchMain researchMain = ResearchMain.builder()
         .researcher(researcher)
-        .beach(findBeach)
+        .beach(randomBeach)
         .expectedTrashAmount(150) // L
         .reportTime(LocalDateTime.now()) // 리포트 작성 시간
         // 이미지는 여기선 일단 패스
@@ -84,6 +101,7 @@ class ResearchRepositoryTest {
         .weather("맑음") // 오늘 날씨
         .specialNote("태풍") // 보고 올릴때 쓰레기가 특수 상황에 의해 발생한 것인지
         .totalBeachLength(0.0)
+        .images(images)
         .build();
 
     log.info("researchMain : " + researchMain);
@@ -95,7 +113,7 @@ class ResearchRepositoryTest {
     for (int i = 1; i <= 4; i++) {
       ResearchSub researchSub = ResearchSub.builder()
           .research(savedResearchMain)
-          .beachNameWithIndex(findBeach.getBeachName() + i)
+          .beachNameWithIndex(randomBeach.getBeachName() + i)
           // 반복으로 하니까 위, 경도 바꾸기가 쉽지않아 일단 동일하게 받음
           .startLatitude(35.15768265599188)
           .startLongitude(129.1572648115502)
@@ -103,7 +121,7 @@ class ResearchRepositoryTest {
           .endLongitude(129.15770660944662)
           .mainTrashType(TrashType.대형_투기쓰레기류)
           // researchLength는 실제로 넣을 때는 위의 위,경도를 계산해서 넣기
-          .researchLength(11.3)
+          .researchLength(DistanceCalculator.calculateDistance(35.15768265599188, 129.1572648115502, 35.15779193363473, 129.15770660944662))
           .build();
 
       totalBeachLength += DistanceCalculator.calculateDistance(
@@ -124,7 +142,6 @@ class ResearchRepositoryTest {
   @Transactional
   @Commit
   void testCreateRandomResearches() {
-    List<Beach> beaches = beachRepository.findAll();
     List<Worker> researchers = memberRepository.findAll().stream()
         .filter(member -> member instanceof Worker)
         .map(member -> (Worker) member)
@@ -133,8 +150,17 @@ class ResearchRepositoryTest {
     Random random = new Random();
 
     for (int i = 0; i < 100; i++) {
-      Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
       Worker randomResearcher = researchers.get(random.nextInt(researchers.size()));
+
+      Admin managedAdmin = (Admin) memberRepository.findById(randomResearcher.getManagerId())
+          .orElseThrow(() -> new NoSuchElementException("Admin with id "+ randomResearcher.getManagerId() +" not found"));
+
+      List<String> assignmentAreaList = managedAdmin.getAssignmentAreaList();
+
+      Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
+          .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
+
+
 
       // 지정된 범위 내에서 임의의 날짜를 생성합니다.
       LocalDate startDate = LocalDate.of(2022, 2, 1);
@@ -152,7 +178,7 @@ class ResearchRepositoryTest {
           LocalTime.of(random.nextInt(24), random.nextInt(60))
       );
 
-      int randomNumber = random.nextInt(13) + 3;
+      int randomNumber = random.nextInt(1, 27) + 3;
       List<Image> images = new ArrayList<>();
       for (int j=0; j < randomNumber; j++) {
         Image image = Image.builder()
@@ -165,13 +191,13 @@ class ResearchRepositoryTest {
       String[] weatherOptions = {"맑음", "흐림", "비", "눈", "안개"};
       String randomWeather = weatherOptions[random.nextInt(weatherOptions.length)];
 
-      String[] specialNotes = {"태풍", "해양 축제", "해변 청소 이벤트", "해양 오염 사고", "일반"};
+      String[] specialNotes = {"없음", "태풍", "홍수", "집중호우", "폭풍 해일"};
       String randomSpecialNote = specialNotes[random.nextInt(specialNotes.length)];
 
       ResearchMain researchMain = ResearchMain.builder()
           .researcher(randomResearcher)
           .beach(randomBeach)
-          .expectedTrashAmount(random.nextInt(50, 501))
+          .expectedTrashAmount(random.nextInt(50, 100))
           .reportTime(randomReportTime)
           .images(images)
           .status(ReportStatus.ASSIGNMENT_NEEDED)
@@ -202,7 +228,7 @@ class ResearchRepositoryTest {
             .endLatitude(endLat)
             .endLongitude(endLon)
             .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
-            .researchLength(random.nextDouble(5, 20))
+            .researchLength(DistanceCalculator.calculateDistance(startLat, startLon, endLat, endLon))
             .build();
 
         ResearchSub savedResearchSub = researchSubRepository.save(researchSub);
@@ -220,7 +246,7 @@ class ResearchRepositoryTest {
     }
   }
 
-  // --------- insert 테스트 시작 ------------
+  // --------- insert 테스트 끝 ------------
 
 
   @Test
@@ -242,8 +268,8 @@ class ResearchRepositoryTest {
   void testFindByStatusNeededAndSearch() {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
-    // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 6L;
+    // admin -> 5L, 6L, 7L, 8L, 9L initData 에서 자동으로 만들어진 regular
+    Long adminId = 8L;
 
     String beachSearch = "광안리";
     
@@ -291,9 +317,9 @@ class ResearchRepositoryTest {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 5L;
+    Long adminId = 8L;
 
-    String beachSearch = "해운대";
+    String beachSearch = "광안리";
 
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
@@ -337,7 +363,7 @@ class ResearchRepositoryTest {
   // ------ findByStatusNeededAndSearch 끝 ------
   // ------ findByIdWithOutSub, findListByMainId 시작 --------
   @Test
-  @DisplayName("findByIdWithOutSub, findListByMainId 조회 ��스트")
+  @DisplayName("findByIdWithOutSub, findListByMainId 조회 테스트")
   void testFindByIdWithOutSubAndFindListByMainId() {
 
     Long researchMainId = 1L;
@@ -359,9 +385,9 @@ class ResearchRepositoryTest {
   @DisplayName("findByDateCriteria 메서드 테스트")
   void testFindByDateCriteria() {
 
-    Integer year = 2022;
-    Integer month = 1;
-    LocalDate start = LocalDate.of(2023,3,5);
+    Integer year = 2024;
+    Integer month = 2;
+    LocalDate start = LocalDate.of(2023,1,5);
     LocalDate end = LocalDate.of(2023,3,31);
 
 //    List<ResearchMain> findList = researchMainRepository.findByDateCriteria(year, null, null, null);
@@ -370,7 +396,6 @@ class ResearchRepositoryTest {
 
     log.info("findList : " + findList);
     log.info("findList.size() : " + findList.size());
-    log.info("findList.get(0).getResearchSubList() : " + findList.get(0).getResearchSubList());
 
   }
   // ------ findByDateCriteria 메서드 테스트 끝 ---------

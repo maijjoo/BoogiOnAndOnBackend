@@ -21,7 +21,7 @@ class AdminRepositoryTest {
   @DisplayName("getAssignmentAreaList 메서드 테스트")
   void testGetAssignmentAreaList() {
 
-    Long adminId = 2L; // initData에서 만들어진 Admin id
+    Long adminId = 6L; // initData에서 만들어진 Admin id
 
     List<Object[]> findData = adminRepository.getAssignmentAreaList(adminId);
 
