@@ -1,5 +1,6 @@
 package com.boogionandon.backend.repository;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
@@ -60,9 +61,19 @@ class PickUpRepositoryTest {
         Worker findWorker = (Worker) memberRepository.findByUsernameWithDetails(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 이름의 회원을 찾을 수 없습니다. :" + userName));
 
-
         Random random = new Random();
-        String pickUpPlace = "해운대 경찰서 앞"; // 집하지명 임의 설정
+
+        String pickUpPlace = "경찰서 앞"; // 집하지명 임의 설정
+
+        int randomNumber = random.nextInt(1, 3);
+        List<Image> images = new ArrayList<>();
+        for (int i=0; i < randomNumber; i++) {
+            Image image = Image.builder()
+                .fileName("P_20241006005731_test.jpeg")
+                .ord(i)
+                .build();
+            images.add(image);
+        }
 
         PickUp pickup = PickUp.builder()
                 .submitter(findWorker)
@@ -72,6 +83,7 @@ class PickUpRepositoryTest {
                 .mainTrashType(TrashType.대형_투기쓰레기류)
                 .submitDateTime(LocalDateTime.now())
                 .realTrashAmount(random.nextInt(1, 10))
+                .images(images)
                 .build();
 
         // 3. PickUp 엔티티 리포지토리에 저장
@@ -136,17 +148,17 @@ class PickUpRepositoryTest {
                 randomDate = randomDate.withMonth(random.nextInt(2, 12)); //2월부터 11월까지
             }
 
-            LocalDateTime randomSubmitDateTimee = LocalDateTime.of(
+            LocalDateTime randomSubmitDateTime = LocalDateTime.of(
                 randomDate,
                 LocalTime.of(random.nextInt(24), random.nextInt(60))
             );
 
-            int randomNumber = random.nextInt(13) + 3;
+            int randomNumber = random.nextInt(1, 4);
             List<Image> images = new ArrayList<>();
             for (int j=0; j < randomNumber; j++) {
                 Image image = Image.builder()
                     .fileName("P_20241006005731_test.jpeg")
-                    .ord(i)
+                    .ord(j)
                     .build();
                 images.add(image);
             }
@@ -165,8 +177,8 @@ class PickUpRepositoryTest {
                 .latitude(startLat)
                 .longitude(startLon)
                 .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
-                .submitDateTime(randomSubmitDateTimee) // 최근 24시간 내의 랜덤 시간
-                .realTrashAmount(random.nextInt(1, 10)) // 50.0에서 250.0 사이의 랜덤 값
+                .submitDateTime(randomSubmitDateTime) // 최근 24시간 내의 랜덤 시간
+                .realTrashAmount(random.nextInt(1, 5)) // 50.0에서 250.0 사이의 랜덤 값
                 .images(images)
                 .build();
 

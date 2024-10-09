@@ -22,15 +22,6 @@ public class Worker extends Member{
   @Column(length = 20, nullable = false)
   private String contact; // 근무처 연락처, 근무처? 가 중복일 수도 있을거 같아서 unique 안걸음
 
-  @Column(length = 100)
-  private String workGroup; // 소속, TODO : 이건 뭐에대한 소속이지?
-
-  @Column(length = 100)
-  private String workAddress; //// 소속 주소
-
-  @Column(length = 150)
-  private String workAddressDetail; // 소속 상세 주소
-
   @Column
   private Double vehicleCapacity; // 차량정보(무게 ton)
 

@@ -2,6 +2,7 @@ package com.boogionandon.backend.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
@@ -63,14 +64,38 @@ class CleanRepositoryTest {
   @Commit
   void testCleanInsert() {
 
+    Random random = new Random();
+
     Long cleanerId = 10L; // initData에서 만들어진 Worer id => 6L
     Worker findCleaner = (Worker) memberRepository.findById(cleanerId)
         .orElseThrow(() -> new NoSuchElementException("Worker with id "+ cleanerId +" not found"));
     // initData에서 만든 Worker의 id
 
-    String beachName = "해운대해수욕장";
-    Beach findBeach = beachRepository.findById(beachName)
-        .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
+    Admin managedAdmin = (Admin) memberRepository.findById(findCleaner.getManagerId())
+        .orElseThrow(() -> new NoSuchElementException("Admin with id "+ findCleaner.getManagerId() +" not found"));
+
+    List<String> assignmentAreaList = managedAdmin.getAssignmentAreaList();
+
+    Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
+        .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
+
+    int beforeRandomNumber = random.nextInt(13) + 3;
+    int afterRandomNumber = random.nextInt(13) + 3;
+    List<Image> images = new ArrayList<>();
+    for (int i=0; i < beforeRandomNumber; i++) {
+      Image image = Image.builder()
+          .fileName("B_20241006005731_test.jpeg")
+          .ord(i)
+          .build();
+      images.add(image);
+    }
+    for (int i=0; i < afterRandomNumber; i++) {
+      Image image = Image.builder()
+          .fileName("A_20241006005731_test.jpeg")
+          .ord(i)
+          .build();
+      images.add(image);
+    }
 
     Double startLatitude = 35.15768265599188;
     Double startLongitude = 129.15726481155502;
@@ -81,16 +106,16 @@ class CleanRepositoryTest {
 
     Clean clean = Clean.builder()
         .cleaner(findCleaner)
-        .beach(findBeach)
+        .beach(randomBeach)
         .realTrashAmount(3) // 50L쓰레기 봉투를 기준으로 갯수로 계산 예정
-        .cleanDateTime(java.time.LocalDateTime.now())
+        .cleanDateTime(java.time.LocalDateTime.now().minusYears(2))
         .startLatitude(startLatitude)
         .startLongitude(startLongitude)
         .endLatitude(endLatitude)
         .endLongitude(endLongitude)
         .beachLength(beachLength)
         .mainTrashType(TrashType.valueOf("폐어구류"))
-        // 이미지는 test에서 생략
+        .images(images)
         .build();
 
     log.info("clean : " + clean.toString());
@@ -102,7 +127,6 @@ class CleanRepositoryTest {
   @DisplayName("clean 추가 100개 테스트 - 이미지 제외")
   @Commit
   void testCleanInsert100() {
-    List<Beach> beaches = beachRepository.findAll();
     List<Worker> cleaner = memberRepository.findAll().stream()
         .filter(member -> member instanceof Worker)
         .map(member -> (Worker) member)
@@ -111,8 +135,16 @@ class CleanRepositoryTest {
     Random random = new Random();
 
     for (int i = 0; i < 100; i++) {
-      Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
       Worker randomCleaner = cleaner.get(random.nextInt(cleaner.size()));
+
+      Admin managedAdmin = (Admin) memberRepository.findById(randomCleaner.getManagerId())
+          .orElseThrow(() -> new NoSuchElementException("Admin with id "+ randomCleaner.getManagerId() +" not found"));
+
+      List<String> assignmentAreaList = managedAdmin.getAssignmentAreaList();
+
+      Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
+          .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
+
 
       // 지정된 범위 내에서 임의의 날짜를 생성합니다.
       LocalDate startDate = LocalDate.of(2022, 2, 1);
@@ -176,7 +208,6 @@ class CleanRepositoryTest {
 
       cleanRepository.save(clean);
     }
-
   }
 
   @Test
@@ -197,10 +228,11 @@ class CleanRepositoryTest {
   @Test
   @DisplayName("쓰레기 분포도 보여주는 메서드 - 년 ")
   void testShowTrashDistributionWithYear() {
-    Integer year = 2023;
+    Integer year = 2022;
 
     List<Clean> findDateList = cleanRepository.findByDateCriteria(year, null, null, null);
 
+    log.info("findDateList.size : " + findDateList.size());
     log.info("findDateList : " + findDateList);
   }
 
@@ -208,10 +240,11 @@ class CleanRepositoryTest {
   @DisplayName("쓰레기 분포도 보여주는 메서드 - 년/월 ")
   void testShowTrashDistributionWithYearAndMonth() {
     Integer year = 2023;
-    Integer month = 6;
+    Integer month = 5;
 
     List<Clean> findDateList = cleanRepository.findByDateCriteria(year, month, null, null);
 
+    log.info("findDateList.size : " + findDateList.size());
     log.info("findDateList : " + findDateList);
 
   }
@@ -219,11 +252,12 @@ class CleanRepositoryTest {
   @Test
   @DisplayName("쓰레기 분포도 보여주는 메서드 - 시작 ~ 끝 ")
   void testShowTrashDistributionbetweenStartAndEnd() {
-    LocalDate start = LocalDate.of(2023, 6, 1);
+    LocalDate start = LocalDate.of(2023, 5, 1);
     LocalDate end = LocalDate.of(2023, 6, 30);
 
     List<Clean> findDateList = cleanRepository.findByDateCriteria(null, null, start, end);
 
+    log.info("findDateList.size : " + findDateList.size());
     log.info("findDateList : " + findDateList);
   }
 
@@ -232,12 +266,14 @@ class CleanRepositoryTest {
   @DisplayName("기초 통계 보여주는 메서드 - lastYear - 4 ~ lastYear (연도별)")
   void testShowGetBasicStatisticsWith5YearsAgoToLastYearAndBeachName() {
     String tapCondition = "연도별";
-    Integer year = 2023;
-    String beachName = "해운대해수욕장";
+    Integer year = 2024;
+    String beachName = "광안리해수욕장";
 
     List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, beachName);
+//    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, null);
 
     log.info("basicStatistics: " + basicStatistics);
+    log.info("basicStatistics.size : " + basicStatistics.size());
   }
 
   @Test
@@ -245,12 +281,13 @@ class CleanRepositoryTest {
   void testShowGetBasicStatisticsWithMonthlyOfYearAndBeachName() {
 
     String tapCondition = "월별";
-    Integer year = 2021;
-    String beachName = "해운대해수욕장";
+    Integer year = 2023;
+    String beachName = "광안리";
 
     List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, null, beachName);
 
     log.info("basicStatistics: " + basicStatistics);
+    log.info("basicStatistics.size : " + basicStatistics.size());
 
   }
 
@@ -259,14 +296,15 @@ class CleanRepositoryTest {
   void testShowGetBasicStatisticsWithDaysInMonthInYearAndBeachName() {
 
     String tapCondition = "일별";
-    Integer year = 2021;
-    Integer month = 11;
-    String beachName = "국립";
+    Integer year = 2024;
+    Integer month = 10;
+    String beachName = "광안리해수욕장";
 
-//    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, beachName);
-    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, null);
+    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, beachName);
+//    List<Clean> basicStatistics = cleanRepository.getBasicStatistics(tapCondition, year, month, null);
 
     log.info("basicStatistics: " + basicStatistics);
+    log.info("basicStatistics.size : " + basicStatistics.size());
   }
 
   // ------ findByStatusNeededAndSearch, findByStatusCompletedAndSearch 시작 ------
@@ -276,7 +314,7 @@ class CleanRepositoryTest {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 6L;
+    Long adminId = 5L;
 
     String beachSearch = "광안리";
 
@@ -323,9 +361,9 @@ class CleanRepositoryTest {
 
     // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
     // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-    Long adminId = 6L;
+    Long adminId = 5L;
 
-    String beachSearch = "해운대";
+    String beachSearch = "광안리";
 
     // 기본으로 사용
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
