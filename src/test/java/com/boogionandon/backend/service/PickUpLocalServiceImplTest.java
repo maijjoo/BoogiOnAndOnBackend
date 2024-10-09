@@ -68,10 +68,10 @@ class PickUpLocalServiceImplTest {
     void testFindPickUpByStatusCompletedAndSearch() {
 
         // super admin -> 1L, 2L, 3L, 4L initData 에서 자동으로 만들어진 super
-        // admin -> 5L, 6L, 7L initData 에서 자동으로 만들어진 regular
-        Long adminId = 5L;
+        // admin -> 5L, 6L, 7L, 8L, 9L initData 에서 자동으로 만들어진 regular
+        Long adminId = 1L;
 
-        String beachSearch = "해운대";
+        String beachSearch = "해변";
 
         // 기본으로 사용
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
