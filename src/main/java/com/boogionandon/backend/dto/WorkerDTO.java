@@ -12,8 +12,7 @@ import org.springframework.security.core.userdetails.User;
 @Slf4j
 public class WorkerDTO extends User {
 
-  // id는 쓰일일도 보여줄일도 없을 것 같아서 안올림
-
+  private Long id;
   private String username;
   private String password;
   private String email;
@@ -26,22 +25,20 @@ public class WorkerDTO extends User {
   private List<String> roleNames = new ArrayList<>();
 
   private String contact; // 근무처 연락처
-  private String workGroup; // 소속
-  private String workAddress; //// 소속 주소
-  private String workAddressDetail; // 소속 상세 주소
 
   private Double vehicleCapacity; // 차량정보(무게 ton)
 
   private Long managerId; // 해당 아이디를 만든 관리자
   private boolean delFlag;  // 소프트 딜리트를 위해
 
-  public WorkerDTO(String username, String password, String email,
+  public WorkerDTO(Long id, String username, String password, String email,
       String name,
       String phone, String address, String addressDetail, List<String> roleNames, String contact,
-      String workGroup, String workAddress, String workAddressDetail, Double vehicleCapacity,
+      Double vehicleCapacity,
       Long managerId, boolean delFlag) {
     super(username, password, roleNames.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(
         Collectors.toList()));
+    this.id = id;
     this.username = username;
     this.password = password;
     this.email = email;
@@ -51,9 +48,6 @@ public class WorkerDTO extends User {
     this.addressDetail = addressDetail;
     this.roleNames = roleNames;
     this.contact = contact;
-    this.workGroup = workGroup;
-    this.workAddress = workAddress;
-    this.workAddressDetail = workAddressDetail;
     this.vehicleCapacity = vehicleCapacity;
     this.managerId = managerId;
     this.delFlag = delFlag;
@@ -63,6 +57,7 @@ public class WorkerDTO extends User {
   // 클레임이 JWT로 변환 되어 내보내질 것이니 여기에 password를 안담으면 될듯
   public Map<String, Object> getClaims() {
     Map<String, Object> dataMap = new HashMap<>();
+    dataMap.put("id", id);
     dataMap.put("username", username);
     dataMap.put("password", password); // password는 JWT로 변환되지 않아서 이��에 ��어��
     dataMap.put("email", email);
@@ -72,9 +67,6 @@ public class WorkerDTO extends User {
     dataMap.put("addressDetail", addressDetail);
     dataMap.put("roleNames", roleNames);
     dataMap.put("contact", contact);
-    dataMap.put("workGroup", workGroup);
-    dataMap.put("workAddress", workAddress);
-    dataMap.put("workAddressDetail", workAddressDetail);
     dataMap.put("vehicleCapacity", vehicleCapacity);
     dataMap.put("managerId", managerId);
     dataMap.put("delFlag", delFlag);
@@ -82,7 +74,12 @@ public class WorkerDTO extends User {
   }
 
   public static WorkerDTO claimsToDTO(Map<String, Object> claims) {
-    log.info("claims.password : " +claims.get("password"));
+    Long id = claims.get("id") instanceof Number
+        ? ((Number) claims.get("id")).longValue()
+        : (claims.get("id") instanceof String
+            ? Long.parseLong((String) claims.get("id"))
+            : null);
+
     List<String> roleNames = claims.get("roleNames") instanceof List
         ? (List<String>) claims.get("roleNames")
         : new ArrayList<>();
@@ -104,6 +101,7 @@ public class WorkerDTO extends User {
         : Boolean.parseBoolean((String) claims.get("delFlag"));
 
     WorkerDTO dto = new WorkerDTO(
+        id,
         (String) claims.get("username"),
         (String) claims.get("password"),
         (String) claims.get("email"),
@@ -113,9 +111,6 @@ public class WorkerDTO extends User {
         (String) claims.get("addressDetail"),
         roleNames,
         (String) claims.get("contact"),
-        (String) claims.get("workGroup"),
-        (String) claims.get("workAddress"),
-        (String) claims.get("workAddressDetail"),
         vehicleCapacity,
         managerId,
         delFlag

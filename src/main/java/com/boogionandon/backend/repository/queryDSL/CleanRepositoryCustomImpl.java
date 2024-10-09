@@ -94,6 +94,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     return queryFactory
         .selectFrom(clean)
         .leftJoin(clean.beach, beach).fetchJoin()
+        .leftJoin(clean.cleaner, QWorker.worker).fetchJoin()
         .where(getBeachStatusInPeriod(tapCondition, year, month, beachName))
         .orderBy(clean.cleanDateTime.asc())
         .fetch();
@@ -346,7 +347,7 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     QClean clean = QClean.clean;
 
 
-    BooleanExpression timeCondition;
+    BooleanExpression timeCondition = null;
     // 일단 tapCondition이 화면 버튼에 있는 글자 그대로 가져 온다고 보고 한글로 처리함 (연도별, 월별, 일별)
     switch (tapCondition) {
       case "연도별":
@@ -368,13 +369,13 @@ public class CleanRepositoryCustomImpl implements CleanRepositoryCustom {
     log.info("timeCondition : " +timeCondition.toString());
 
     if (beachName != null && !beachName.trim().isEmpty()) {
-      BooleanExpression beachCondition = clean.beach.beachName.eq(beachName);
+      BooleanExpression beachCondition = clean.beach.beachName.contains(beachName);
       log.info("Adding beach condition for: {}", beachName);
-      log.info("timeCondition : " +beachCondition.toString());
+      log.info("beachCondition : " +beachCondition.toString());
 
       return timeCondition.and(beachCondition);
     } else {
-      log.info("No beach condition applied");
+      log.info("No beach condition applied : " + beachName);
       return timeCondition;
     }
   }

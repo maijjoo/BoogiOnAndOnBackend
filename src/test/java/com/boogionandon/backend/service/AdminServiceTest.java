@@ -22,7 +22,7 @@ class AdminServiceTest {
   @DisplayName("getAssignmentAreaList 테스트")
   void getAssignmentAreaList() {
 
-    Long adminId = 1L;
+    Long adminId = 6L;
 
     List<String> find = adminService.getAssignmentAreaList(adminId);
 

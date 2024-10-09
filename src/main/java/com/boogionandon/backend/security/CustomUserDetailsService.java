@@ -45,19 +45,11 @@ public class CustomUserDetailsService implements UserDetailsService {
       throw new RuntimeException("Unknown Member Type");
     }
 
-    // 위가 안되면 아래 사용해보기
-//    if (member.getUsername().startsWith("A_")) {
-//      return convertToAdminDTO((Admin) member);
-//    } else if (member.getUsername().startsWith("W_")) {
-//      return convertToWorkerDTO((Worker) member);
-//    } else {
-//      throw new RuntimeException("Unknown Member Type");
-//    }
-
   }
 
   private AdminDTO convertToAdminDTO(Admin admin) {
     return new AdminDTO(
+        admin.getId(),
         admin.getUsername(),
         admin.getPassword(),
         admin.getEmail(),
@@ -82,6 +74,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
   private WorkerDTO convertToWorkerDTO(Worker worker) {
     return new WorkerDTO(
+        worker.getId(),
         worker.getUsername(),
         worker.getPassword(),
         worker.getEmail(),
@@ -94,9 +87,6 @@ public class CustomUserDetailsService implements UserDetailsService {
               .map(role -> role.name())
               .collect(Collectors.toList()),
         worker.getContact(),
-        worker.getWorkGroup(),
-        worker.getWorkAddress(),
-        worker.getWorkAddressDetail(),
         worker.getVehicleCapacity(),
         worker.getManagerId(),
         worker.isDelFlag()

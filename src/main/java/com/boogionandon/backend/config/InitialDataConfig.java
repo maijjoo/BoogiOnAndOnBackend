@@ -12,8 +12,10 @@ import com.boogionandon.backend.service.BeachService;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -36,47 +38,64 @@ public class InitialDataConfig {
   @Transactional
   public void initMembers() {
 
-    // siList : [부산광역시]
-    // create 때에는 다 지워졌기 때문에 없음
-//    List<String> siList = beachService.SortedSiList();
-//    Map<String, List<String>> guGunMap = beachService.sortedSiGuGunMap();
-//    Map<String, List<String>> beachNameMap = beachService.SortedBeachNameMap();
+    // create 때에는 다 지워졌기 때문에 없음 beachService 같은걸 쓸 수 없음....
 
     String si = "부산광역시";
 
-    // 여기선 guGunList 말고 다른걸로
-    // sortedSiGuGunMap : {부산광역시=[강서구, 기장군, 남구, 사하구, 서구, 수영구, 영도구, 중구, 해운대구]}
+    List<String> guGunList = Arrays.asList("강서구", "기장군", "사하구", "수영구", "영도구");
 
-    // beachNameMap : {강서구=[명지항, 천성항],
-    // 기장군=[감지해변, 국립부산과학관 해변, 기장항, 대변항, 송림해변, 일광해수욕장, 일광해안, 임랑해수욕장, 장안사계해변, 죽성성게마을, 칠암항],
-    // 남구=[오륙도, 용호부두, 이기대],
-    // 사하구=[감천항, 다대포항, 다대포해수욕장, 몰운대, 아미산 전망대, 조도],
-    // 서구=[송도해수욕장, 암남공원], 수영구=[광안리해수욕장, 남천동 해안, 민락수변공원],
-    // 영도구=[다선해변, 부산항, 영도, 영도 깍천, 태종대], 중구=[남포동, 용두산공원, 자갈치시장, 충무동],
-    // 해운대구=[동백섬, 미포, 미포항, 송정항, 송정해수욕장, 청사포, 해운대해수욕장]}
+    Map<String, List<String>> beachNameMap = new HashMap<>();
 
+    beachNameMap.put("강서구", Arrays.asList("천선항"));
+
+    beachNameMap.put("기장군", Arrays.asList(
+        "공수항방파제", "길천 방파제", "대변항", "동백항", "동암항",
+        "문동항 방파제", "문중항 방파제", "서암항 방파제", "온정 마을회관",
+        "월내 방파제", "월전항", "이동항 방파제", "이천 방파제",
+        "일광해수욕장", "임랑해수욕장", "죽성항", "칠암 방파제", "학리항"
+    ));
+
+    beachNameMap.put("사하구", Arrays.asList("다대포해수욕장"));
+
+    beachNameMap.put("수영구", Arrays.asList(
+        "광안리해수욕장", "남천항", "민락항"
+    ));
+
+    beachNameMap.put("영도구", Arrays.asList(
+        "감지해변", "아치해변", "중리항", "하리항", "흰여울문화마을"
+    ));
 
     if (memberRepository.count() == 0) {
-      for( int i=1; i<=4; i++ ) {
+      for (int i = 1; i <= 4; i++) {
 
         List<String> assignmentAreaList = Arrays.asList(
-            "명지항", "천성항",
-            "감지해변", "국립부산과학관 해변", "기장항", "대변항", "송림해변", "일광해수욕장", "일광해안", "임랑해수욕장", "장안사계해변", "죽성성게마을", "칠암항",
-            "오륙도", "용호부두", "이기대",
-            "감천항", "다대포항", "다대포해수욕장", "몰운대", "아미산 전망대", "조도",
-            "송도해수욕장", "암남공원",
-            "광안리해수욕장", "남천동 해안", "민락수변공원",
-            "다선해변", "부산항", "영도", "영도 깍천", "태종대",
-            "남포동", "용두산공원", "자갈치시장", "충무동",
-            "동백섬", "미포", "미포항", "송정항", "송정해수욕장", "청사포", "해운대해수욕장"
+            // 강서구
+            "천선항",
+
+            // 기장군
+            "공수항방파제", "동암항", "서암항 방파제", "대변항", "월전항", "죽성항", "학리항",
+            "일광해수욕장", "이동항 방파제", "온정 마을회관", "동백항", "칠암 방파제",
+            "문중항 방파제", "문동항 방파제", "임랑해수욕장", "월내 방파제", "길천 방파제",
+            "이천 방파제",
+
+            // 사하구
+            "다대포해수욕장",
+
+            // 수영구
+            "광안리해수욕장", "민락항", "남천항",
+
+            // 영도구
+            "하리항", "중리항", "감지해변", "흰여울문화마을", "아치해변"
         );
+
+        List<String> nameList = Arrays.asList("김재원", "라주엽", "송지현", "이석현");
 
         Admin admin = Admin.builder()
             .username("S_Busan" + i)
             .password(passwordEncoder.encode("0000"))
-            .email("superadmin"+ i + "@ocean.net")
-            .name("Super Admin" + i)
-            .phone("010-1111-111"+i)
+            .email("superadmin" + i + "@ocean.net")
+            .name(nameList.get(i-1))
+            .phone("010-1111-111" + i)
             .address("부산 연제구")
             .addressDetail("중앙대로 1001 부산광역시청")
             .workCity(si)
@@ -84,7 +103,7 @@ public class InitialDataConfig {
             .department("해양농수산국") // 일단 할거 같은 곳
             .position("공무원") // 어떤 직급이 할지 모르겠음
             .assignmentAreaList(assignmentAreaList) // 수퍼 관리자라 부산 전체로 잡음
-            .contact("051-1111-111"+i)
+            .contact("051-1111-111" + i)
             .delFlag(false)
             .build();
 
@@ -102,131 +121,103 @@ public class InitialDataConfig {
 
     if (memberRepository.count() == 4) {
 
-      List<String> namGuBeaches = Arrays.asList("오륙도", "용호부두", "이기대");
+      List<String> nameList = Arrays.asList("안철수", "조국", "추미애", "문재인", "이명박");
 
-      Admin admin = Admin.builder()
-          .username("A_testAdmin")
-          .password(passwordEncoder.encode("0000"))
-          .email("test@admin.com")
-          .name("김재원")
-          .phone("010-9999-9999")
-          .address("부산 광역시 수영구")
-          .addressDetail("수영1동 100번지")
-          .managerId(1L) // Super Admin1
-          .workCity(si)
-          .workPlace("남구")
-          .department("해양수산")
-          .position("공무원") // 직급체계 잘 모름
-          .assignmentAreaList(namGuBeaches)
-          .contact("051-9999-9999")
-          .build();
+      for (int i = 0; i < guGunList.size(); i++) {
 
-      admin.getMemberRoleList().add(MemberType.ADMIN);
-      adminRepository.save(admin);
-      log.info("Admin created");
-
-      List<String> suYeongGuBeaches = Arrays.asList("광안리해수욕장", "남천동 해안", "민락수변공원");
-
-      Admin admin1 = Admin.builder()
-          .username("A_testAdmin1")
-          .password(passwordEncoder.encode("0000"))
-          .email("test1@admin.com")
-          .name("송지현")
-          .phone("010-9999-9991")
-          .address("부산 광역시 수영구")
-          .addressDetail("수영2동 200번지")
-          .managerId(1L) // Super Admin1
-          .workCity(si)
-          .workPlace("수영구")
-          .department("해양수산")
-          .position("공무원") // 직급체계 잘 모름
-          .assignmentAreaList(suYeongGuBeaches)
-          .contact("051-9999-9991")
-          .build();
-
-      admin1.getMemberRoleList().add(MemberType.ADMIN);
-      adminRepository.save(admin1);
-      log.info("admin1 : " + admin1);
-
-      List<String> haeUnDaeGuBeaches = Arrays.asList(
-          "동백섬", "미포", "미포항", "송정항", "송정해수욕장", "청사포", "해운대해수욕장"
-      );
-
-      Admin admin2 = Admin.builder()
-          .username("A_testAdmin2")
-          .password(passwordEncoder.encode("0000"))
-          .email("test2@admin.com")
-          .name("송지현")
-          .phone("010-9999-9992")
-          .address("부산 광역시 수영구")
-          .addressDetail("수영2동 200번지")
-          .managerId(1L) // Super Admin1
-          .workCity(si)
-          .workPlace("해운대구")
-          .department("해양수산")
-          .position("공무원") // 직급체계 잘 모름
-          .assignmentAreaList(haeUnDaeGuBeaches)
-          .contact("051-9999-9992")
-          .build();
-
-      admin2.getMemberRoleList().add(MemberType.ADMIN);
-      adminRepository.save(admin2);
-      log.info("admin2 : " + admin2);
-
-    } else {
-      log.info("Amin already exists");
-    }
-
-    if (memberRepository.count() == 7) {
-      Worker worker = Worker.builder()
-          .username("W_testWorker")
-          .password(passwordEncoder.encode("0000"))
-          .email("test@worker.com")
-          .name("이석현")
-          .phone("010-8888-8888")
-          .address("부산 광역시 수영구")
-          .addressDetail("수영3동 301번지")
-          .managerId(5L) // 위의 테스트에서 만들어진 Admin
-          .contact("010-8888-8888")
-          .workGroup("해운대 구청") // 이게 들어가는게 맞나?
-          .workAddress("부산 광역시 해운대구")
-          .workAddressDetail("중동2로 11 해운대구청")
-          .startDate(LocalDate.now()) // 실제는 화면에서 선택
-          .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
-          .build();
-
-      // 차량 없다고 가정해서 vehicleCapacity은 null
-
-      worker.getMemberRoleList().add(MemberType.WORKER);
-      log.info("Worker : " + worker);
-      workerRepository.save(worker);
-
-      for (int i = 1; i <= 3; i++) {
-        Worker workerPlus = Worker.builder()
-            .username("W_testWorker"+i)
+        Admin admin = Admin.builder()
+            .username(i == 0 ? "A_testAdmin" : "A_testAdmin" + i)
             .password(passwordEncoder.encode("0000"))
-            .email("test" + i + "@worker.com")
-            .name("라주엽")
-            .phone("010-8888-888" + i)
+            .email(i == 0 ? "test@admin.com" : "test" + i + "@admin.com")
+            .name(nameList.get(i))
+            .phone("010-9999-999" + i)
             .address("부산 광역시 수영구")
-            .addressDetail("수영4동 401번지")
-            .managerId(i+4L) // 위의 테스트에서 만들어진 Admin
-            .contact("010-8888-888"+i)
-            .workGroup("해운대 구청") // 이게 들어가는게 맞나?
-            .workAddress("부산 광역시 해운대구")
-            .workAddressDetail("중동2로 11 해운대구청")
-            .startDate(LocalDate.now()) // 실제는 화면에서 선택
-            .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
-            .vehicleCapacity(Double.valueOf(i))
+            .addressDetail("수영" + (i + 1) + "동 10" + (i + 1) + "번지")
+            .managerId(1L) // Super Admin1
+            .workCity(si)
+            .workPlace(guGunList.get(i))
+            .department("해양수산")
+            .position("공무원") // 직급체계 잘 모름
+            .assignmentAreaList(beachNameMap.get(guGunList.get(i)))
+            .contact("051-9999-999" + i)
             .build();
 
-        workerPlus.getMemberRoleList().add(MemberType.WORKER);
-        log.info("workerPlus : " + workerPlus);
-        workerRepository.save(workerPlus);
+        admin.getMemberRoleList().add(MemberType.ADMIN);
+        adminRepository.save(admin);
+        log.info("Admin created");
       }
-    }else {
-      log.info("Worker already exists");
     }
+
+      if (memberRepository.count() == 9) {
+        Random random = new Random();
+        int randomValue = random.nextInt(0, (guGunList.size() * 10));
+
+        List<String> nameList = Arrays.asList(
+            "김민서", "이준호", "박소연", "정태윤", "최예은",
+            "강동훈", "윤서아", "조현우", "신지원", "임수빈",
+            "한태희", "오민준", "서예린", "권지호", "노은서",
+            "유진혁", "백서윤", "송민재", "황다은", "전현준",
+            "고은주", "남기태", "문소율", "양준서", "홍지아",
+            "장민호", "허은지", "안서준", "배지훈", "추미래",
+            "구자윤", "차현우", "염지민", "주성민", "나은채",
+            "석호준", "옥지안", "마동석", "봉미선", "성태양",
+            "국민호", "방지현", "피도윤", "탁서연", "하윤서",
+            "진서우", "백이안", "심규리", "예지원", "채호진",
+            "김도영", "이하은", "박재현", "정민아", "최우진",
+            "강서연", "윤태호", "조미래", "신동현", "임하린",
+            "한승우", "오지은", "서준영", "권유진", "노태현",
+            "유소민", "백동훈", "송지원", "황준호", "전수빈",
+            "고민준", "남유나", "문승훈", "양지현", "홍서영",
+            "장예준", "허재원", "안소율", "배현서", "추성민",
+            "구민지", "차윤서", "염동휘", "주하늘", "나준혁",
+            "석민서", "옥태원", "마유진", "봉지훈", "성예림",
+            "국서진", "방윤호", "피하준", "탁민영", "하승민",
+            "진유리", "모태준", "심지우", "예성준"
+        );
+
+        List<Long> regularAdminList = Arrays.asList(5L, 6L, 7L, 8L, 9L);
+
+        for (int i = 0; i < (guGunList.size() * 20) - 1; i++) {
+          if (i < 70) {
+            Worker worker = Worker.builder()
+                .username(i == 0 ? "W_testWorker" : "W_testWorker" + i)
+                .password(passwordEncoder.encode("0000"))
+                .email("test" + i + "@worker.com")
+                .name(nameList.get(i))
+                .phone("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .address("부산 광역시 수영구")
+                .addressDetail("수영3동 301번지")
+                .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin
+                .contact("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .startDate(LocalDate.now()) // 실제는 화면에서 선택
+                .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
+                .build();
+            worker.getMemberRoleList().add(MemberType.WORKER);
+            log.info("WorkerWithOutCar : " + worker);
+            workerRepository.save(worker);
+          } else {
+            Worker worker = Worker.builder()
+                .username(i == 0 ? "W_testWorker" : "W_testWorker" + i)
+                .password(passwordEncoder.encode("0000"))
+                .email("test" + i + "@worker.com")
+                .name(nameList.get(i))
+                .phone("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .address("부산 광역시 수영구")
+                .addressDetail("수영3동 302번지")
+                .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin
+                .contact("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .startDate(LocalDate.now()) // 실제는 화면에서 선택
+                .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
+                .vehicleCapacity(1.0 + (random.nextInt(5) * 0.5))  // 1톤부터 3톤까지 0.5톤 단위
+                .build();
+            worker.getMemberRoleList().add(MemberType.WORKER);
+            log.info("WorkerWithOutCar : " + worker);
+            workerRepository.save(worker);
+          }
+        }
+      } else {
+        log.info("Worker already exists");
+      }
   }
 
   @PostConstruct
@@ -242,7 +233,7 @@ public class InitialDataConfig {
           Beach.builder().beachName("동암항").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(35.196143).longitude(129.224846).build(),
           Beach.builder().beachName("서암항 방파제").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(35.213799).longitude(129.223616).build(),
           Beach.builder().beachName("대변항").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(35.224804).longitude(129.228315).build(),
-          Beach.builder().beachName("월전항").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(34.577961).longitude(127.736672).build(),
+          Beach.builder().beachName("월전항").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(35.237419).longitude(129.245150).build(),
           Beach.builder().beachName("죽성항").si("부산광역시").guGun("기장군").dongEub("기장읍").workplace("기장군").latitude(35.242838).longitude(129.247397).build(),
           Beach.builder().beachName("학리항").si("부산광역시").guGun("기장군").dongEub("일광읍").workplace("기장군").latitude(35.258669).longitude(129.244704).build(),
           Beach.builder().beachName("일광해수욕장").si("부산광역시").guGun("기장군").dongEub("일광읍").workplace("기장군").latitude(35.259783).longitude(129.233967).build(),
