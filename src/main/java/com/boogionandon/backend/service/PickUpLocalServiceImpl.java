@@ -62,7 +62,7 @@ public class PickUpLocalServiceImpl implements PickUpService {
                         .map(image -> "S_" + image.getFileName())
                         .collect(Collectors.toList()))
                     .status(pickUp.getStatus())
-                    // 필요한 다른 필드들도 여기에 추가
+                    .lastModifiedBy(pickUp.getLastModifiedBy())
                     .build();
             })
             .collect(Collectors.toList());
