@@ -19,12 +19,15 @@ class WorkerLocalServiceImplTest {
   private WorkerService workerService;
 
   @Test
-  @DisplayName("findSortedWorkerNameList 테스트")
-  void testFindSortedWorkerNameList() {
+  @DisplayName("findSortedWorkerNameListWithWorkerId 테스트")
+  void findSortedWorkerNameListWithWorkerId() {
 
-    List<String> list = workerService.findSortedWorkerNameList();
+    Long workerId = 12L; // worker id
+
+    List<String> list = workerService.findSortedWorkerNameListWithWorkerId(workerId);
 
     log.info("list : " + list);
+    log.info("list size : " + list.size());
 
   }
 

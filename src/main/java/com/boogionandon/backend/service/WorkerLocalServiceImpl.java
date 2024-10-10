@@ -1,7 +1,11 @@
 package com.boogionandon.backend.service;
 
+import com.boogionandon.backend.domain.Admin;
+import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.WorkerRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +20,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class WorkerLocalServiceImpl implements WorkerService{
 
   private final WorkerRepository workerRepository;
+  private final MemberRepository memberRepository;
 
   @Override
-  public List<String> findSortedWorkerNameList() {
+  public List<String> findSortedWorkerNameListWithWorkerId(Long workerId) {
 
-    List<Worker> all = workerRepository.findAll();
+    Object[] byIdWithManager = memberRepository.findByIdWithManager(workerId)
+        .orElseThrow(() -> new RuntimeException("Member not found with WorkerId : " + workerId));
 
-    List<String> nameWithLastFourNumber = all.stream()
+    Long adminId = null;
+    if (byIdWithManager.length > 0 && byIdWithManager[0] instanceof Object[]) {
+      Object[] innerArray = (Object[]) byIdWithManager[0];
+      if (innerArray.length >= 2 && innerArray[1] instanceof Admin) {
+        adminId = ((Admin) innerArray[1]).getId();
+      } else {
+        log.error("Admin not found with WorkerId : " + workerId);
+      }
+    }else {
+      // WorkerId로 Member 찾기 실패
+      log.error("findSortedBeachNameListWithWorkerId - Member not found with WorkerId : " + workerId);
+      return new ArrayList<>();
+    }
+
+    List<Worker> allBySameAdmin = workerRepository.getAllBySameAdmin(adminId);
+
+    List<String> nameWithLastFourNumber = allBySameAdmin.stream()
         .map(worker -> {
           String name = worker.getName();
           String phone = worker.getPhone();
