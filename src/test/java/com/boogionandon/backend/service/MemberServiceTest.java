@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
+import com.boogionandon.backend.dto.WorkerUpdateDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
@@ -124,15 +125,15 @@ class MemberServiceTest {
   @Commit
   void testUpdateWorkerProfile() {
 
-    Long workerId = 10L; // initData 에 의해 자동저장된
+    Long workerId = 11L; // initData 에 의해 자동저장된
 
-    String updatePhone = "010-3213-2616";
+    WorkerUpdateDTO workerUpdateDTO = WorkerUpdateDTO.builder()
+        .phone("010-3211-5224")
+        .email("testtest@update.com")
+        .vehicleCapacity(2.1)
+        .build();
 
-    String updateEmail = "update@update.com";
-
-    Double updateVehicleCapacity = 2.3;
-
-    memberService.updateWorkerProfile(workerId, updatePhone, updateEmail, updateVehicleCapacity);
+    memberService.updateWorkerProfile(workerId, workerUpdateDTO);
 
     log.info("아무 에러 안나면 success!!");
 
