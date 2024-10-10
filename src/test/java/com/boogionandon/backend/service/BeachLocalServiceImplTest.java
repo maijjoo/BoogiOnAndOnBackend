@@ -65,4 +65,16 @@ class BeachLocalServiceImplTest {
 
     log.info("sortedBeachNameList : " + sortedBeachNameList);
   }
+
+  @Test
+  @DisplayName("findSortedBeachNameListWithWorkerId 테스트")
+  void testFindSortedBeachNameListWithWorkerId() {
+
+    Long workerId = 100L; // 현재 80L ~ 108L 까지 차량 가지고 있음
+
+    List<String> sortedBeachNameListWithWorkerId = beachService.findSortedBeachNameListWithWorkerId(workerId);
+
+    log.info("sortedBeachNameListWithWorkerId : " + sortedBeachNameListWithWorkerId);
+
+  }
 }

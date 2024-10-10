@@ -32,12 +32,12 @@ public class CleanController {
 
 
   // research 보고서 작성하는 페이지에 내려줄 메서드
-  @GetMapping("/")
-  public BasicPageResponseDTO viewResearchReportPage() {
+  @GetMapping("/{workerId}")
+  public BasicPageResponseDTO viewResearchReportPage(@PathVariable("workerId") Long workerId) {
 
     return BasicPageResponseDTO.builder()
-        .beachNameList(beachService.sortedBeachNameList())
-        .nameWithNumberList(workerService.findSortedWorkerNameList())
+        .beachNameList(beachService.findSortedBeachNameListWithWorkerId(workerId))
+        .nameWithNumberList(workerService.findSortedWorkerNameListWithWorkerId(workerId))
         .build();
   }
 
