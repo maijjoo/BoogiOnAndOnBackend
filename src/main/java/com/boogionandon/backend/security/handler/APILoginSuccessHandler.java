@@ -55,7 +55,7 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
     }
 
     // 이 토큰은 보안을 강화하기 위해 사용됩니다. 탈취되더라도 피해를 최소화할 수 있습니다.
-    // 현재는 30분으로 고정
+    // 현재는 5시간 으로 고정
     String accessToken = JWTUtil.generateToken(claims, 60 * 5);
     // 액세스 토큰이 만료될 때 새로운 액세스 토큰을 발급받는 데 사용됩니다.
     // 현재는 100일로 설정, 이걸로 자동 로그인 해야할 듯
