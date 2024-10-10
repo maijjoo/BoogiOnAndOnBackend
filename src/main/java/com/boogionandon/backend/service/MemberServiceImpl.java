@@ -5,6 +5,7 @@ import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.dto.AdminUpdateDTO;
+import com.boogionandon.backend.dto.WorkerUpdateDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO.WorkerDetailResponseDTOBuilder;
@@ -218,16 +219,16 @@ public class MemberServiceImpl implements MemberService{
   }
 
   @Override
-  public void updateWorkerProfile(Long workerId, String phone, String email, Double vehicleCapacity) {
+  public void updateWorkerProfile(Long workerId, WorkerUpdateDTO workerUpdateDTO) {
 
     Worker findWorker = (Worker) memberRepository.findById(workerId)
         .orElseThrow(() -> new EntityNotFoundException("Worker not found with id: " + workerId));
 
     // 더티체킹으로 바꾸면 바로 업데이트 됨
     // 이름은 Worker의 경우 개명을 할 경우 새로 파주는게 나을듯
-    findWorker.updatePhone(phone);
-    findWorker.updateEmail(email);
-    findWorker.updateVehicleCapacity(vehicleCapacity);
+    findWorker.updatePhone(workerUpdateDTO.getPhone());
+    findWorker.updateEmail(workerUpdateDTO.getEmail());
+    findWorker.updateVehicleCapacity(workerUpdateDTO.getVehicleCapacity());
 
   }
 

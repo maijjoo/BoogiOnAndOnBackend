@@ -1,6 +1,7 @@
 package com.boogionandon.backend.controller;
 
 import com.boogionandon.backend.dto.AdminUpdateDTO;
+import com.boogionandon.backend.dto.WorkerUpdateDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import com.boogionandon.backend.service.MemberService;
@@ -11,8 +12,11 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,9 +70,9 @@ public class MemberController {
     return memberService.getWorkerProfile(workerId);
   }
 
-  @PostMapping("/my-page/worker/{workerId}")
-  public Map<String, String> updateWorkerProfile(@PathVariable("workerId") Long workerId, String phone, String email, Double vehicleCapacity) {
-    memberService.updateWorkerProfile(workerId, phone, email, vehicleCapacity);
+  @PutMapping("/my-page/worker/{workerId}")
+  public Map<String, String> updateWorkerProfile(@PathVariable("workerId") Long workerId, @RequestBody WorkerUpdateDTO workerUpdateDTO) {
+    memberService.updateWorkerProfile(workerId, workerUpdateDTO);
     return Map.of("result", "success");
   }
 
@@ -77,8 +81,8 @@ public class MemberController {
     return memberService.getAdminProfile(adminId);
   }
 
-  @PostMapping("/my-page/admin/{adminId}")
-  public Map<String, String> updateAdminProfile(@PathVariable("adminId") Long adminId, AdminUpdateDTO adminUpdateDTO) {
+  @PutMapping("/my-page/admin/{adminId}")
+  public Map<String, String> updateAdminProfile(@PathVariable("adminId") Long adminId,@RequestBody AdminUpdateDTO adminUpdateDTO) {
     memberService.updateAdminProfile(adminId, adminUpdateDTO);
     return Map.of("result", "success");
   }
