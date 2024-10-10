@@ -86,7 +86,6 @@ public class CustomUserDetailsService implements UserDetailsService {
               .stream()
               .map(role -> role.name())
               .collect(Collectors.toList()),
-        worker.getContact(),
         worker.getVehicleCapacity(),
         worker.getManagerId(),
         worker.isDelFlag()

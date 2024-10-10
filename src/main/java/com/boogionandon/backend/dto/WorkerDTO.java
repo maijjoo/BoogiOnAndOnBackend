@@ -24,7 +24,6 @@ public class WorkerDTO extends User {
   // 나중에 화면에서 쓰기 쉽게 하기 위해 String으로
   private List<String> roleNames = new ArrayList<>();
 
-  private String contact; // 근무처 연락처
 
   private Double vehicleCapacity; // 차량정보(무게 ton)
 
@@ -33,7 +32,7 @@ public class WorkerDTO extends User {
 
   public WorkerDTO(Long id, String username, String password, String email,
       String name,
-      String phone, String address, String addressDetail, List<String> roleNames, String contact,
+      String phone, String address, String addressDetail, List<String> roleNames,
       Double vehicleCapacity,
       Long managerId, boolean delFlag) {
     super(username, password, roleNames.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(
@@ -47,7 +46,6 @@ public class WorkerDTO extends User {
     this.address = address;
     this.addressDetail = addressDetail;
     this.roleNames = roleNames;
-    this.contact = contact;
     this.vehicleCapacity = vehicleCapacity;
     this.managerId = managerId;
     this.delFlag = delFlag;
@@ -66,7 +64,6 @@ public class WorkerDTO extends User {
     dataMap.put("address", address);
     dataMap.put("addressDetail", addressDetail);
     dataMap.put("roleNames", roleNames);
-    dataMap.put("contact", contact);
     dataMap.put("vehicleCapacity", vehicleCapacity);
     dataMap.put("managerId", managerId);
     dataMap.put("delFlag", delFlag);
@@ -110,7 +107,6 @@ public class WorkerDTO extends User {
         (String) claims.get("address"),
         (String) claims.get("addressDetail"),
         roleNames,
-        (String) claims.get("contact"),
         vehicleCapacity,
         managerId,
         delFlag
