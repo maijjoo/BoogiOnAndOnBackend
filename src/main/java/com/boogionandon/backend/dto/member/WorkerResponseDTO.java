@@ -31,9 +31,6 @@ public class WorkerResponseDTO {
 
   // Worker에 관련된 필드들
 
-  private String contact; // 근무처 연락처, 근무처? 가 중복일 수도 있을거 같아서 unique 안걸음
-
-
   private Double vehicleCapacity; // 차량정보(무게 ton)
 
   private LocalDate startDate;

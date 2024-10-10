@@ -57,6 +57,18 @@ public class Admin extends Member{
   @Column(length = 20, unique = true, nullable = false)
   private String contact; // 근무처 연락처
 
+  public void updateDepartment(String department) {
+    this.department = department;
+  }
+
+  public void updatePosition(String position) {
+    this.position = position;
+  }
+
+  public void updateContact(String contact) {
+    this.contact = contact;
+  }
+
   // 추가로 필요한 필드가 있다면 추가
 
   // 담당 바닷가 - 이걸 통해서 담당자가 담당하는 바닷가를 특정할 수 있게?
