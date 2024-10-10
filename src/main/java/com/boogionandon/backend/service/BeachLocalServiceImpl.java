@@ -1,7 +1,11 @@
 package com.boogionandon.backend.service;
 
+import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
+import com.boogionandon.backend.domain.Member;
+import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.repository.BeachRepository;
+import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.WorkerRepository;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -26,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BeachLocalServiceImpl implements BeachService{
 
   private final BeachRepository beachRepository;
+  private final MemberRepository memberRepository;
 
   @Override
   public List<String> SortedSiList() {
@@ -139,5 +145,31 @@ public class BeachLocalServiceImpl implements BeachService{
       uniqueSortedBeachName.add(beachName);
     }
     log.info("uniqueSortedBeachName : " + uniqueSortedBeachName);
-    return uniqueSortedBeachName.stream().toList();  }
+    return uniqueSortedBeachName.stream().toList();
+  }
+
+  @Override
+  public List<String> findSortedBeachNameListWithWorkerId(Long workerId) {
+
+    Object[] byIdWithManager = memberRepository.findByIdWithManager(workerId)
+        .orElseThrow(() -> new RuntimeException("Member not found with WorkerId : " + workerId));
+
+
+    List<String> beachNameList = null;
+    if (byIdWithManager.length > 0 && byIdWithManager[0] instanceof Object[]) {
+      Object[] innerArray = (Object[]) byIdWithManager[0];
+
+      if (innerArray.length >= 2 && innerArray[1] instanceof Admin) {
+        Admin admin = (Admin) innerArray[1];
+        beachNameList = admin.getAssignmentAreaList();
+      } else {
+        log.error("Admin not found with WorkerId : " + workerId);
+      }
+    } else {
+      // WorkerId로 Member 찾기 실패
+      log.error("findSortedBeachNameListWithWorkerId - Member not found with WorkerId : " + workerId);
+      return new ArrayList<>();
+    }
+    return beachNameList;
+  }
 }

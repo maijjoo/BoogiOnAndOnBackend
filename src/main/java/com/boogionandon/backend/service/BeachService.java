@@ -23,4 +23,6 @@ public interface BeachService {
   public Map<String, List<String>> SortedBeachNameMap();
 
   List<String> sortedBeachNameList();
+
+  List<String> findSortedBeachNameListWithWorkerId(Long workerId);
 }
