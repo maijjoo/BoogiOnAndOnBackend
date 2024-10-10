@@ -4,6 +4,7 @@ package com.boogionandon.backend.service;
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO.WorkerDetailResponseDTOBuilder;
@@ -70,7 +71,6 @@ public class MemberServiceImpl implements MemberService{
         .phone(worker.getPhone())
         .address(worker.getAddress())
         .addressDetail(worker.getAddressDetail())
-        .contact(worker.getContact())
         .vehicleCapacity(worker.getVehicleCapacity())
         .startDate(worker.getStartDate())
         .endDate(worker.getEndDate())
@@ -215,6 +215,37 @@ public class MemberServiceImpl implements MemberService{
         .workCity(admin.getWorkCity())
         .workGroup(admin.getWorkPlace() + " " + admin.getDepartment())
         .build();
+  }
+
+  @Override
+  public void updateWorkerProfile(Long workerId, String phone, String email, Double vehicleCapacity) {
+
+    Worker findWorker = (Worker) memberRepository.findById(workerId)
+        .orElseThrow(() -> new EntityNotFoundException("Worker not found with id: " + workerId));
+
+    // 더티체킹으로 바꾸면 바로 업데이트 됨
+    // 이름은 Worker의 경우 개명을 할 경우 새로 파주는게 나을듯
+    findWorker.updatePhone(phone);
+    findWorker.updateEmail(email);
+    findWorker.updateVehicleCapacity(vehicleCapacity);
+
+  }
+
+  @Override
+  public void updateAdminProfile(Long adminId, AdminUpdateDTO adminUpdateDTO) {
+
+    Admin findAdmin = (Admin) memberRepository.findById(adminId)
+        .orElseThrow(() -> new EntityNotFoundException("Admin not found with id: " + adminId));
+
+    // 더티체킹으로 바꾸면 바로 업데이트 됨
+    findAdmin.updateName(adminUpdateDTO.getName());
+    findAdmin.updatePhone(adminUpdateDTO.getPhone());
+    findAdmin.updateEmail(adminUpdateDTO.getEmail());
+    findAdmin.updateAddress(adminUpdateDTO.getAddress());
+    findAdmin.updateAddressDetail(adminUpdateDTO.getAddressDetail());
+    findAdmin.updateDepartment(adminUpdateDTO.getDepartment());
+    findAdmin.updatePosition(adminUpdateDTO.getPosition());
+    findAdmin.updateContact(adminUpdateDTO.getContact());
   }
 
 

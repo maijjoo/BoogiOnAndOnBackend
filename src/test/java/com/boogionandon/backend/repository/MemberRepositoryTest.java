@@ -140,7 +140,6 @@ class MemberRepositoryTest {
         .address("부산 광역시 수영구")
         .addressDetail("수영1동 101번지")
         .managerId(5L) // 위의 테스트에서 만들어진 Admin
-        .contact("010-1234-1234")
         .startDate(LocalDate.now()) // 실제는 화면에서 선택
         .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
         .build();

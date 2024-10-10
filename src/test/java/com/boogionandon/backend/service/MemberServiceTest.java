@@ -3,6 +3,7 @@ package com.boogionandon.backend.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.boogionandon.backend.domain.Member;
+import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -116,4 +118,49 @@ class MemberServiceTest {
 
     log.info("adminById : " + adminById);
   }
+
+  @Test
+  @DisplayName("updateWorkerProfile 테스트")
+  @Commit
+  void testUpdateWorkerProfile() {
+
+    Long workerId = 10L; // initData 에 의해 자동저장된
+
+    String updatePhone = "010-3213-2616";
+
+    String updateEmail = "update@update.com";
+
+    Double updateVehicleCapacity = 2.3;
+
+    memberService.updateWorkerProfile(workerId, updatePhone, updateEmail, updateVehicleCapacity);
+
+    log.info("아무 에러 안나면 success!!");
+
+  }
+
+  @Test
+  @DisplayName("updateAdminProfile 테스트")
+  @Commit
+  void testUpdateAdminProfile() {
+
+    Long adminId = 5L; // initData 에 의해 자동저장된
+
+    AdminUpdateDTO adminUpdateDTO = AdminUpdateDTO.builder()
+        .name("김재원")
+        .phone("010-3213-2111")
+        .email("update@adminUpdate.com")
+        .address("업데이트시 업데이트구")
+        .addressDetail("업데이트 아피트 101동 1111호")
+        .department("바다 관련과")
+        .position("환경지킴이과")
+        .contact("051-7111-2154")
+        .build();
+
+    memberService.updateAdminProfile(adminId, adminUpdateDTO);
+
+    log.info("아무 에러 안나면 success!!");
+
+  }
+
+
 }

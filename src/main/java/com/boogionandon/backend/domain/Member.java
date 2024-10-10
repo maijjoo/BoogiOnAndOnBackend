@@ -94,5 +94,25 @@ public abstract class Member extends BaseEntity{
   public void changeDelFlag(boolean delFlag) {
     this.delFlag = delFlag;
   }
+
+  public void updatePhone(String phone) {
+    this.phone = phone;
+  }
+
+  public void updateEmail(String email) {
+    this.email = email;
+  }
+
+  public void updateName(String name) {
+    this.name = name;
+  }
+
+  public void updateAddress(String address) {
+    this.address = address;
+  }
+
+  public void updateAddressDetail(String addressDetail) {
+    this.addressDetail = addressDetail;
+  }
 }
 

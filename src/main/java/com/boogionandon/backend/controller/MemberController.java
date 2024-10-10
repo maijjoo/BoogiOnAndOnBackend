@@ -1,5 +1,6 @@
 package com.boogionandon.backend.controller;
 
+import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import com.boogionandon.backend.service.MemberService;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,14 +63,24 @@ public class MemberController {
 
   @GetMapping("/my-page/worker/{workerId}")
   public WorkerResponseDTO getWorkerProfile(@PathVariable("workerId") Long workerId) {
-    log.info("workerId: " + workerId);
     return memberService.getWorkerProfile(workerId);
+  }
+
+  @PostMapping("/my-page/worker/{workerId}")
+  public Map<String, String> updateWorkerProfile(@PathVariable("workerId") Long workerId, String phone, String email, Double vehicleCapacity) {
+    memberService.updateWorkerProfile(workerId, phone, email, vehicleCapacity);
+    return Map.of("result", "success");
   }
 
   @GetMapping("/my-page/admin/{adminId}")
   public AdminResponseDTO getAdminProfile(@PathVariable("adminId") Long adminId) {
-    log.info("adminId: " + adminId);
     return memberService.getAdminProfile(adminId);
+  }
+
+  @PostMapping("/my-page/admin/{adminId}")
+  public Map<String, String> updateAdminProfile(@PathVariable("adminId") Long adminId, AdminUpdateDTO adminUpdateDTO) {
+    memberService.updateAdminProfile(adminId, adminUpdateDTO);
+    return Map.of("result", "success");
   }
 
 

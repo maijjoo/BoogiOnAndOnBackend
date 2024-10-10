@@ -1,6 +1,7 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Member;
+import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
@@ -20,4 +21,7 @@ public interface MemberService {
   WorkerDetailResponseDTO getWorkerById(Long memberId);
 
   AdminDetailResponseDTO getAdminById(Long adminId);
+
+  void updateWorkerProfile(Long workerId, String phone, String email, Double vehicleCapacity);
+  void updateAdminProfile(Long adminId, AdminUpdateDTO adminUpdateDTO);
 }

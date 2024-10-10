@@ -188,7 +188,6 @@ public class InitialDataConfig {
                 .address("부산 광역시 수영구")
                 .addressDetail("수영3동 301번지")
                 .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin
-                .contact("010-8888-88" + (i < 10 ? "0"+i : i ))
                 .startDate(LocalDate.now()) // 실제는 화면에서 선택
                 .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
                 .build();
@@ -205,7 +204,6 @@ public class InitialDataConfig {
                 .address("부산 광역시 수영구")
                 .addressDetail("수영3동 302번지")
                 .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin
-                .contact("010-8888-88" + (i < 10 ? "0"+i : i ))
                 .startDate(LocalDate.now()) // 실제는 화면에서 선택
                 .endDate(LocalDate.now().plusMonths(6)) // 실제는 화면에서 선택
                 .vehicleCapacity(1.0 + (random.nextInt(5) * 0.5))  // 1톤부터 3톤까지 0.5톤 단위
