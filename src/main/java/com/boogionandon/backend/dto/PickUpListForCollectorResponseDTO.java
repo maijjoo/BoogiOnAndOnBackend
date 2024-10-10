@@ -31,6 +31,8 @@ public class PickUpListForCollectorResponseDTO {
 
   private ReportStatus status;
 
+  private String lastModifiedBy;
+
 
 
 }

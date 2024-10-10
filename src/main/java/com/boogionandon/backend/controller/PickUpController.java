@@ -46,6 +46,7 @@ public class PickUpController {
         return pickUpService.findPickUpWithAdmin(adminId);
     }
 
+    // TODO : 여기 부터
     @PatchMapping("/added-route/{pickUpId}")
     public Map<String, String> updatePickUpStatusToAddedToRoute(@PathVariable Long pickUpId) {
         pickUpService.updatePickUpStatusToAddedToRoute(pickUpId);

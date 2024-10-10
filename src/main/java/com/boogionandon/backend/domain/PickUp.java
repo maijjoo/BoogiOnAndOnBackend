@@ -62,7 +62,6 @@ public class PickUp extends BaseEntity {
   @Builder.Default
   private ReportStatus status = ReportStatus.ASSIGNMENT_NEEDED;
 
-
   public void addImageString(String fileName) {
     Image image = Image.builder()
             .fileName(fileName)
