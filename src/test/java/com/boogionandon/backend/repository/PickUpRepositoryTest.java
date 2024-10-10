@@ -104,7 +104,7 @@ class PickUpRepositoryTest {
             .map(member -> (Worker) member)
             .collect(Collectors.toList());
 
-        List<Beach> beaches = beachRepository.findAll();
+//        List<Beach> beaches = beachRepository.findAll();
 
         Random random = new Random();
 
@@ -132,8 +132,15 @@ class PickUpRepositoryTest {
         );
 
         for (int i = 0; i < 100 ; i++) {
-            Beach randomBeach = beaches.get(random.nextInt(beaches.size()));
             Worker randomSubmitter = submitter.get(random.nextInt(submitter.size()));
+
+            Admin managedAdmin = (Admin) memberRepository.findById(randomSubmitter.getManagerId())
+                .orElseThrow(() -> new NoSuchElementException("Admin with id "+ randomSubmitter.getManagerId() +" not found"));
+
+            List<String> assignmentAreaList = managedAdmin.getAssignmentAreaList();
+
+            Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
+                .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
 
             String randomPlace = pickUpPlaces.get(random.nextInt(pickUpPlaces.size()));
 
