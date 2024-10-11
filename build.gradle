@@ -65,8 +65,8 @@ dependencies {
 	// JWT 문자열 만드는 작업, 외부에서 들어오는 JWT 문자열을 검증하는 작업에 필요
 	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	// API를 자동으로 문서화 해주는 디펜던시
 	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
@@ -75,6 +75,9 @@ dependencies {
 	// 파라미터 ?를 보기위한 디펜던시
 	// https://mvnrepository.com/artifact/p6spy/p6spy
 	implementation 'p6spy:p6spy:3.9.1'
+
+	// Jackson 모듈 추가
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
 
 }
 

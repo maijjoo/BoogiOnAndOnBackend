@@ -1,10 +1,13 @@
 package com.boogionandon.backend.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.InvalidClaimException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.jackson.io.JacksonSerializer;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
@@ -31,6 +34,12 @@ public class JWTUtil {
       // TODO : 나중 수정 !! 키가 없다고 나와서 임시로 여기 적어서 사용
 //  @Value("${JWTSecretKey}")
   private static String secretKey="1234567890123456789012345678901234567890";
+  private static final ObjectMapper objectMapper;
+
+  static {
+    objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+  }
 
 
   /**
@@ -58,6 +67,7 @@ public class JWTUtil {
         .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
         .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(min).toInstant()))
         .signWith(key)
+        .serializeToJsonWith(new JacksonSerializer(objectMapper))
         .compact();
 
     return jwtStr;
