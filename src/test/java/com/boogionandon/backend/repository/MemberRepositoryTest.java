@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -131,12 +132,22 @@ class MemberRepositoryTest {
   @Commit // 롤백 안되게 하기 위한
   void createWorkerTest() {
 
+    Random random = new Random();
+
+    int currentYear = LocalDate.now().getYear();
+    int birthYear = currentYear - random.nextInt(21) - 40; // 40~60세 사이의 랜덤한 나이
+    int birthMonth = random.nextInt(12) + 1; // 1~12월
+    int birthDay = random.nextInt(28) + 1; // 간단히 1~28일로 설정 (월별 일수 차이 무시)
+
+    LocalDate birth = LocalDate.of(birthYear, birthMonth, birthDay);
+
     Worker worker = Worker.builder()
-        .username("W_testWorker100")
+        .username("W_testWorker101")
         .password(passwordEncoder.encode("0000"))
-        .email("test100@worker.com")
+        .email("test1010@worker.com")
         .name("이석")
-        .phone("010-1111-2422")
+        .phone("010-1111-2452")
+        .birth(birth)
         .address("부산 광역시 수영구")
         .addressDetail("수영1동 101번지")
         .managerId(5L) // 위의 테스트에서 만들어진 Admin

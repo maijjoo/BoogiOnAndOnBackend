@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -44,6 +45,7 @@ public class Admin extends Member{
       joinColumns = @JoinColumn(name = "admin_id")
   )
   @Column(name = "area", length = 50)
+  @Builder.Default // 에러나면 이거 때문 일 수 도...
   private List<String> assignmentAreaList = new ArrayList<>(); // 담당지역
 
   @Column(length = 20, nullable = false)
