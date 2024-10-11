@@ -3,6 +3,8 @@ package com.boogionandon.backend.security.handler;
 import com.boogionandon.backend.dto.AdminDTO;
 import com.boogionandon.backend.dto.WorkerDTO;
 import com.boogionandon.backend.util.JWTUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +22,14 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 // 나중에 config 쪽에서 추가해서 쓸거기 때문에 @Configuration 필요 없음
 @Log4j2
 public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
+
+  private final ObjectMapper objectMapper;
+
+  public APILoginSuccessHandler() {
+    this.objectMapper = new ObjectMapper();
+    this.objectMapper.registerModule(new JavaTimeModule());
+  }
+
 
   /**
    * 이 클래스는 사용자가 로그인할 때 인증 성공 이벤트를 처리합니다.
@@ -64,9 +74,9 @@ public class APILoginSuccessHandler implements AuthenticationSuccessHandler {
     claims.put("accessToken", accessToken);
     claims.put("refreshToken", refreshToken);
 
-    // 생성된 클레임은 Gson 라이브러리를 사용하여 JSON 문자열로 변환됩니다.
-    Gson gson = new Gson();
-    String jsonStr = gson.toJson(claims);
+    // 생성된 클레임은 Jackson 라이브러리를 사용하여 JSON 문자열로 변환됩니다.
+    String jsonStr = objectMapper.writeValueAsString(claims);
+
 
     // JSON 문자열은 응답 콘텐츠 유형으로 설정되어 클라이언트로 다시 전송됩니다.
     response.setContentType("application/json; charset=UTF-8");
