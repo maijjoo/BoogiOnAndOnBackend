@@ -179,12 +179,21 @@ public class InitialDataConfig {
 
         for (int i = 0; i < (guGunList.size() * 20) - 1; i++) {
           if (i < 70) {
+
+            int currentYear = LocalDate.now().getYear();
+            int birthYear = currentYear - random.nextInt(21) - 40; // 40~60세 사이의 랜덤한 나이
+            int birthMonth = random.nextInt(12) + 1; // 1~12월
+            int birthDay = random.nextInt(28) + 1; // 간단히 1~28일로 설정 (월별 일수 차이 무시)
+
+            LocalDate birth = LocalDate.of(birthYear, birthMonth, birthDay);
+
             Worker worker = Worker.builder()
                 .username(i == 0 ? "W_testWorker" : "W_testWorker" + i)
                 .password(passwordEncoder.encode("0000"))
                 .email("test" + i + "@worker.com")
                 .name(nameList.get(i))
                 .phone("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .birth(birth)
                 .address("부산 광역시 수영구")
                 .addressDetail("수영3동 301번지")
                 .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin
@@ -195,12 +204,21 @@ public class InitialDataConfig {
             log.info("WorkerWithOutCar : " + worker);
             workerRepository.save(worker);
           } else {
+
+            int currentYear = LocalDate.now().getYear();
+            int birthYear = currentYear - random.nextInt(21) - 40; // 40~60세 사이의 랜덤한 나이
+            int birthMonth = random.nextInt(12) + 1; // 1~12월
+            int birthDay = random.nextInt(28) + 1; // 간단히 1~28일로 설정 (월별 일수 차이 무시)
+
+            LocalDate birth = LocalDate.of(birthYear, birthMonth, birthDay);
+
             Worker worker = Worker.builder()
                 .username(i == 0 ? "W_testWorker" : "W_testWorker" + i)
                 .password(passwordEncoder.encode("0000"))
                 .email("test" + i + "@worker.com")
                 .name(nameList.get(i))
                 .phone("010-8888-88" + (i < 10 ? "0"+i : i ))
+                .birth(birth)
                 .address("부산 광역시 수영구")
                 .addressDetail("수영3동 302번지")
                 .managerId(regularAdminList.get(random.nextInt(regularAdminList.size()))) // 위의 테스트에서 만들어진 Admin

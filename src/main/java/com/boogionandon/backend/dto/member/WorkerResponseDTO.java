@@ -25,6 +25,8 @@ public class WorkerResponseDTO {
 
   private String phone;
 
+  private LocalDate birth;
+
   private String address;
 
   private String addressDetail;

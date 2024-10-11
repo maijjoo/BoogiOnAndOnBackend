@@ -1,5 +1,6 @@
 package com.boogionandon.backend.dto;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ public class WorkerDTO extends User {
   private String email;
   private String name;
   private String phone;
+  private LocalDate birth;
   private String address;
   private String addressDetail;
 
@@ -32,7 +34,7 @@ public class WorkerDTO extends User {
 
   public WorkerDTO(Long id, String username, String password, String email,
       String name,
-      String phone, String address, String addressDetail, List<String> roleNames,
+      String phone, LocalDate birth, String address, String addressDetail, List<String> roleNames,
       Double vehicleCapacity,
       Long managerId, boolean delFlag) {
     super(username, password, roleNames.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(
@@ -42,6 +44,7 @@ public class WorkerDTO extends User {
     this.password = password;
     this.email = email;
     this.name = name;
+    this.birth = birth;
     this.phone = phone;
     this.address = address;
     this.addressDetail = addressDetail;
@@ -61,6 +64,7 @@ public class WorkerDTO extends User {
     dataMap.put("email", email);
     dataMap.put("name", name);
     dataMap.put("phone", phone);
+    dataMap.put("birth", birth);
     dataMap.put("address", address);
     dataMap.put("addressDetail", addressDetail);
     dataMap.put("roleNames", roleNames);
@@ -97,6 +101,16 @@ public class WorkerDTO extends User {
         ? (Boolean) claims.get("delFlag")
         : Boolean.parseBoolean((String) claims.get("delFlag"));
 
+    // LocalDate 처리
+    LocalDate birth = null;
+    if (claims.get("birth") != null) {
+      if (claims.get("birth") instanceof String) {
+        birth = LocalDate.parse((String) claims.get("birth"));
+      } else if (claims.get("birth") instanceof LocalDate) {
+        birth = (LocalDate) claims.get("birth");
+      }
+    }
+
     WorkerDTO dto = new WorkerDTO(
         id,
         (String) claims.get("username"),
@@ -104,6 +118,7 @@ public class WorkerDTO extends User {
         (String) claims.get("email"),
         (String) claims.get("name"),
         (String) claims.get("phone"),
+        birth,
         (String) claims.get("address"),
         (String) claims.get("addressDetail"),
         roleNames,
