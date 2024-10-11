@@ -65,6 +65,8 @@ public class MemberController {
     return Map.of("accessToken", newAccessToken, "refreshToken", newRefreshToken);
   }
 
+  // ------------ 마이페이지 관련 시작 ------------------------
+
   @GetMapping("/my-page/worker/{workerId}")
   public WorkerResponseDTO getWorkerProfile(@PathVariable("workerId") Long workerId) {
     return memberService.getWorkerProfile(workerId);
@@ -86,7 +88,7 @@ public class MemberController {
     memberService.updateAdminProfile(adminId, adminUpdateDTO);
     return Map.of("result", "success");
   }
-
+  // ------------ 마이페이지 관련 끝 ------------------------
 
 // -------------- refresh 관련 시작 ------------------
   // 시간이 1시간 미만으로 남았다면...newRefreshToken을 만들어 주는

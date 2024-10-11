@@ -18,21 +18,26 @@ import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainListResponseDTO;
 import com.boogionandon.backend.dto.admin.AdminDetailResponseDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;
+import com.boogionandon.backend.dto.admin.CreateAdminRequestDTO;
+import com.boogionandon.backend.dto.admin.CreateWorkerRequestDTO;
 import com.boogionandon.backend.dto.admin.MemberInquiryPageForRegularResponseDTO;
 import com.boogionandon.backend.dto.admin.MemberInquiryPageForSuperResponseDTO;
 import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
 import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO;
 import com.boogionandon.backend.repository.AdminRepository;
+import com.boogionandon.backend.service.AdminService;
 import com.boogionandon.backend.service.BeachService;
 import com.boogionandon.backend.service.CleanService;
 import com.boogionandon.backend.service.MemberService;
 import com.boogionandon.backend.service.PickUpService;
 import com.boogionandon.backend.service.ResearchLocalServiceImpl;
 import com.boogionandon.backend.service.ResearchService;
+import com.boogionandon.backend.service.WorkerService;
 import com.boogionandon.backend.util.CustomFileUtil;
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,6 +54,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,6 +74,8 @@ public class AdminController {
   private final CustomFileUtil fileUtil;
   private final AdminRepository adminRepository;
   private final MemberService memberService;
+  private final WorkerService workerService;
+  private final AdminService adminService;
 
   // 리팩토링은 나중에 여유 있을때 하기
   // 1. trashDistribution, collectPrediction 메서드에도 tabCondition이 있었으면 좀더 명확하게 구분이 되었을텐데
@@ -441,6 +450,35 @@ public class AdminController {
 
   // ------------ 작업 관리 탭 끝 ----------------------
 
+  // ------------ 멤버 추가 관련 시작 ------------------------
 
+  @PostMapping("/create/worker/{adminId}") // adminId는 로그인한 regular admin의 id
+  public Map<String, String> createWorker(@PathVariable("adminId") Long adminId, @RequestBody CreateWorkerRequestDTO createWorkerRequestDTO) {
+
+    workerService.createOneWorker(adminId, createWorkerRequestDTO);
+
+    return Map.of("result", "success");
+  }
+
+  // create admin을 할때 소속을 하기위한 드랍다운
+  @GetMapping("/create/admin/{adminId}")
+  public Map<String, Object> createAdminPage(@PathVariable("adminId") Long adminId) {
+    Map<String, Object> map = new HashMap<>();
+    List<String> siList = beachService.SortedSiList();
+    Map<String, List<String>> guGunMap = beachService.sortedSiGuGunMap();
+    map.put("siList", siList);
+    map.put("guGunMap", guGunMap);
+    return map;
+  }
+
+  @PostMapping("/create/admin/{adminId}") // adminId는 로그인한 super admin의 id
+  public Map<String, String> createAdmin(@PathVariable("adminId") Long adminId, @RequestBody CreateAdminRequestDTO createAdminRequestDTO) {
+
+    adminService.createOneAdmin(adminId, createAdminRequestDTO);
+
+    return Map.of("result", "success");
+  }
+
+  // ------------ 멤버 추가 관련 끝 ------------------------
 
 }

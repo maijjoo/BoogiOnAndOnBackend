@@ -19,6 +19,9 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class Worker extends Member{
 
+  @Column(nullable = false)
+  private LocalDate birth;
+
   @Column
   private Double vehicleCapacity; // 차량정보(무게 ton)
 

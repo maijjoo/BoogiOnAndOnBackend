@@ -3,13 +3,23 @@ package com.boogionandon.backend.service;
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
+import com.boogionandon.backend.domain.enums.MemberType;
+import com.boogionandon.backend.dto.admin.CreateWorkerRequestDTO;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.WorkerRepository;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +31,9 @@ public class WorkerLocalServiceImpl implements WorkerService{
 
   private final WorkerRepository workerRepository;
   private final MemberRepository memberRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final Map<String, AtomicInteger> dailyCounters = new ConcurrentHashMap<>();
+
 
   @Override
   public List<String> findSortedWorkerNameListWithWorkerId(Long workerId) {
@@ -67,5 +80,48 @@ public class WorkerLocalServiceImpl implements WorkerService{
 
 
     return nameWithLastFourNumber;
+  }
+
+  @Override
+  public void createOneWorker(Long adminId, CreateWorkerRequestDTO createWorkerRequestDTO) {
+
+    String username = createRandomUsername();
+
+    Worker worker = Worker.builder()
+        .username(username)
+        .password(passwordEncoder.encode("0000"))
+        .email(createWorkerRequestDTO.getEmail())
+        .name(createWorkerRequestDTO.getName())
+        .phone(createWorkerRequestDTO.getPhone())
+        .address(createWorkerRequestDTO.getAddress())
+        .addressDetail(createWorkerRequestDTO.getAddressDetail())
+        .birth(createWorkerRequestDTO.getBirth())
+        .vehicleCapacity(createWorkerRequestDTO.getVehicleCapacity())
+        .startDate(createWorkerRequestDTO.getStartDate())
+        .endDate(createWorkerRequestDTO.getEndDate())
+        .managerId(adminId)
+        .build();
+
+    worker.getMemberRoleList().add(MemberType.WORKER);
+
+    log.info("worker : " + worker);
+    workerRepository.save(worker);
+  }
+
+  private String createRandomUsername() {
+    LocalDate now = LocalDate.now();
+    String datePart = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+    String key = "W_" + datePart;
+    AtomicInteger counter = dailyCounters.computeIfAbsent(key, k -> new AtomicInteger(0));
+    int sequenceNumber = counter.incrementAndGet();
+
+    return String.format("%s%03d", key, sequenceNumber);
+  }
+
+  // 매일 자정에 실행되어야 하는 메소드
+  @Scheduled(cron = "0 0 0 * * ?")
+  public void resetDailyCounters() {
+    dailyCounters.clear();
   }
 }

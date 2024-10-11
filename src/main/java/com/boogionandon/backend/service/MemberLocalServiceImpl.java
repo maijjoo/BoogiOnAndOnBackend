@@ -12,16 +12,11 @@ import com.boogionandon.backend.dto.admin.WorkerDetailResponseDTO.WorkerDetailRe
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import com.boogionandon.backend.repository.MemberRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.gson.Gson;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class MemberServiceImpl implements MemberService{
+public class MemberLocalServiceImpl implements MemberService{
 
   private final MemberRepository memberRepository;
   private final AdminService adminService;
@@ -70,6 +65,7 @@ public class MemberServiceImpl implements MemberService{
         .email(worker.getEmail())
         .name(worker.getName())
         .phone(worker.getPhone())
+        .birth(worker.getBirth())
         .address(worker.getAddress())
         .addressDetail(worker.getAddressDetail())
         .vehicleCapacity(worker.getVehicleCapacity())
@@ -168,6 +164,7 @@ public class MemberServiceImpl implements MemberService{
                 .name(worker.getName())
                 .username(worker.getUsername())
                 .phone(worker.getPhone())
+                .birth(worker.getBirth())
                 .email(worker.getEmail())
                 .vehicleCapacity(worker.getVehicleCapacity())
                 .address(worker.getAddress())

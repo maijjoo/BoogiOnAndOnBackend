@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +17,7 @@ public class WorkerDetailResponseDTO {
   private String name;
   private String username;
   private String phone;
+  private LocalDate birth;
   private String email;
   private Double vehicleCapacity; // 차량정보(무게 ton)
   private String address; // 자기집

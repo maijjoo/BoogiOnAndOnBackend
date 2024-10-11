@@ -80,6 +80,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         worker.getEmail(),
         worker.getName(),
         worker.getPhone(),
+        worker.getBirth(),
         worker.getAddress(),
         worker.getAddressDetail(),
         worker.getMemberRoleList()
