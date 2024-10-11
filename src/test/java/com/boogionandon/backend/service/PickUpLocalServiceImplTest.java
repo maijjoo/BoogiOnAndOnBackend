@@ -1,8 +1,6 @@
 package com.boogionandon.backend.service;
 
-import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.PickUp;
-import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.PickUpDetailResponseDTO;
 import com.boogionandon.backend.dto.PickUpListForCollectorResponseDTO;
@@ -20,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Log4j2

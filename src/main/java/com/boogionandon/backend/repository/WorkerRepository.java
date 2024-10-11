@@ -2,8 +2,6 @@ package com.boogionandon.backend.repository;
 
 import com.boogionandon.backend.domain.Worker;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

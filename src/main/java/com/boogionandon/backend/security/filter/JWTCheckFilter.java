@@ -1,7 +1,5 @@
 package com.boogionandon.backend.security.filter;
 
-import com.boogionandon.backend.dto.AdminDTO;
-import com.boogionandon.backend.dto.WorkerDTO;
 import com.boogionandon.backend.util.JWTUtil;
 import com.google.gson.Gson;
 import jakarta.servlet.FilterChain;

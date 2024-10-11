@@ -155,6 +155,6 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
-# upload 폴더 제외
+# upload 폴더 관련 설정
 /backend/upload/*
-!/backend/upload/default.jpg
+!/backend/upload/default.png

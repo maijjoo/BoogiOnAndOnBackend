@@ -1,13 +1,12 @@
 package com.boogionandon.backend.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.TrashType;
@@ -17,13 +16,11 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Year;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;

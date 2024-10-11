@@ -5,10 +5,7 @@ import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.dto.AdminDTO;
 import com.boogionandon.backend.dto.WorkerDTO;
-import com.boogionandon.backend.repository.AdminRepository;
 import com.boogionandon.backend.repository.MemberRepository;
-import com.boogionandon.backend.repository.WorkerRepository;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -16,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

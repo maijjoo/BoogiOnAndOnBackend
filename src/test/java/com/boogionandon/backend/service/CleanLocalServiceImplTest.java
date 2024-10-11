@@ -1,11 +1,8 @@
 package com.boogionandon.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Clean;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
@@ -15,7 +12,6 @@ import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import com.boogionandon.backend.repository.BeachRepository;
 import com.boogionandon.backend.repository.MemberRepository;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -158,12 +154,12 @@ class CleanLocalServiceImplTest {
   @DisplayName("getBasicStatistics 메서드 테스트 - 일별")
   void testGetBasicStatisticsWithTapCondition3() {
     String tapCondition = "일별";
-    Integer year = 2024;
-    Integer month = 7;
+    Integer year = 2022;
+    Integer month = 3;
     String beachName = "광안리해수욕장";
 
-    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, beachName);
-//    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, 2022, null, null);
+//    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, beachName);
+    BasicStatisticsResponseDTO findBasicStatistics = cleanService.getBasicStatistics(tapCondition, year, month, null);
 
     log.info("findBasicStatistics : " + findBasicStatistics);
   }

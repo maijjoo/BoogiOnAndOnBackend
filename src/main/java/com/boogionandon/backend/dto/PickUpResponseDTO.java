@@ -4,8 +4,6 @@ package com.boogionandon.backend.dto;
 import com.boogionandon.backend.domain.enums.TrashType;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 public class PickUpResponseDTO {
     private Long id;            // ID

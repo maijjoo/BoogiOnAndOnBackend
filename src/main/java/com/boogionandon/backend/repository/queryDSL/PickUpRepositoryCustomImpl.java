@@ -1,9 +1,6 @@
 package com.boogionandon.backend.repository.queryDSL;
 
-import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.PickUp;
-import com.boogionandon.backend.domain.QBeach;
-import com.boogionandon.backend.domain.QClean;
 import com.boogionandon.backend.domain.QImage;
 import com.boogionandon.backend.domain.QMember;
 import com.boogionandon.backend.domain.QPickUp;

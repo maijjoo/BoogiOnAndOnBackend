@@ -1,14 +1,10 @@
 package com.boogionandon.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.dto.admin.CreateAdminRequestDTO;
 import com.boogionandon.backend.repository.AdminRepository;
-import jakarta.persistence.Column;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

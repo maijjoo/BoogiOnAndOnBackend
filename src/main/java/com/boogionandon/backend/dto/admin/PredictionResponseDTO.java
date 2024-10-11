@@ -1,9 +1,6 @@
 package com.boogionandon.backend.dto.admin;
 
 
-import com.boogionandon.backend.domain.enums.ReportStatus;
-import com.boogionandon.backend.domain.enums.TrashType;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
