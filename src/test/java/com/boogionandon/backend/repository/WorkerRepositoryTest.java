@@ -1,11 +1,8 @@
 package com.boogionandon.backend.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.boogionandon.backend.domain.Worker;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

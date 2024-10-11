@@ -1,24 +1,15 @@
 package com.boogionandon.backend.repository;
 
 import com.boogionandon.backend.domain.Admin;
-import com.boogionandon.backend.domain.Beach;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.service.BeachService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

@@ -12,7 +12,6 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 
 /**
  * JWT 토큰을 생성하고 검증하기 위한 JWT 유틸리티 클래스입니다.

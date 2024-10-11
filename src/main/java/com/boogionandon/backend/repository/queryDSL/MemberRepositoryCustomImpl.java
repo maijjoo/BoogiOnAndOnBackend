@@ -7,7 +7,6 @@ import com.boogionandon.backend.domain.QMember;
 import com.boogionandon.backend.domain.QWorker;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;

@@ -1,21 +1,14 @@
 package com.boogionandon.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.ResearchMain;
-import com.boogionandon.backend.domain.ResearchSub;
 import com.boogionandon.backend.domain.Worker;
-import com.boogionandon.backend.domain.enums.ReportStatus;
-import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
 import com.boogionandon.backend.dto.ResearchMainDetailResponseDTO;
 import com.boogionandon.backend.dto.ResearchMainRequestDTO;
 import com.boogionandon.backend.dto.ResearchSubRequestDTO;
 import com.boogionandon.backend.dto.admin.PredictionResponseDTO;
-import com.boogionandon.backend.dto.admin.TrashMapResponseDTO;
 import com.boogionandon.backend.repository.MemberRepository;
-import jakarta.persistence.Column;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;

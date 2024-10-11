@@ -1,6 +1,5 @@
 package com.boogionandon.backend.dto;
 
-import com.boogionandon.backend.domain.enums.TrashType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

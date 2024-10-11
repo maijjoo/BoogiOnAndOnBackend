@@ -1,7 +1,6 @@
 package com.boogionandon.backend.service;
 
 import com.boogionandon.backend.domain.Clean;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.dto.CleanDetailResponseDTO;
 import com.boogionandon.backend.dto.CleanRequestDTO;
 import com.boogionandon.backend.dto.admin.BasicStatisticsResponseDTO;

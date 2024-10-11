@@ -1,25 +1,25 @@
 package com.boogionandon.backend.repository;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Beach;
-import com.boogionandon.backend.domain.Clean;
 import com.boogionandon.backend.domain.Image;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.TrashType;
 import com.boogionandon.backend.dto.PageRequestDTO;
-import com.boogionandon.backend.service.BeachService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -34,11 +34,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
-
-import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @Log4j2

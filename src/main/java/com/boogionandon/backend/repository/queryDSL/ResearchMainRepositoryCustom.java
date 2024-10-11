@@ -1,8 +1,6 @@
 package com.boogionandon.backend.repository.queryDSL;
 
 import com.boogionandon.backend.domain.ResearchMain;
-import com.boogionandon.backend.domain.enums.ReportStatus;
-import com.boogionandon.backend.dto.PageRequestDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;

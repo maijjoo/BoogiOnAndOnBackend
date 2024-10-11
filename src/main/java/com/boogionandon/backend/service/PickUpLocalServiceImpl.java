@@ -1,9 +1,7 @@
 package com.boogionandon.backend.service;
 
-import com.boogionandon.backend.domain.Admin;
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.domain.PickUp;
-import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.Worker;
 import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.domain.enums.ReportStatus;
@@ -14,6 +12,8 @@ import com.boogionandon.backend.dto.PickUpRequestDTO;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.PickUpRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,9 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Log4j2
 @Service

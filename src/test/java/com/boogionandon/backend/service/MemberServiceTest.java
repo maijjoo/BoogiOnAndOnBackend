@@ -1,7 +1,5 @@
 package com.boogionandon.backend.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.boogionandon.backend.domain.Member;
 import com.boogionandon.backend.dto.AdminUpdateDTO;
 import com.boogionandon.backend.dto.PageRequestDTO;
@@ -34,7 +32,7 @@ class MemberServiceTest {
   @DisplayName("getWorkerProfile 테스트")
   void testGetWorkerProfile() {
 
-    Long workerId = 11L; // initData 에 들어가 있는 Worker
+    Long workerId = 12L; // initData 에 들어가 있는 Worker
 
     WorkerResponseDTO workerProfile = memberService.getWorkerProfile(workerId);
 
@@ -46,7 +44,7 @@ class MemberServiceTest {
   @DisplayName("getAdminProfile 테스트")
   void testGetAdminProfile() {
 
-    Long adminId = 5L; // initData 에 들어가 있는 Worker -> 8L, 9L, 10L, 11L;
+    Long adminId = 6L; // initData 에 들어가 있는 Admin
 
     AdminResponseDTO adminProfile = memberService.getAdminProfile(adminId);
 
@@ -57,7 +55,7 @@ class MemberServiceTest {
   @Test
   @DisplayName("getMemberByRegularAdmin 테스트")
   void testGetMemberByRegularAdmin() {
-    Long adminId = 6L; // initData 에 들어가 있는 Worker -> 8L, 9L, 10L, 11L;
+    Long adminId = 5L; // initData 에 들어가 있는 Admin
 
     String nameSearch = "";
 
@@ -83,7 +81,7 @@ class MemberServiceTest {
 
     String nameSearch = "";
 
-    String tabCondition = "관리자"; // 관리자, 조사/청소, 수거자
+    String tabCondition = "조사/청소"; // 관리자, 조사/청소, 수거자
 
     // pageable 생성
     PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();

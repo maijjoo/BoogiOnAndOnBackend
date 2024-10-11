@@ -1,15 +1,12 @@
 package com.boogionandon.backend.repository.queryDSL;
 
 import com.boogionandon.backend.domain.QBeach;
-import com.boogionandon.backend.domain.QClean;
-import com.boogionandon.backend.domain.QImage;
 import com.boogionandon.backend.domain.QMember;
 import com.boogionandon.backend.domain.QResearchMain;
 import com.boogionandon.backend.domain.QResearchSub;
 import com.boogionandon.backend.domain.QWorker;
 import com.boogionandon.backend.domain.ResearchMain;
 import com.boogionandon.backend.domain.enums.ReportStatus;
-import com.boogionandon.backend.dto.PageRequestDTO;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -24,10 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 
 
