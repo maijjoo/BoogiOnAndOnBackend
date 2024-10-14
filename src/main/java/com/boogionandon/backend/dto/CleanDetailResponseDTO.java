@@ -2,6 +2,7 @@ package com.boogionandon.backend.dto;
 
 import com.boogionandon.backend.domain.enums.ReportStatus;
 import com.boogionandon.backend.domain.enums.TrashType;
+import jakarta.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -33,10 +34,18 @@ public class CleanDetailResponseDTO {
 
   private Double endLongitude;
 
+  private Double beachLength;
+
   private TrashType mainTrashType;
 
   private ReportStatus status;
 
   private List<String> images;
+
+  private List<String> members;
+
+  private String weather;
+
+  private String specialNote;
 
 }

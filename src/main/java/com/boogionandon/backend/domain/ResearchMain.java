@@ -96,6 +96,10 @@ public class ResearchMain extends BaseEntity{
   @Column(length = 20, nullable = false)
   private String specialNote;
 
+  // 팀원들 ,로 구분할 예정 // 만약 조사를 혼자 갈 수 도 있으니 null 가능하게
+  @Column
+  private String members;
+
 
   public void addImage(Image image) {
     image.setOrd(images.size());

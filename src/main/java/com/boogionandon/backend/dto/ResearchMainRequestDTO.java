@@ -68,4 +68,8 @@ public class ResearchMainRequestDTO {
   @Builder.Default
   private List<ResearchSubRequestDTO> researchSubList = new ArrayList<>();
 
+  // 팀원들 ,로 구분할 예정
+  @Builder.Default
+  private List<String> members = new ArrayList<>();
+
 }

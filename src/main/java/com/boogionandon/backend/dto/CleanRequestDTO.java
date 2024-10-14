@@ -1,5 +1,6 @@
 package com.boogionandon.backend.dto;
 
+import jakarta.persistence.Column;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,12 @@ public class CleanRequestDTO {
   // 조회용으로 쓸 파일의 이름만 있는 List (after 이미지의 name)
   @Builder.Default
   private List<String> afterUploadedFileNames = new ArrayList<>();
+
+  // 팀원들 ,로 구분할 예정
+  @Builder.Default
+  private List<String> members = new ArrayList<>();
+
+  private String weather;
+
+  private String specialNote;
 }
