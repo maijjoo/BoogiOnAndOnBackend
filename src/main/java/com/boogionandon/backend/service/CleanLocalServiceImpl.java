@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -165,9 +166,13 @@ public class CleanLocalServiceImpl implements CleanService{
     Clean clean = cleanRepository.findByIdWithImage(cleanId)
         .orElseThrow(() -> new EntityNotFoundException("해당 Clean을 찾을 수 없습니다. : " + cleanId));
 
+    String members = clean.getMembers();
+
+    List<String> memberList = Arrays.stream(members.split(",")).toList();
+
     return CleanDetailResponseDTO.builder()
         .id(clean.getId())
-        .cleanerName(clean.getCleaner().getUsername())
+        .cleanerName(clean.getCleaner().getName())
         .beachName(clean.getBeach().getBeachName())
         .realTrashAmount(clean.getRealTrashAmount())
         .cleanDateTime(clean.getCleanDateTime())
@@ -175,11 +180,15 @@ public class CleanLocalServiceImpl implements CleanService{
         .startLongitude(clean.getStartLongitude())
         .endLatitude(clean.getEndLatitude())
         .endLongitude(clean.getEndLongitude())
+        .beachLength(clean.getBeachLength())
         .mainTrashType(clean.getMainTrashType())
         .status(clean.getStatus())
         .images(clean.getImages().stream().map(image -> {
           return "S_" +image.getFileName();
         }).collect(Collectors.toList()))
+        .members(memberList)
+        .weather(clean.getWeather())
+        .specialNote(clean.getSpecialNote())
         .build();
   }
 
@@ -357,6 +366,8 @@ public class CleanLocalServiceImpl implements CleanService{
     Worker cleaner = findCleaner(cleanRequestDTO.getCleanerUsername());
     Beach beach = findBeach(cleanRequestDTO.getBeachName());
 
+    String members = listToStringMembers(cleanRequestDTO.getMembers());
+
     Double startLatitude = cleanRequestDTO.getStartLatitude();
     Double startLongitude = cleanRequestDTO.getStartLongitude();
     Double endLatitude = cleanRequestDTO.getEndLatitude();
@@ -376,6 +387,9 @@ public class CleanLocalServiceImpl implements CleanService{
         .endLongitude(endLongitude)
         .beachLength(beachLength)
         .mainTrashType(TrashType.valueOf(cleanRequestDTO.getMainTrashType()))
+        .members(members)
+        .weather(cleanRequestDTO.getWeather())
+        .specialNote(cleanRequestDTO.getSpecialNote())
        .build();
 
     // 빌더로 하기에는 까다로운 부분을 추가로 설정
@@ -404,4 +418,19 @@ public class CleanLocalServiceImpl implements CleanService{
         .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + beachName));
   }
   // ------------getTrashDistribution 관련 메서드 끝-------
+
+  private String listToStringMembers(List<String> members) {
+
+    String result = "";
+    if(members != null && !members.isEmpty()) {
+      for (int i=0; i< members.size(); i++) {
+        if ((members.size() -1) == i) {
+          result += members.get(i);
+        } else {
+          result += members.get(i) + ",";
+        }
+      }
+    }
+    return result;
+  }
 }

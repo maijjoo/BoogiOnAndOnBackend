@@ -29,7 +29,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     log.info("checking " + path);
 
-    if(path.startsWith("/api/member/")) {
+    if(path.startsWith("/api/member/") || isMultipartRequest(request)) {
       return true;
     }
 
@@ -42,6 +42,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
     log.info("............................doFilterInternal....................................");
+
+    if (isMultipartRequest(request)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
 
     // Bearer Token 값 전체 : Bearer asdfaswe...
     String authHeaderStr = request.getHeader("Authorization");
@@ -152,5 +157,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
       printWriter.println(msg);
       printWriter.close();
     }
+  }
+
+  private boolean isMultipartRequest(HttpServletRequest request) {
+    String contentType = request.getContentType();
+    return contentType != null && contentType.startsWith("multipart/form-data");
   }
 }

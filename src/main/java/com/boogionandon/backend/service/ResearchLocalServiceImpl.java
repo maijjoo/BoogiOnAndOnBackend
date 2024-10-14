@@ -21,6 +21,7 @@ import com.boogionandon.backend.util.DistanceCalculator;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -143,6 +144,10 @@ public class ResearchLocalServiceImpl implements ResearchService{
 
     List<ResearchSub> findSubList = researchSubRepository.findListByMainId(researchId);
 
+    String members = findMain.getMembers();
+
+    List<String> memberList = Arrays.stream(members.split(",")).toList();
+
     return ResearchMainDetailResponseDTO.builder()
         .id(findMain.getId())
         .researcherName(findMain.getResearcher().getName())
@@ -168,6 +173,7 @@ public class ResearchLocalServiceImpl implements ResearchService{
               .researchLength(sub.getResearchLength())
               .build();
         }).collect(Collectors.toList()))
+        .members(memberList)
         .build();
   }
 
@@ -196,6 +202,9 @@ public class ResearchLocalServiceImpl implements ResearchService{
     Worker researcher = findResearcher(mainDTO.getResearcherUsername());
     Beach beach = findBeach(mainDTO.getBeachName());
 
+    // List로 받은 팀원을 ,로 한번에 넣어 버리기
+    String members = listToStringMembers(mainDTO.getMembers());
+
     // DTO에서 받은 값으로 ResearchMain 생성
     ResearchMain researchMain = ResearchMain.builder()
         .researcher(researcher)
@@ -205,14 +214,16 @@ public class ResearchLocalServiceImpl implements ResearchService{
         .reportTime(LocalDateTime.now())
         .weather(mainDTO.getWeather())
         .specialNote(mainDTO.getSpecialNote())
+        .members(members)
         .build();
 
     // 빌더로 하기에는 까다로운 부분을 추가로 설정
     addSubResearches(researchMain, mainDTO.getResearchSubList());
     addImages(researchMain, mainDTO.getUploadedFileNames());
-
     return researchMain;
   }
+
+
 
   private Worker findResearcher(String researcherName) {
     return (Worker) memberRepository.findByUsernameWithDetails(researcherName)
@@ -253,5 +264,18 @@ public class ResearchLocalServiceImpl implements ResearchService{
     });
     }
   }
+  private String listToStringMembers(List<String> members) {
 
+    String result = "";
+    if(members != null && !members.isEmpty()) {
+      for (int i=0; i< members.size(); i++) {
+        if ((members.size() -1) == i) {
+          result += members.get(i);
+        } else {
+          result += members.get(i) + ",";
+        }
+      }
+    }
+    return result;
+  }
 }
