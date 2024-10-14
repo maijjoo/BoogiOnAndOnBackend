@@ -89,7 +89,9 @@ public class ResearchController {
     log.info("Received files: {}", files.size());
 
     ObjectMapper objectMapper = new ObjectMapper();
+    log.info("--------------------------------");
     ResearchMainRequestDTO mainRequestDTO = objectMapper.readValue(jsonData, ResearchMainRequestDTO.class);
+    log.info("--------------------------------");
 
     log.info("mainDTO : " + mainRequestDTO);
 

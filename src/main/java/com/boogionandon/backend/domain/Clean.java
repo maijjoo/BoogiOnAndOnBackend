@@ -106,6 +106,18 @@ public class Clean extends BaseEntity {
 
   // 여러사람이 들어갈 수 있음
 
+  // 팀원들 ,로 구분할 예정 // 만약 조사를 혼자 갈 수 도 있으니 null 가능하게
+  @Column
+  private String members;
+
+  @Column(length = 20, nullable = false)
+  private String weather;
+
+  @Column(length = 20, nullable = false)
+  private String specialNote;
+
+
+
   public void addImageString(String fileName) {
     Image image = Image.builder()
         .fileName(fileName)

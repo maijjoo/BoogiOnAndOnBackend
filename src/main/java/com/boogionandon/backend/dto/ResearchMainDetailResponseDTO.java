@@ -35,4 +35,6 @@ public class ResearchMainDetailResponseDTO {
   private List<String> images;
 
   private List<ResearchSubDetailResponseDTO> researchSubList;
+
+  private List<String> members;
 }
