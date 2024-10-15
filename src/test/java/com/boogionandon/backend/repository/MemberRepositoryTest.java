@@ -9,6 +9,7 @@ import com.boogionandon.backend.service.BeachService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Assertions;
@@ -273,4 +274,19 @@ class MemberRepositoryTest {
     }
   }
 
+
+  @Test
+  @DisplayName("findByUsernameAndName Test")
+  void testFindByUsernameAndName() {
+    String username = "W_20241015001";
+    String name = "김재원";
+
+    Optional<Member> member = memberRepository.findByUsernameAndName(username, name);
+
+    if (member.isPresent()) {
+      log.info("Member found : " + member);
+    }else {
+      log.info("Member not found");
+    }
+  }
 }
