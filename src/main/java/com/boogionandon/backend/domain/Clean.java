@@ -107,7 +107,7 @@ public class Clean extends BaseEntity {
   // 여러사람이 들어갈 수 있음
 
   // 팀원들 ,로 구분할 예정 // 만약 조사를 혼자 갈 수 도 있으니 null 가능하게
-  @Column
+  @Column(length = 1000)
   private String members;
 
   @Column(length = 20, nullable = false)
