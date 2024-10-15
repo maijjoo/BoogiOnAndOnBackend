@@ -153,14 +153,14 @@ class CleanRepositoryTest {
 
       // 같이 일하는 인원을 추가 시키기 위한 코드
       List<String> memberList = cleaner.stream()
-          .filter(member -> member.getManagerId().equals(randomCleaner.getManagerId()))
+          .filter(member -> member.getManagerId().equals(randomCleaner.getManagerId()) && !member.equals(randomCleaner))
           .map(member -> member.getName() + " " + member.getPhone().substring(member.getPhone().lastIndexOf("-") + 1))
           .collect(Collectors.toList());
 
       String members = "";
 
       if (!memberList.isEmpty()) {
-        int randomTo = random.nextInt(1, memberList.size() + 1);
+        int randomTo = random.nextInt(1, 6);
         List<String> selectedMembers = new ArrayList<>(memberList);
         Collections.shuffle(selectedMembers);
         members = selectedMembers.subList(0, randomTo).stream()
