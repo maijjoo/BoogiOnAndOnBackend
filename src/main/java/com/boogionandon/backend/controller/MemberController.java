@@ -5,6 +5,7 @@ import com.boogionandon.backend.dto.WorkerUpdateDTO;
 import com.boogionandon.backend.dto.member.AdminResponseDTO;
 import com.boogionandon.backend.dto.member.WorkerResponseDTO;
 import com.boogionandon.backend.service.MemberService;
+import com.boogionandon.backend.service.PasswordResetService;
 import com.boogionandon.backend.util.CustomJWTException;
 import com.boogionandon.backend.util.JWTUtil;
 import java.util.Date;
@@ -13,10 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
   private final MemberService memberService;
+  private final PasswordResetService passwordResetService;
 
   // TODO : 정보 수정 만들기
 
@@ -87,8 +91,7 @@ public class MemberController {
     return Map.of("result", "success");
   }
   // ------------ 마이페이지 관련 끝 ------------------------
-
-// -------------- refresh 관련 시작 ------------------
+  // -------------- refresh 관련 시작 ------------------
   // 시간이 1시간 미만으로 남았다면...newRefreshToken을 만들어 주는
   private boolean checkTime(Integer exp) {
 
@@ -116,8 +119,52 @@ public class MemberController {
     }
     return false;
   }
+  // -------------- refresh 관련 시작 ------------------
+  //--------------- 패스워드 변경 관련 시작 -------------
 
+  @PostMapping("/find-user") // 인증번호 요청 버튼을 누를시 와야하는 주소
+  public Map<String, String> isThisSavedMember(@RequestBody Map<String, String> requestBody) {
+    String username = requestBody.get("username");
+    String name = requestBody.get("name");
 
-// -------------- refresh 관련 시작 ------------------
+    try {
+      passwordResetService.sendVerificationCode(username, name);
+      return Map.of("result", "success");
+    } catch (Exception e) {
+      log.error("findUser Error : ", e);
+      return Map.of("result", "아이디 또는 이름이 잘못되었습니다.");
+    }
+  }
+
+  @PostMapping("/verify-code")
+  public Map<String, String> verifyCode(@RequestBody Map<String, String> requestBody) {
+
+    String username = requestBody.get("username");
+    String name = requestBody.get("name");
+    String code = requestBody.get("code");
+
+    boolean isValid = passwordResetService.verifyCode(username, name, code);
+    if (isValid) {
+      return Map.of("result", "success");
+    } else {
+      return Map.of("result", "인증코드가 일치하지 않습니다.");
+    }
+  }
+
+  @PostMapping("/reset")
+  public Map<String, String> resetPassword(@RequestBody Map<String, String> requestBody) {
+    String username = requestBody.get("username");
+    String name = requestBody.get("name");
+    String code = requestBody.get("code");
+    String newPassword = requestBody.get("newPassword");
+
+    if (passwordResetService.verifyCode(username, name, code)) {
+      passwordResetService.resetPassword(username, name, newPassword);
+      return Map.of("result", "success");
+    } else {
+      return Map.of("result", "failure");
+    }
+  }
+  //--------------- 패스워드 변경 관련 끝 -------------
 
 }
