@@ -6,6 +6,8 @@ import com.boogionandon.backend.domain.enums.MemberType;
 import com.boogionandon.backend.dto.admin.CreateWorkerRequestDTO;
 import com.boogionandon.backend.repository.MemberRepository;
 import com.boogionandon.backend.repository.WorkerRepository;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,10 +18,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Log4j2
 @Service
@@ -106,6 +116,51 @@ public class WorkerLocalServiceImpl implements WorkerService{
     workerRepository.save(worker);
   }
 
+  @Override
+  public List<CreateWorkerRequestDTO> exelToDTOList(MultipartFile exel) throws IOException {
+    List<CreateWorkerRequestDTO> workers = new ArrayList<>();
+
+    // Workbook은 POI 디펜던시 안에 있는 것, 내가 만든거 아님
+    try (InputStream is = exel.getInputStream()) {
+      Workbook workbook;
+      if (exel.getOriginalFilename().toLowerCase().endsWith(".xlsx")) {
+        workbook = new XSSFWorkbook(is);
+      } else if (exel.getOriginalFilename().toLowerCase().endsWith(".xls")) {
+        workbook = new HSSFWorkbook(is);
+      } else {
+        throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. .xlsx 또는 .xls 파일만 허용됩니다.");
+      }
+
+      Sheet sheet = workbook.getSheetAt(0); // 0번째 Sheet만 사용
+
+      for (Row row : sheet) {
+        if (row.getRowNum() == 0) { // 헤더 부분은 넘기기
+          continue;
+        }
+
+        try {
+          CreateWorkerRequestDTO worker = CreateWorkerRequestDTO.builder()
+              .name(getCellValueAsString(row.getCell(0)))
+              .phone(getCellValueAsString(row.getCell(1)))
+              .birth(LocalDate.parse(getCellValueAsString(row.getCell(2))))
+              .email(getCellValueAsString(row.getCell(3)))
+              .vehicleCapacity(Double.parseDouble(getCellValueAsString(row.getCell(4))))
+              .address(getCellValueAsString(row.getCell(5)))
+              .addressDetail(getCellValueAsString(row.getCell(6)))
+              .startDate(LocalDate.parse(getCellValueAsString(row.getCell(7))))
+              .endDate(getCellValueAsString(row.getCell(8)).isEmpty() ? null : LocalDate.parse(getCellValueAsString(row.getCell(8))))
+              .build();
+
+          log.info("worker : " + worker);
+          workers.add(worker);
+        } catch (IllegalArgumentException e) {
+          throw new RuntimeException("Row " + (row.getRowNum() + 1) + " 처리 중 오류: " + e.getMessage());
+        }
+      }
+    }
+    return workers;
+  }
+
   private String createRandomUsername() {
     LocalDate now = LocalDate.now();
     String datePart = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -121,5 +176,22 @@ public class WorkerLocalServiceImpl implements WorkerService{
   @Scheduled(cron = "0 0 0 * * ?")
   public void resetDailyCounters() {
     dailyCounters.clear();
+  }
+
+  private String getCellValueAsString(Cell cell) {
+    if (cell == null) {
+      return "";
+    }
+    switch (cell.getCellType()) {
+      case STRING:
+        return cell.getStringCellValue();
+      case NUMERIC:
+        if (DateUtil.isCellDateFormatted(cell)) {
+          return cell.getLocalDateTimeCellValue().toLocalDate().toString();
+        }
+        return String.valueOf(cell.getNumericCellValue());
+      default:
+        return "";
+    }
   }
 }
