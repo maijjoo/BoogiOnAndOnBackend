@@ -97,7 +97,7 @@ public class ResearchMain extends BaseEntity{
   private String specialNote;
 
   // 팀원들 ,로 구분할 예정 // 만약 조사를 혼자 갈 수 도 있으니 null 가능하게
-  @Column
+  @Column(length = 1000)
   private String members;
 
 

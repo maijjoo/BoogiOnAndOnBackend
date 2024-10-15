@@ -1,5 +1,6 @@
 package com.boogionandon.backend.repository;
 
+import static com.boogionandon.backend.domain.QMember.member;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.boogionandon.backend.domain.Admin;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -62,7 +64,7 @@ class ResearchRepositoryTest {
 
   // --------- insert 테스트 시작 ------------
   @Test
-  @DisplayName("research 추가 테스트 - 이미지 x 나중에 리팩토링 필요")
+  @DisplayName("research 추가 테스트 - 같이 일한 팀원 없음, 혼자 했다고 할때")
   @Commit
   void testResearchInsert() {
     Random random = new Random();
@@ -161,6 +163,22 @@ class ResearchRepositoryTest {
           .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
 
 
+      // 같이 일하는 인원을 추가 시키기 위한 코드
+      List<String> memberList = researchers.stream()
+          .filter(member -> member.getManagerId().equals(randomResearcher.getManagerId()))
+          .map(member -> member.getName() + " " + member.getPhone().substring(member.getPhone().lastIndexOf("-") + 1))
+          .collect(Collectors.toList());
+
+      String members = "";
+
+      if (!memberList.isEmpty()) {
+        int randomTo = random.nextInt(1, memberList.size() + 1);
+        List<String> selectedMembers = new ArrayList<>(memberList);
+        Collections.shuffle(selectedMembers);
+        members = selectedMembers.subList(0, randomTo).stream()
+            .collect(Collectors.joining(","));
+      }
+
 
       // 지정된 범위 내에서 임의의 날짜를 생성합니다.
       LocalDate startDate = LocalDate.of(2022, 2, 1);
@@ -204,6 +222,7 @@ class ResearchRepositoryTest {
           .weather(randomWeather)
           .specialNote(randomSpecialNote)
           .totalBeachLength(0.0)
+          .members(members)
           .build();
 
       ResearchMain savedResearchMain = researchMainRepository.save(researchMain);
