@@ -113,5 +113,9 @@ public abstract class Member extends BaseEntity{
   public void updateAddressDetail(String addressDetail) {
     this.addressDetail = addressDetail;
   }
+
+  public void changePassword(String encode) {
+    this.password = encode;
+  }
 }
 
