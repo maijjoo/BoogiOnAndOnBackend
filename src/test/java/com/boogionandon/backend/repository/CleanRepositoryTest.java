@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Random;
@@ -57,7 +58,7 @@ class CleanRepositoryTest {
   }
 
   @Test
-  @DisplayName("clean 추가 테스트")
+  @DisplayName("clean 추가 테스트 - 혼자 일한다고 가정하고 members 안넣음")
   @Commit
   void testCleanInsert() {
 
@@ -101,6 +102,12 @@ class CleanRepositoryTest {
 
     Double beachLength = DistanceCalculator.calculateDistance(startLatitude, startLongitude, endLatitude, endLongitude);
 
+    String[] weatherOptions = {"맑음", "흐림", "비", "눈", "안개"};
+    String randomWeather = weatherOptions[random.nextInt(weatherOptions.length)];
+
+    String[] specialNotes = {"없음", "태풍", "홍수", "집중호우", "폭풍 해일"};
+    String randomSpecialNote = specialNotes[random.nextInt(specialNotes.length)];
+
     Clean clean = Clean.builder()
         .cleaner(findCleaner)
         .beach(randomBeach)
@@ -113,6 +120,8 @@ class CleanRepositoryTest {
         .beachLength(beachLength)
         .mainTrashType(TrashType.valueOf("폐어구류"))
         .images(images)
+        .weather(randomWeather)
+        .specialNote(randomSpecialNote)
         .build();
 
     log.info("clean : " + clean.toString());
@@ -141,6 +150,22 @@ class CleanRepositoryTest {
 
       Beach randomBeach = beachRepository.findById(assignmentAreaList.get(random.nextInt(assignmentAreaList.size())))
           .orElseThrow(() -> new NoSuchElementException("해당 해안을 찾을 수 없습니다. : " + assignmentAreaList.get(random.nextInt(assignmentAreaList.size()))));
+
+      // 같이 일하는 인원을 추가 시키기 위한 코드
+      List<String> memberList = cleaner.stream()
+          .filter(member -> member.getManagerId().equals(randomCleaner.getManagerId()))
+          .map(member -> member.getName() + " " + member.getPhone().substring(member.getPhone().lastIndexOf("-") + 1))
+          .collect(Collectors.toList());
+
+      String members = "";
+
+      if (!memberList.isEmpty()) {
+        int randomTo = random.nextInt(1, memberList.size() + 1);
+        List<String> selectedMembers = new ArrayList<>(memberList);
+        Collections.shuffle(selectedMembers);
+        members = selectedMembers.subList(0, randomTo).stream()
+            .collect(Collectors.joining(","));
+      }
 
 
       // 지정된 범위 내에서 임의의 날짜를 생성합니다.
@@ -186,6 +211,12 @@ class CleanRepositoryTest {
       double beachLength = DistanceCalculator.calculateDistance(
           startLat, startLon, endLat, endLon);
 
+      String[] weatherOptions = {"맑음", "흐림", "비", "눈", "안개"};
+      String randomWeather = weatherOptions[random.nextInt(weatherOptions.length)];
+
+      String[] specialNotes = {"없음", "태풍", "홍수", "집중호우", "폭풍 해일"};
+      String randomSpecialNote = specialNotes[random.nextInt(specialNotes.length)];
+
 
       Clean clean = Clean.builder()
           .cleaner(randomCleaner)
@@ -199,6 +230,9 @@ class CleanRepositoryTest {
           .beachLength(beachLength)
           .images(images)
           .mainTrashType(TrashType.values()[random.nextInt(TrashType.values().length)])
+          .weather(randomWeather)
+          .specialNote(randomSpecialNote)
+          .members(members)
           .build();
 
       log.info("clean : " + clean.toString());
