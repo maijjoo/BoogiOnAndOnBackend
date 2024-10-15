@@ -35,6 +35,7 @@ import com.boogionandon.backend.service.ResearchLocalServiceImpl;
 import com.boogionandon.backend.service.ResearchService;
 import com.boogionandon.backend.service.WorkerService;
 import com.boogionandon.backend.util.CustomFileUtil;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -59,6 +60,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -460,6 +462,31 @@ public class AdminController {
     return Map.of("result", "success");
   }
 
+  // 엑셀로 보낼때 컬럼의 순서가 아래와 같아야 합니다.
+  // 이름, 전화번호, 생년월일, 이메일, 차량 용량, 주소, 상세 주소, 시작일, 종료일
+  @PostMapping("/create/worker/bulk/{adminId}") // adminId는 로그인한 regular admin의 id
+  public Map<String, String> createWorkerBulk(
+      @PathVariable("adminId") Long adminId,
+      @RequestParam("exel") MultipartFile exel) {
+
+    // 파일 형식 검증
+    String filename = exel.getOriginalFilename();
+    if (filename == null || !(filename.toLowerCase().endsWith(".xlsx") || filename.toLowerCase().endsWith(".xls"))) {
+      return Map.of("error", "지원되지 않는 파일 형식입니다. .xlsx 또는 .xls 파일만 허용됩니다.");
+    }
+
+    try {
+      List<CreateWorkerRequestDTO> workers = workerService.exelToDTOList(exel);
+      for (CreateWorkerRequestDTO worker : workers) {
+        workerService.createOneWorker(adminId, worker);
+      }
+      return Map.of("result", "success");
+    } catch (IOException e) {
+      return Map.of("error", "엑셀 파일 처리 중 오류가 발생했습니다: " + e.getMessage());
+    } catch (Exception e) {
+      return Map.of("error", "관리자 등록 중 오류가 발생했습니다: " + e.getMessage());
+    }
+  }
   // create admin을 할때 소속을 하기위한 드랍다운
   @GetMapping("/create/admin/{adminId}")
   public Map<String, Object> createAdminPage(@PathVariable("adminId") Long adminId) {
@@ -477,6 +504,32 @@ public class AdminController {
     adminService.createOneAdmin(adminId, createAdminRequestDTO);
 
     return Map.of("result", "success");
+  }
+
+  // 엑셀로 보낼때 컬럼의 순서가 아래와 같아야 합니다.
+  // 이름, 전화번호, 이메일, 구청 주소, 구청 상세 주소, 일하는 지역(시), 구군, 부서, 직급, 구청 연락처
+  @PostMapping("/create/admin/bulk/{adminId}") //adminId는 로그인한 super admin의 id
+  public Map<String, String> createAdminBulk(
+      @PathVariable("adminId") Long adminId,
+      @RequestParam("exel") MultipartFile exel) {
+
+    // 파일 형식 검증
+    String filename = exel.getOriginalFilename();
+    if (filename == null || !(filename.toLowerCase().endsWith(".xlsx") || filename.toLowerCase().endsWith(".xls"))) {
+      return Map.of("error", "지원되지 않는 파일 형식입니다. .xlsx 또는 .xls 파일만 허용됩니다.");
+    }
+
+    try {
+      List<CreateAdminRequestDTO> admins = adminService.exelToDTOList(exel);
+      for (CreateAdminRequestDTO admin : admins) {
+        adminService.createOneAdmin(adminId, admin);
+      }
+      return Map.of("result", "success");
+    } catch (IOException e) {
+      return Map.of("error", "엑셀 파일 처리 중 오류가 발생했습니다: " + e.getMessage());
+    } catch (Exception e) {
+      return Map.of("error", "관리자 등록 중 오류가 발생했습니다: " + e.getMessage());
+    }
   }
 
   // ------------ 멤버 추가 관련 끝 ------------------------

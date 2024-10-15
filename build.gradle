@@ -76,8 +76,13 @@ dependencies {
 	// https://mvnrepository.com/artifact/p6spy/p6spy
 	implementation 'p6spy:p6spy:3.9.1'
 
-	// Jackson 모듈 추가
+	// Jackson 모듈 추가 -> Gson이 날짜 관련 처리를 하기 어려워서 바꿈
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2'
+
+	// Excel을 처리하기 위한 디펜던시
+    // https://mvnrepository.com/artifact/org.apache.poi/poi
+	implementation 'org.apache.poi:poi:5.2.3'
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 
 }
 
